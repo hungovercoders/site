@@ -1,0 +1,25 @@
+<div id="search" style="--pagefind-ui-scale: 0.6"></div>
+<script is:inline>
+  window.addEventListener('DOMContentLoaded', async () => {
+    await import('/pagefind/pagefind-ui.js');
+    new PagefindUI({ element: '#search', showSubResults: true });
+  });
+</script>
+<style is:global>
+  #search {
+    width: 220px;
+    position: relative;
+  }
+  #search .pagefind-ui__drawer {
+    position: absolute !important;
+    top: 100%;
+    right: 0;
+    z-index: 100;
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    width: 400px;
+    max-width: 90vw;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+</style>
