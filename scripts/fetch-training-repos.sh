@@ -1,16 +1,25 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-mkdir -p training-repos
-cd training-repos
+TARGET_DIR="training-repos"
 
 REPOS=(
   "learn.bento"
-  # "learn.<next>"
 )
 
+mkdir -p "$TARGET_DIR"
+
 for repo in "${REPOS[@]}"; do
-  if [ ! -d "$repo" ]; then
-    git clone --depth 1 "https://github.com/hungovercoders/$repo.git" "$repo"
+  if [ -d "$TARGET_DIR/$repo" ]; then
+    echo "Updating $repo..."
+    cd "$TARGET_DIR/$repo"
+    git fetch --depth 1 origin main
+    git reset --hard origin/main
+    cd - > /dev/null
+  else
+    echo "Cloning $repo..."
+    git clone --depth 1 "https://github.com/hungovercoders/$repo.git" "$TARGET_DIR/$repo"
   fi
 done
+
+echo "✓ All training repos fetched"
