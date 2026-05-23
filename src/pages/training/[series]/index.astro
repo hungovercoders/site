@@ -22,7 +22,7 @@ interface Props {
 }
 
 function lessonSlug(entry: CollectionEntry<'training'>) {
-	return entry.id.split('/').pop()!.replace(/\.md$/, '');
+	return entry.id.split('/').at(-2)!;
 }
 
 const { series } = Astro.params;
