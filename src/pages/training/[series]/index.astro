@@ -1,0 +1,101 @@
+---
+import { type CollectionEntry, getCollection } from 'astro:content';
+import BaseHead from '../../../components/BaseHead.astro';
+import Footer from '../../../components/Footer.astro';
+import Header from '../../../components/Header.astro';
+
+export async function getStaticPaths() {
+	const allLessons = await getCollection('training');
+	const seriesSet = [...new Set(allLessons.map((l) => l.data.series))];
+	return seriesSet.map((s) => ({
+		params: { series: s },
+		props: {
+			lessons: allLessons
+				.filter((l) => l.data.series === s)
+				.sort((a, b) => a.data.order - b.data.order),
+		},
+	}));
+}
+
+interface Props {
+	lessons: CollectionEntry<'training'>[];
+}
+
+function lessonSlug(entry: CollectionEntry<'training'>) {
+	return entry.id.split('/').pop()!.replace(/\.md$/, '');
+}
+
+const { series } = Astro.params;
+const { lessons } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead
+			title={`${series} — Training`}
+			description={`${lessons.length} lessons in the ${series} series.`}
+		/>
+		<style>
+			main {
+				max-width: 720px;
+				margin: 2rem auto;
+				padding: 0 1rem;
+			}
+			h1 {
+				text-transform: capitalize;
+			}
+			ol {
+				padding: 0;
+				margin: 2rem 0;
+				list-style: none;
+				display: flex;
+				flex-direction: column;
+				gap: 1rem;
+			}
+			ol li a {
+				display: block;
+				padding: 1rem 1.25rem;
+				border: 1px solid rgb(var(--gray-light));
+				border-radius: 8px;
+				text-decoration: none;
+				transition: 0.2s ease;
+			}
+			ol li a:hover {
+				border-color: rgb(var(--accent));
+				box-shadow: var(--box-shadow);
+			}
+			.lesson-title {
+				margin: 0 0 0.25rem;
+				color: rgb(var(--black));
+				font-size: 1.1rem;
+			}
+			.lesson-desc {
+				margin: 0;
+				color: rgb(var(--gray));
+				font-size: 0.9rem;
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<h1>{series}</h1>
+			<ol>
+				{
+					lessons.map((lesson) => (
+						<li>
+							<a href={`/training/${lesson.data.series}/${lessonSlug(lesson)}/`}>
+								<h2 class="lesson-title">
+									{lesson.data.order}. {lesson.data.title}
+								</h2>
+								<p class="lesson-desc">{lesson.data.description}</p>
+							</a>
+						</li>
+					))
+				}
+			</ol>
+		</main>
+		<Footer />
+	</body>
+</html>

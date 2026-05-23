@@ -1,0 +1,33 @@
+---
+import { type CollectionEntry, getCollection, render } from 'astro:content';
+import TrainingLesson from '../../../layouts/TrainingLesson.astro';
+
+export async function getStaticPaths() {
+	const allLessons = await getCollection('training');
+	return allLessons.map((lesson) => {
+		const seriesLessons = allLessons
+			.filter((l) => l.data.series === lesson.data.series)
+			.sort((a, b) => a.data.order - b.data.order);
+		return {
+			params: {
+				series: lesson.data.series,
+				lesson: lesson.id.split('/').pop()!.replace(/\.md$/, ''),
+			},
+			props: { lesson, seriesLessons },
+		};
+	});
+}
+
+interface Props {
+	lesson: CollectionEntry<'training'>;
+	seriesLessons: CollectionEntry<'training'>[];
+}
+
+const { lesson, seriesLessons } = Astro.props;
+const currentSlug = Astro.params.lesson;
+const { Content } = await render(lesson);
+---
+
+<TrainingLesson {...lesson.data} seriesLessons={seriesLessons} currentSlug={currentSlug}>
+	<Content />
+</TrainingLesson>

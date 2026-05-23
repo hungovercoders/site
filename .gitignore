@@ -22,3 +22,6 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# training repos — shallow-cloned at build time by scripts/fetch-training-repos.sh
+training-repos/

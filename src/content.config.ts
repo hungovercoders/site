@@ -12,4 +12,18 @@ const blog = defineCollection({
 	}),
 });
 
-export const collections = { blog };
+const training = defineCollection({
+	loader: glob({
+		pattern: '**/content/*.md',
+		base: './training-repos',
+	}),
+	schema: z.object({
+		title: z.string(),
+		series: z.string(),
+		order: z.number(),
+		description: z.string(),
+		canonical_url: z.string().url(),
+	}),
+});
+
+export const collections = { blog, training };

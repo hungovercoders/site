@@ -1,0 +1,168 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+
+interface Props {
+	title: string;
+	description: string;
+	series: string;
+	order: number;
+	seriesLessons: CollectionEntry<'training'>[];
+	currentSlug: string;
+}
+
+const { title, description, series, seriesLessons, currentSlug } = Astro.props;
+
+function lessonSlug(entry: CollectionEntry<'training'>) {
+	return entry.id.split('/').pop()!.replace(/\.md$/, '');
+}
+
+const currentIndex = seriesLessons.findIndex((l) => lessonSlug(l) === currentSlug);
+const prev = currentIndex > 0 ? seriesLessons[currentIndex - 1] : null;
+const next = currentIndex < seriesLessons.length - 1 ? seriesLessons[currentIndex + 1] : null;
+---
+
+<html lang="en">
+	<head>
+		<BaseHead title={title} description={description} />
+		<style>
+			.layout {
+				display: flex;
+				gap: 2rem;
+				max-width: 1100px;
+				margin: 2rem auto;
+				padding: 0 1rem;
+				align-items: flex-start;
+			}
+			.sidebar {
+				flex: 0 0 220px;
+				position: sticky;
+				top: 1rem;
+			}
+			.sidebar h3 {
+				text-transform: capitalize;
+				margin: 0 0 0.75rem;
+				font-size: 0.85rem;
+				letter-spacing: 0.05em;
+				color: rgb(var(--gray));
+			}
+			.sidebar ol {
+				list-style: none;
+				margin: 0;
+				padding: 0;
+				display: flex;
+				flex-direction: column;
+				gap: 0.25rem;
+			}
+			.sidebar ol li a {
+				display: block;
+				padding: 0.35rem 0.5rem;
+				border-radius: 4px;
+				text-decoration: none;
+				font-size: 0.9rem;
+				color: rgb(var(--gray-dark));
+				line-height: 1.3;
+			}
+			.sidebar ol li a:hover {
+				color: rgb(var(--accent));
+			}
+			.sidebar ol li a.active {
+				background: rgb(var(--accent));
+				color: white;
+				font-weight: 600;
+			}
+			.prose {
+				flex: 1;
+				min-width: 0;
+				max-width: 720px;
+			}
+			.prose h1 {
+				margin: 0 0 0.5rem;
+			}
+			.prose :global(pre) {
+				overflow-x: auto;
+				max-width: 100%;
+				font-size: 0.85em;
+			}
+			.lesson-nav {
+				display: flex;
+				justify-content: space-between;
+				margin-top: 3rem;
+				padding-top: 1.5rem;
+				border-top: 1px solid rgb(var(--gray-light));
+				gap: 1rem;
+			}
+			.lesson-nav a {
+				padding: 0.5rem 1rem;
+				border: 1px solid rgb(var(--gray-light));
+				border-radius: 6px;
+				text-decoration: none;
+				color: rgb(var(--gray-dark));
+				font-size: 0.9rem;
+			}
+			.lesson-nav a:hover {
+				border-color: rgb(var(--accent));
+				color: rgb(var(--accent));
+			}
+			.lesson-nav .next {
+				margin-left: auto;
+			}
+			@media (max-width: 720px) {
+				.layout {
+					flex-direction: column;
+				}
+				.sidebar {
+					position: static;
+					flex: none;
+					width: 100%;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<div class="layout">
+			<nav class="sidebar">
+				<h3>{series} lessons</h3>
+				<ol>
+					{
+						seriesLessons.map((l) => (
+							<li>
+								<a
+									href={`/training/${l.data.series}/${lessonSlug(l)}/`}
+									class={lessonSlug(l) === currentSlug ? 'active' : ''}
+								>
+									{l.data.order}. {l.data.title}
+								</a>
+							</li>
+						))
+					}
+				</ol>
+			</nav>
+			<article class="prose">
+				<h1>{title}</h1>
+				<hr />
+				<slot />
+				<nav class="lesson-nav">
+					{
+						prev && (
+							<a href={`/training/${prev.data.series}/${lessonSlug(prev)}/`} class="prev">
+								← {prev.data.title}
+							</a>
+						)
+					}
+					{
+						next && (
+							<a href={`/training/${next.data.series}/${lessonSlug(next)}/`} class="next">
+								{next.data.title} →
+							</a>
+						)
+					}
+				</nav>
+			</article>
+		</div>
+		<Footer />
+	</body>
+</html>

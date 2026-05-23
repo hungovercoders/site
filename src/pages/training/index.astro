@@ -1,0 +1,91 @@
+---
+import { getCollection } from 'astro:content';
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import Header from '../../components/Header.astro';
+
+const allLessons = await getCollection('training');
+const seriesMap = new Map<string, typeof allLessons>();
+for (const lesson of allLessons) {
+	const s = lesson.data.series;
+	if (!seriesMap.has(s)) seriesMap.set(s, []);
+	seriesMap.get(s)!.push(lesson);
+}
+const series = [...seriesMap.entries()].map(([name, lessons]) => ({
+	name,
+	count: lessons.length,
+}));
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title="Training" description="Hands-on tutorial series." />
+		<style>
+			main {
+				width: 960px;
+			}
+			h1 {
+				margin-bottom: 2rem;
+			}
+			ul {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 2rem;
+				list-style-type: none;
+				margin: 0;
+				padding: 0;
+			}
+			ul li {
+				width: calc(50% - 1rem);
+			}
+			ul li a {
+				display: block;
+				text-decoration: none;
+				padding: 1.5rem;
+				border: 1px solid rgb(var(--gray-light));
+				border-radius: 12px;
+				transition: 0.2s ease;
+			}
+			ul li a:hover {
+				border-color: rgb(var(--accent));
+				box-shadow: var(--box-shadow);
+			}
+			.series-name {
+				margin: 0 0 0.25rem;
+				text-transform: capitalize;
+				color: rgb(var(--black));
+				font-size: 1.25rem;
+			}
+			.lesson-count {
+				margin: 0;
+				color: rgb(var(--gray));
+				font-size: 0.9rem;
+			}
+			@media (max-width: 720px) {
+				ul li {
+					width: 100%;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<h1>Training</h1>
+			<ul>
+				{
+					series.map(({ name, count }) => (
+						<li>
+							<a href={`/training/${name}/`}>
+								<h2 class="series-name">{name}</h2>
+								<p class="lesson-count">{count} lessons</p>
+							</a>
+						</li>
+					))
+				}
+			</ul>
+		</main>
+		<Footer />
+	</body>
+</html>
