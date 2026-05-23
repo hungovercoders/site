@@ -16,7 +16,7 @@ interface Props {
 const { title, description, series, seriesLessons, currentSlug } = Astro.props;
 
 function lessonSlug(entry: CollectionEntry<'training'>) {
-	return entry.id.split('/').pop()!.replace(/\.md$/, '');
+	return entry.id.split('/').at(-2)!;
 }
 
 const currentIndex = seriesLessons.findIndex((l) => lessonSlug(l) === currentSlug);

@@ -11,7 +11,7 @@ export async function getStaticPaths() {
 		return {
 			params: {
 				series: lesson.data.series,
-				lesson: lesson.id.split('/').pop()!.replace(/\.md$/, ''),
+				lesson: lesson.id.split('/').at(-2)!,
 			},
 			props: { lesson, seriesLessons },
 		};
