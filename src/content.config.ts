@@ -14,7 +14,7 @@ const blog = defineCollection({
 
 const training = defineCollection({
 	loader: glob({
-		pattern: '**/content/*.md',
+		pattern: '**/docs/*.md',
 		base: './training-repos',
 	}),
 	schema: z.object({
