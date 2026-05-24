@@ -5,6 +5,7 @@ TARGET_DIR="training-repos"
 
 REPOS=(
   "learn.bento"
+  "learn.claude-code"
 )
 
 mkdir -p "$TARGET_DIR"
