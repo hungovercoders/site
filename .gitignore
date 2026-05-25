@@ -25,3 +25,9 @@ pnpm-debug.log*
 
 # training repos — shallow-cloned at build time by scripts/fetch-training-repos.sh
 training-repos/
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example
