@@ -6,7 +6,7 @@ description: "A short tour of Claude Code's eleven moving parts plus a twenty-mi
 tags: [claude-code, ai, hungovercoders]
 ---
 
-I've been meaning to write up Claude Code properly for a while now. Six months of daily use, three personal kits, an 11-lesson tutorial shipped off the back of it — and yet no single post that says *"here's what's in the box and here's one small thing you can build today"*. So that's this post. The tour of what Claude Code ships first, then a twenty-minute kit that picks a film for the evening — partly because *The Mandalorian and Grogu* at the cinema yesterday left me with a film-shaped problem on the brain, and partly because the kit shape generalises to anything you do more than twice a week. The thing I want to land is the *composition*: Claude Code is the kit, not any one feature, and most posts demo a single feature in isolation and call it a tutorial.
+I've been meaning to write up Claude Code properly for a while now. A few months in — daily use, a small kit or two built, an 11-lesson tutorial shipped off the back of it — and yet no single post that says *"here's what's in the box and here's one small thing you can build today"*. So that's this post. The tour of what Claude Code ships first, then a twenty-minute kit that picks a film for the evening — partly because *The Mandalorian and Grogu* at the cinema yesterday left me with a film-shaped problem on the brain, and partly because the kit shape generalises to anything you do more than twice a week. The thing I want to land is the *composition*: Claude Code is the kit, not any one feature, and most posts demo a single feature in isolation and call it a tutorial.
 
 ## Pre-Requisites
 
@@ -276,17 +276,17 @@ Everything you need, in one place. Drop these in, fire `/add-film`, watch the th
 
 All five blocks are in this post above. Twenty lines of bash, one JSON file, three markdown files, one settings entry. Twenty minutes from `curl install` to working kit.
 
-## Would I Actually Use Claude Code?
+## How I Actually Use Claude Code
 
-Yes — specifically for the bit the chat window can't do.
+A few months in I'd call myself a happy beginner. Using it daily, a handful of kits built, still finding my way through the simple-but-powerful patterns the lesson series tries to lay out. A full "would I put this in production" verdict feels premature from where I'm standing; what I can do honestly is say *how* I'm using it today and what's earning its keep so far.
 
 For a one-line code question (*"how do I write a Python list comprehension"*), the browser chat window is still faster. Open, ask, paste back. No install, no permissions dance, no terminal.
 
 For *anything inside a real codebase*, Claude Code wins on the only thing that matters: it can see what I see. The agent can `Read`, `Grep`, `Bash`, edit files, run my tests, read the diff. The chat window can't do any of that without copy-paste, and the copy-paste tax adds up fast. By the third paste I've lost the thread.
 
-For *custom workflows* — the kit pattern (`CLAUDE.md` + skill + hook) — Claude Code is in a class of its own. The film picker is a daft demo, but the same shape covers the work I do every week: release notes, code reviews, deploy gates. Each kit is a few markdown files and ten lines of shell. The interface change — from "type a long prompt" to "type one slash invocation" — is the real product.
+For *custom workflows* — the kit pattern (`CLAUDE.md` + skill + hook) — this is the bit I'm most enthusiastic about and probably still under-using. The film picker is a daft demo, but the same shape covers the work I do every week: release notes, code reviews, deploy gates. Each kit is a few markdown files and ten lines of shell. The interface change — from "type a long prompt" to "type one slash invocation" — is the real product, and I'm only a few kits in to seeing where it goes.
 
-The worldview fit is strong. Claude Code is *source-controllable* (every kit is a few text files), *portable* (one curl install), *small* (a single binary, no dependency tree), and *local* (your config lives in your home directory and goes with you). Small, cheap, yours — the hungovercoders worldview without a sales pitch. Currently the only AI tool I've found that earns its keep on a real codebase without asking me to live on someone else's platform.
+The worldview fit is strong. Claude Code is *source-controllable* (every kit is a few text files), *portable* (one curl install), *small* (a single binary, no dependency tree), and *local* (your config lives in your home directory and goes with you). Small, cheap, yours — the hungovercoders worldview without a sales pitch. So far the only AI tool I've found that earns its keep on a real codebase without asking me to live on someone else's platform.
 
 ## Watch This Space, Fellow Hungovercoder
 
