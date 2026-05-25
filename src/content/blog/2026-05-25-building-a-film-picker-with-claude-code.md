@@ -202,7 +202,11 @@ exit 0
 chmod +x ~/.claude/hooks/validate-json.sh
 ```
 
-Wire it into `~/.claude/settings.json`:
+Hooks have the same user-vs-project split skills do. A `hooks` block in `~/.claude/settings.json` (user level) fires in *every* Claude Code session on this machine. The same block in `.claude/settings.json` (project level) only fires inside that project directory. The criterion is the same as for skills: is the rule general, or kit-specific?
+
+JSON validation is general. Any project with a `.json` file benefits from the agent catching its own breakage on every write. So this one goes at user level — wire it once, and it covers `films.json` here, `package.json` next door, the JSON config in next month's project. The `case "$file"` switch in the script already makes it a no-op for non-JSON files, so there's no cost when working in a directory that has none. Contrast that with `/add-film` from the previous section, which would do nothing useful outside `~/dev/pick-film/` — that's why the skill is project-scoped and the hook isn't. Each piece picked the home that matches its specificity.
+
+Now wire it into `~/.claude/settings.json`:
 
 ```json
 {
