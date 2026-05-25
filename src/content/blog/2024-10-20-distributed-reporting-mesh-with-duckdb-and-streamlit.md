@@ -7,6 +7,8 @@ tags:
 - Duckdb
 - Streamlit
 - Azure
+image:
+  path: /assets/2024-10-20-distributed-reporting-mesh-with-duckdb-and-streamlit/link.png
 ---
 
 

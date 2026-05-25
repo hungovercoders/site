@@ -6,6 +6,8 @@ description: Turbo charging your conventional git commit workflow in VS Code
 tags:
 - Git
 - VSCode
+image:
+  path: /assets/2024-08-13-git-conventional-vs-code-workflow/link.png
 ---
 
 

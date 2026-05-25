@@ -6,6 +6,8 @@ description: Exporting Azure Resources into Terraform with aztfexport
 tags:
 - Azure
 - Terraform
+image:
+  path: /assets/2024-01-07-azure-terraform-export/link.png
 ---
 
 

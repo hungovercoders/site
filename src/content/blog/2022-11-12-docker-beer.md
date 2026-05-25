@@ -7,6 +7,8 @@ tags:
 - azure
 - docker
 - api
+image:
+  path: /assets/2022-11-12-docker-beer/link.png
 ---
 
 

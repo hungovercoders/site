@@ -7,6 +7,8 @@ tags:
 - python
 - fastapi
 - pydantic
+image:
+  path: /assets/2022-11-27-fastapi-gen/link.png
 ---
 
 

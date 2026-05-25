@@ -7,6 +7,8 @@ tags:
 - Git
 - VSCode
 - Trunk.io
+image:
+  path: /assets/2024-08-15-protecting-code-quality-with-trunk.io/link.png
 ---
 
 

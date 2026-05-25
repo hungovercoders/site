@@ -7,6 +7,8 @@ tags:
 - Azure
 - API
 - .Net
+image:
+  path: /assets/2023-08-07-net-core-api-distilleries/link.png
 ---
 
 

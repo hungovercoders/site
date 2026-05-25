@@ -6,6 +6,8 @@ description: This is how you can use environment variables in a docker applicati
 tags:
 - docker
 - azure
+image:
+  path: /assets/2023-01-02-docker-environment-variables/link.png
 ---
 
 

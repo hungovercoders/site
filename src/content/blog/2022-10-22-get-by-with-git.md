@@ -6,6 +6,8 @@ description: Covering how to use git and a cheatsheet of the most regularly used
 tags:
 - git
 - github
+image:
+  path: /assets/2022-10-22-get-by-with-git/link.png
 ---
 
 

@@ -6,6 +6,8 @@ description: This is a guide of how I passed the databricks analyst associate ex
 tags:
 - databricks
 - certification
+image:
+  path: /assets/2023-08-23-pass-databricks-analyst/link.png
 ---
 
 

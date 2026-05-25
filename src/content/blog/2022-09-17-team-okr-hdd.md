@@ -6,6 +6,8 @@ description: Why a team first approach couple with an objective and key results 
 tags:
 - okr
 - team
+image:
+  path: /assets/2022-09-17-team-ork-hdd/link.png
 ---
 
 

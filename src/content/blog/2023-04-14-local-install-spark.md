@@ -8,6 +8,8 @@ tags:
 - python
 - pyspark
 - windows
+image:
+  path: /assets/2023-04-14-local-install-spark/link.png
 ---
 
 

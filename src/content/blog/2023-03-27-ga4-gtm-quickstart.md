@@ -6,6 +6,8 @@ description: This is how you can quickly setup a google analytics 4 property usi
 tags:
 - google-tag-manager
 - google-analytics
+image:
+  path: /assets/2023-03-31-ga4-gtm-quickstart/link.png
 ---
 
 

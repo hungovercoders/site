@@ -5,6 +5,8 @@ author: dataGriff
 description: Create a simple CRUD form application using react
 tags:
 - react
+image:
+  path: /assets/2022-12-21-react-basic/link.png
 ---
 
 

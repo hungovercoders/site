@@ -8,6 +8,8 @@ tags:
 - ChatGpt
 - EventCatalog
 - Architecture
+image:
+  path: /assets/2023-09-30-ai-architecture-pt1/link.png
 ---
 
 

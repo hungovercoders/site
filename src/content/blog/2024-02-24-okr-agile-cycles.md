@@ -6,6 +6,8 @@ description: Integrating OKR Cycles into the Agile Framework
 tags:
 - OKR
 - Agile
+image:
+  path: /assets/2024-02-24-okr-agile-cycles/link.png
 ---
 
 

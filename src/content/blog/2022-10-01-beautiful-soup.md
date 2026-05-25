@@ -7,6 +7,8 @@ tags:
 - python
 - beautiful-soup
 - web-scraping
+image:
+  path: /assets/2022-10-01-beautiful-soup/link.png
 ---
 
 

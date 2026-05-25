@@ -6,6 +6,8 @@ description: This is a guide of how I passed the databricks spark exam along wit
 tags:
 - spark
 - certification
+image:
+  path: /assets/2023-05-14-pass-spark-exam/link.png
 ---
 
 

@@ -6,6 +6,8 @@ description: Deploy docusaurus on Azure Static Web Apps
 tags:
 - Azure
 - Docusuaurus
+image:
+  path: /assets/2024-12-02-deploy-docusaurus-on-azure-static-web-apps/link.png
 ---
 
 

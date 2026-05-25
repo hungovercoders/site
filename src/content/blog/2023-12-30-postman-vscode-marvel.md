@@ -7,6 +7,8 @@ tags:
 - Postman
 - VSCode
 - API
+image:
+  path: /assets/2023-12-30-postman-vscode-marvel/link.png
 ---
 
 

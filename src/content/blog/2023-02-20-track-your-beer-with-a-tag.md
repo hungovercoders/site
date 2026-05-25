@@ -5,6 +5,8 @@ author: dataGriff
 description: This is how you can setup basic tagging with google tag manager so you can track traffic leaving your website with a unique identifier that gets generated on links
 tags:
 - google-tag-manager
+image:
+  path: /assets/2023-02-21-track-your-beer-with-a-tag/link.png
 ---
 
 

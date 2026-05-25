@@ -7,6 +7,8 @@ tags:
 - Azure
 - Event
 - Catalog
+image:
+  path: /assets/2024-12-13-deploy-event-catalog-on-azure-static-web-apps/link.png
 ---
 
 

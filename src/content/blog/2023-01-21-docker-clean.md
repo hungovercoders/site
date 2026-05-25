@@ -5,6 +5,8 @@ author: dataGriff
 description: This is how you remove your unused docker containers locally to save a lot of disk space
 tags:
 - docker
+image:
+  path: /assets/2023-01-21-docker-clean/link.png
 ---
 
 

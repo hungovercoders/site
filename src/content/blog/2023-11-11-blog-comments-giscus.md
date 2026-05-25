@@ -8,6 +8,8 @@ tags:
 - Github
 - Giscus
 - Jekyll
+image:
+  path: /assets/2023-11-11-blog-comments-giscus/link.png
 ---
 
 

@@ -9,6 +9,8 @@ tags:
 - Azure
 - Containers
 - Terraform
+image:
+  path: /assets/2024-04-27-container-react-runtime-variables/link.png
 ---
 
 

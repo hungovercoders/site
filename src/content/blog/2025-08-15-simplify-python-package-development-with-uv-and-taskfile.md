@@ -7,6 +7,8 @@ tags:
 - Python
 - UV
 - Taskfile
+image:
+  path: /assets/2025-08-15-simplify-python-package-development-with-uv-and-taskfile/link.png
 ---
 
 

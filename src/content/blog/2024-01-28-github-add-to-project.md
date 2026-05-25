@@ -5,6 +5,8 @@ author: dataGriff
 description: Automating Adding Issues to Github Projects
 tags:
 - Github
+image:
+  path: /assets/2024-01-28-github-add-to-project/link.png
 ---
 
 

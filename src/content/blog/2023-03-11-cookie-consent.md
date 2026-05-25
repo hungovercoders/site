@@ -5,6 +5,8 @@ author: dataGriff
 description: This is how you can create cookie consent for your website using google tag manager and Klaro
 tags:
 - google-tag-manager
+image:
+  path: /assets/2023-03-11-cookie-consent/link.png
 ---
 
 

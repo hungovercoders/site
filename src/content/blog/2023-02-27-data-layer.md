@@ -6,6 +6,8 @@ description: This is how you can add data to the dataLayer of your website using
 tags:
 - google-tag-manager
 - javascript
+image:
+  path: /assets/2023-02-27-data-layer/link.png
 ---
 
 

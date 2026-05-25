@@ -6,6 +6,8 @@ description: This is how to deploy azure platform resources with terraform. The 
 tags:
 - terraform
 - azure
+image:
+  path: /assets/2023-04-30-terraform-azure-data/link.png
 ---
 
 

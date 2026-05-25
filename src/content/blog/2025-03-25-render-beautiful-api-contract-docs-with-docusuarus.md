@@ -6,6 +6,8 @@ description: Render Beautiful API Contract Docs with Docusuarus
 tags:
 - API
 - Docusaurus
+image:
+  path: /assets/2025-03-25-render-beautiful-api-contract-docs-with-docusuarus/link.png
 ---
 
 

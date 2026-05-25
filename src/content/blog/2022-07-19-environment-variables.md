@@ -8,6 +8,8 @@ tags:
 - powershell
 - .net
 - bash
+image:
+  path: /assets/2022-07-19-environment-variables/link.png
 ---
 
 
