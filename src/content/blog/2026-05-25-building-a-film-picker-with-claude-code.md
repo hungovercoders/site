@@ -227,6 +227,8 @@ Hook fires silently on every edit. For non-JSON files: exit 0, nothing happens. 
 
 And it's cheap. Each fire is one shell process plus one `jq` invocation to read the input from stdin — roughly 10ms. For `.json` files there's a second `jq` to validate, so ~20ms there. Because the hook is `PostToolUse` (runs *after* the tool call) and not `PreToolUse` (runs *before*), even that hides behind the agent's next thinking step — it's not in the latency critical path the way a `PreToolUse` guard would be. A session with a hundred edits adds about a second of hook overhead total. You won't notice. The lesson from the series here is the lifecycle event you choose matters: `PreToolUse` for cheap-and-fast guards, `PostToolUse` for observation and validation, never `PreToolUse` for anything that takes more than a few milliseconds.
 
+The hook above is the simplest version of an idea, not the finished one. The pattern generalises — dispatch on file extension and add handlers as you hit real cases: `.yaml` → `yq`, `.toml` → `python -m tomllib`, `.sh` → `shellcheck`, `.py` → `ruff check`. Each handler is one `case` branch in the same script. Growing it later is cheap — `PostToolUse` keeps the cost off the critical path. What I'd resist is pre-building five handlers on day one; a hook with one branch is debuggable in ten seconds, and the right time to add the next branch is when something actually trips you up. Slow semantic checks (`tsc --noEmit`, full ESLint with type-check) belong at *project* level in `.claude/settings.json` rather than user level, so they only fire where they earn their keep — that's the natural split as the kit matures into a real per-edit lint.
+
 ## Lights Up — Running the Kit
 
 Three pieces, all wired. Let's prove they compose.
