@@ -4,6 +4,8 @@ date: 2026-05-25
 author: dataGriff
 description: "A short tour of Claude Code's eleven moving parts plus a twenty-minute three-file kit that picks a film by mood — built from a CLAUDE.md, a custom skill, and a JSON-validating hook"
 tags: [claude-code, ai, hungovercoders]
+image:
+  path: /assets/2026-05-25-building-a-film-picker-with-claude-code/link.png
 ---
 
 I've been meaning to write up Claude Code properly for a while now. A few months in — daily use, a small kit or two built, an 11-lesson tutorial shipped off the back of it — and yet no single post that says *"here's what's in the box and here's one small thing you can build today"*. So that's this post. The tour of what Claude Code ships first, then a twenty-minute kit that picks a film for the evening — partly because *The Mandalorian and Grogu* at the cinema yesterday left me with a film-shaped problem on the brain, and partly because the kit shape generalises to anything you do more than twice a week. The thing I want to land is the *composition*: Claude Code is the kit, not any one feature, and most posts demo a single feature in isolation and call it a tutorial.

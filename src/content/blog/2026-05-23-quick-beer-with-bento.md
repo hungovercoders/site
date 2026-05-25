@@ -8,6 +8,8 @@ tags:
 - streaming
 - data-engineering
 - hungovercoders
+image:
+  path: /assets/2026-05-23-quick-beer-with-bento/link.png
 ---
 
 I wanted a stream processor I could understand between the barbecue cooling down and the sun going in. That's the actual constraint I had in mind — not "I need enterprise-grade Kafka consumer infrastructure," just "I have a warm afternoon, two cans of Tiny Rebel left, and I want something to click before the dogs fall asleep."

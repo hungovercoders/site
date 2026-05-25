@@ -9,6 +9,7 @@ const blog = defineCollection({
 		author: z.string().default('dataGriff'),
 		tags: z.array(z.string()),
 		description: z.string(),
+		image: z.object({ path: z.string() }).optional(),
 	}),
 });
 

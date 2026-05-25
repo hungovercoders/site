@@ -10,12 +10,15 @@ import { Font } from 'astro:assets';
 interface Props {
 	title: string;
 	description: string;
-	image?: ImageMetadata;
+	image?: ImageMetadata | string;
+	ogType?: 'website' | 'article';
 }
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
-const { title, description, image = FallbackImage } = Astro.props;
+const { title, description, image, ogType = 'website' } = Astro.props;
+const imageSrc = typeof image === 'string' ? image : (image ?? FallbackImage).src;
+const imageURL = new URL(imageSrc, Astro.site).toString();
 ---
 
 <!-- Global Metadata -->
@@ -44,15 +47,16 @@ const { title, description, image = FallbackImage } = Astro.props;
 <meta name="description" content={description} />
 
 <!-- Open Graph / Facebook -->
-<meta property="og:type" content="website" />
+<meta property="og:type" content={ogType} />
 <meta property="og:url" content={Astro.url} />
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
-<meta property="og:image" content={new URL(image.src, Astro.url)} />
+<meta property="og:image" content={imageURL} />
+<meta property="og:site_name" content={SITE_TITLE} />
 
 <!-- Twitter -->
 <meta property="twitter:card" content="summary_large_image" />
 <meta property="twitter:url" content={Astro.url} />
 <meta property="twitter:title" content={title} />
 <meta property="twitter:description" content={description} />
-<meta property="twitter:image" content={new URL(image.src, Astro.url)} />
+<meta property="twitter:image" content={imageURL} />
