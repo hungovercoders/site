@@ -50,7 +50,7 @@ claude --version
 First `claude` invocation opens a browser for OAuth. Sign into Claude.ai, terminal picks up the token, you're authenticated.
 
 ```text
-✓ Authenticated as dave@tinyrebel.co.uk
+✓ Authenticated as mando@rebelalliance.com
 ```
 
 Three minutes, cold machine to authenticated session. Now the kit.
@@ -140,9 +140,11 @@ Forty lines of plain English. Every session in this folder now starts with these
 
 ## The Mid-Reel Twist — An `/add-film` Skill
 
-The second piece is a **skill**. Skills are the modern shape of "a slash command with friends" — a directory under `~/.claude/skills/` containing `SKILL.md` plus any supporting files. They fire from the same `/name` invocation a plain slash command does, but they're where new Claude Code functionality lands first, so reaching for them by default is the right habit. A skill with no supporting files is just one extra directory's overhead and you've future-proofed the kit.
+The second piece is a **skill**. Skills can live at **user level** (`~/.claude/skills/`, available from every directory on the machine) or **project level** (`.claude/skills/`, sitting inside the project itself). Both produce the same `/name` invocation — the difference is *reach*. User-level skills are for cross-cutting tools you want everywhere: a `/lint` skill, a `/standup` skill, a `/review` skill that applies to any codebase. Project-level skills are for tools that only make sense inside *this one project* — and `/add-film` is exactly that, because it does nothing useful unless there's a `films.json` in the working directory.
 
-`~/.claude/skills/add-film/SKILL.md`:
+So this one lives at project level. Skills are the modern shape of "a slash command with friends" — a directory with `SKILL.md` plus any supporting files, fired from the same `/name` interface a plain slash command does. They're where new Claude Code functionality lands first, so reaching for them by default is the right habit.
+
+`~/dev/pick-film/.claude/skills/add-film/SKILL.md`:
 
 ```markdown
 ---
@@ -262,7 +264,7 @@ Everything you need, in one place. Drop these in, fire `/add-film`, watch the th
 # 1. ~/dev/pick-film/CLAUDE.md            (project context — the rules)
 # 2. ~/dev/pick-film/films.json           (the catalogue)
 # 3. ~/dev/pick-film/pick-film.sh         (the picker — chmod +x it)
-# 4. ~/.claude/skills/add-film/SKILL.md   (the skill)
+# 4. ~/dev/pick-film/.claude/skills/add-film/SKILL.md   (the skill — project-scoped)
 # 5. ~/.claude/hooks/validate-json.sh     (the JSON-validating hook — chmod +x it)
 # Plus the hooks block in ~/.claude/settings.json
 ```
@@ -285,4 +287,4 @@ The worldview fit is strong. Claude Code is *source-controllable* (every kit is 
 
 The 11-lesson deep-dive lives at **[hungovercoders.com/training/claude-code](https://hungovercoders.com/training/claude-code)** — permissions, `CLAUDE.md`, plan mode, slash commands, skills, hooks, subagents, MCP, and a capstone that strings the lot together into a real workflow. Forkable at **[github.com/hungovercoders/learn.claude-code](https://github.com/hungovercoders/learn.claude-code)** if you'd rather clone it and work through the examples locally with Claude Code itself sat next to the docs.
 
-What I'd do differently next time: I'd put the kit in a git repo from day one, not just `~/.claude/skills/` and `~/.claude/hooks/`. Source-control everything that has behaviour — *including* the bits of behaviour you bolt onto your AI assistant. Future-me would thank past-me for not having to remember which laptop the working version was on. Watch this space for more kits between meals. Cheers, fellow hungovercoder.
+What I'd do differently next time: I'd `git init` inside `~/dev/pick-film/` from day one so the project-scoped skill and the `CLAUDE.md` travel with the rest of the kit. And I'd keep a small dotfiles-style repo for the user-level bits — the JSON-validating hook in `~/.claude/hooks/` deserves source control too. Source-control everything that has behaviour, *including* the bits of behaviour you bolt onto your AI assistant. Watch this space for more kits between meals. Cheers, fellow hungovercoder.
