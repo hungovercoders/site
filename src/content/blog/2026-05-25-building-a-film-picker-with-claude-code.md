@@ -6,9 +6,7 @@ description: "A short tour of Claude Code's eleven moving parts plus a twenty-mi
 tags: [claude-code, ai, hungovercoders]
 ---
 
-I've been meaning to write up Claude Code properly for a while now. I've been using it daily for about six months, built three personal kits with it, shipped an 11-lesson tutorial off the back of it — and yet no single post that says *"here's what's in the box and here's one small thing you can build today"*. So that's this post. The tour of what Claude Code actually ships first, then a twenty-minute kit that picks a film for the evening — partly because *The Mandalorian and Grogu* at the cinema yesterday left me with a film-shaped problem on the brain, and partly because the kit shape generalises to anything you do more than twice a week.
-
-The thing I want to land is the *composition*. Claude Code is the kit, not any one feature. Most of the AI-tool posts out there pick a single feature, demo it in isolation, and call it a tutorial. That's how you end up using 10% of the tool. This post builds something three features deep — the same shape my real workflows use — so when you walk away you've got a working pattern, not just a working example.
+I've been meaning to write up Claude Code properly for a while now. Six months of daily use, three personal kits, an 11-lesson tutorial shipped off the back of it — and yet no single post that says *"here's what's in the box and here's one small thing you can build today"*. So that's this post. The tour of what Claude Code ships first, then a twenty-minute kit that picks a film for the evening — partly because *The Mandalorian and Grogu* at the cinema yesterday left me with a film-shaped problem on the brain, and partly because the kit shape generalises to anything you do more than twice a week. The thing I want to land is the *composition*: Claude Code is the kit, not any one feature, and most posts demo a single feature in isolation and call it a tutorial.
 
 ## Pre-Requisites
 
@@ -25,8 +23,7 @@ The full series at [hungovercoders.com/training/claude-code](https://hungovercod
 - **Permissions and safety** — the bouncer at the door. Five permission modes, four config layers, deny rules that win over allow rules.
 - **CLAUDE.md** — the recipe card the agent reads at the start of every session. Project context, conventions, things to never do.
 - **Plan mode** — read-only thinking gear that writes a plan before touching a single file. Stops the agent vibing at your codebase.
-- **Custom slash commands** — single markdown files that turn a repeated prompt into a one-line `/name` invocation. Still supported.
-- **Skills** — the modern shape: a directory with `SKILL.md` and optional supporting files, fired by the same `/name` interface. New functionality lands here first.
+- **Slash commands and skills** — markdown-based prompt templates fired by `/name`. Slash commands are single files; skills are directories with `SKILL.md` plus optional supporting files. Both supported; skills are the modern shape and where new functionality lands.
 - **Hooks** — shell scripts at lifecycle events (PreToolUse, PostToolUse, UserPromptSubmit). The bit that *enforces* what `CLAUDE.md` only *suggests*.
 - **Subagents** — junior Claudes spawned via the Task tool, each in their own context window. Great for parallel work and context protection.
 - **MCP servers** — the tap to external systems. Wire in GitHub, Postgres, the filesystem, or anything that speaks the Model Context Protocol.
@@ -53,7 +50,7 @@ First `claude` invocation opens a browser for OAuth. Sign into Claude.ai, termin
 ✓ Authenticated as mando@rebelalliance.com
 ```
 
-Three minutes, cold machine to authenticated session. Now the kit.
+Three minutes, cold machine to authenticated session.
 
 ## The Plot in Three Files
 
@@ -142,7 +139,7 @@ Forty lines of plain English. Every session in this folder now starts with these
 
 The second piece is a **skill**. Skills can live at **user level** (`~/.claude/skills/`, available from every directory on the machine) or **project level** (`.claude/skills/`, sitting inside the project itself). Both produce the same `/name` invocation — the difference is *reach*. User-level skills are for cross-cutting tools you want everywhere: a `/lint` skill, a `/standup` skill, a `/review` skill that applies to any codebase. Project-level skills are for tools that only make sense inside *this one project* — and `/add-film` is exactly that, because it does nothing useful unless there's a `films.json` in the working directory.
 
-So this one lives at project level. Skills are the modern shape of "a slash command with friends" — a directory with `SKILL.md` plus any supporting files, fired from the same `/name` interface a plain slash command does. They're where new Claude Code functionality lands first, so reaching for them by default is the right habit.
+So this one lives at project level. Skills are the modern shape — a directory with `SKILL.md` plus any supporting files, fired from the same `/name` interface as a plain slash command. New functionality lands on skills first, so default to them.
 
 `~/dev/pick-film/.claude/skills/add-film/SKILL.md`:
 
@@ -223,11 +220,11 @@ Now wire it into `~/.claude/settings.json`:
 }
 ```
 
-Hook fires silently on every edit. For non-JSON files: exit 0, nothing happens. For valid JSON: exit 0, nothing happens. For broken JSON: exit 2, Claude sees the message, has a chance to fix.
+Hook fires silently. Non-JSON files and valid JSON exit 0; broken JSON exits 2 and Claude reads the stderr message as feedback, with a chance to fix on the next attempt.
 
-And it's cheap. Each fire is one shell process plus one `jq` invocation to read the input from stdin — roughly 10ms. For `.json` files there's a second `jq` to validate, so ~20ms there. Because the hook is `PostToolUse` (runs *after* the tool call) and not `PreToolUse` (runs *before*), even that hides behind the agent's next thinking step — it's not in the latency critical path the way a `PreToolUse` guard would be. A session with a hundred edits adds about a second of hook overhead total. You won't notice. The lesson from the series here is the lifecycle event you choose matters: `PreToolUse` for cheap-and-fast guards, `PostToolUse` for observation and validation, never `PreToolUse` for anything that takes more than a few milliseconds.
+And it's cheap. One shell process plus one `jq` to read stdin — roughly 10ms per edit, ~20ms for `.json` files where a second `jq` validates. Because it's `PostToolUse` (runs *after* the tool call), even that hides behind the agent's next thinking step rather than gating the next action. A hundred-edit session adds about a second of hook overhead total. The lesson: `PreToolUse` for cheap-and-fast guards, `PostToolUse` for observation and validation, never expensive work in `PreToolUse`.
 
-The hook above is the simplest version of an idea, not the finished one. The pattern generalises — dispatch on file extension and add handlers as you hit real cases: `.yaml` → `yq`, `.toml` → `python -m tomllib`, `.sh` → `shellcheck`, `.py` → `ruff check`. Each handler is one `case` branch in the same script. Growing it later is cheap — `PostToolUse` keeps the cost off the critical path. What I'd resist is pre-building five handlers on day one; a hook with one branch is debuggable in ten seconds, and the right time to add the next branch is when something actually trips you up. Slow semantic checks (`tsc --noEmit`, full ESLint with type-check) belong at *project* level in `.claude/settings.json` rather than user level, so they only fire where they earn their keep — that's the natural split as the kit matures into a real per-edit lint.
+This hook is the simplest version of an idea. The pattern generalises — add handlers to the `case` statement as you hit real cases: `.yaml` → `yq`, `.toml` → `python -m tomllib`, `.sh` → `shellcheck`, `.py` → `ruff check`. `PostToolUse` keeps the cost off the critical path, so growing it later is cheap. Don't pre-build five handlers on day one though — a one-branch hook is debuggable in ten seconds, and the right time to add the next branch is when something trips you up. Slow semantic checks (`tsc`, full ESLint) belong at *project* level in `.claude/settings.json` so they only fire where they earn their keep.
 
 ## Lights Up — Running the Kit
 
@@ -287,7 +284,7 @@ For a one-line code question (*"how do I write a Python list comprehension"*), t
 
 For *anything inside a real codebase*, Claude Code wins on the only thing that matters: it can see what I see. The agent can `Read`, `Grep`, `Bash`, edit files, run my tests, read the diff. The chat window can't do any of that without copy-paste, and the copy-paste tax adds up fast. By the third paste I've lost the thread.
 
-For *custom workflows* — the kit pattern (`CLAUDE.md` + skill + hook) — Claude Code is in a class of its own. The film picker is a daft demo, but exactly the same shape works for things I do every week: release notes (a `/release-notes` skill, a `CLAUDE.md` that defines the changelog format, a hook that validates the file after edit), code reviews (a `/review` skill, a `CLAUDE.md` of standards, a hook that runs a linter), deploy gates (a `/deploy-check` skill, a `CLAUDE.md` with the prod conventions, a hook that refuses anything not on the safe-list). Each kit is a few markdown files and ten lines of shell. The interface change — going from "type a long prompt" to "type one slash invocation" — is the real product.
+For *custom workflows* — the kit pattern (`CLAUDE.md` + skill + hook) — Claude Code is in a class of its own. The film picker is a daft demo, but the same shape covers the work I do every week: release notes, code reviews, deploy gates. Each kit is a few markdown files and ten lines of shell. The interface change — from "type a long prompt" to "type one slash invocation" — is the real product.
 
 The worldview fit is strong. Claude Code is *source-controllable* (every kit is a few text files), *portable* (one curl install), *small* (a single binary, no dependency tree), and *local* (your config lives in your home directory and goes with you). Small, cheap, yours — the hungovercoders worldview without a sales pitch. Currently the only AI tool I've found that earns its keep on a real codebase without asking me to live on someone else's platform.
 
@@ -295,4 +292,4 @@ The worldview fit is strong. Claude Code is *source-controllable* (every kit is 
 
 The 11-lesson deep-dive lives at **[hungovercoders.com/training/claude-code](https://hungovercoders.com/training/claude-code)** — permissions, `CLAUDE.md`, plan mode, slash commands, skills, hooks, subagents, MCP, and a capstone that strings the lot together into a real workflow. Forkable at **[github.com/hungovercoders/learn.claude-code](https://github.com/hungovercoders/learn.claude-code)** if you'd rather clone it and work through the examples locally with Claude Code itself sat next to the docs.
 
-What I'd do differently next time: I'd `git init` inside `~/dev/pick-film/` from day one so the project-scoped skill and the `CLAUDE.md` travel with the rest of the kit. And I'd keep a small dotfiles-style repo for the user-level bits — the JSON-validating hook in `~/.claude/hooks/` deserves source control too. Source-control everything that has behaviour, *including* the bits of behaviour you bolt onto your AI assistant. Watch this space for more kits between meals. Cheers, fellow hungovercoder.
+What I'd do differently next time: `git init` inside `~/dev/pick-film/` from day one, and keep a small dotfiles-style repo for the user-level bits. Source-control everything that has behaviour, *including* the bits you bolt onto your AI assistant. Watch this space for more kits between meals. Cheers, fellow hungovercoder.
