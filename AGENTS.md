@@ -62,7 +62,7 @@ For any post-`astro build` step that produces static assets (search indexes, red
 
 ## Analytics + cookie consent
 
-Google Tag Manager (`GTM-P74Q3WN`, configured in `src/consts.ts`) is loaded on every page via `BaseHead.astro` (head script) and a shared `GtmNoscript` component (body iframe). This is the hungovercoders.com container — distinct from the legacy datagriff Jekyll container (`GTM-5RJBJWL`).
+Google Tag Manager (`GTM-5RJBJWL`, configured in `src/consts.ts`) is loaded on every page via `BaseHead.astro` (head script) and a shared `GtmNoscript` component (body iframe). The container ID is the same one the old datagriff Jekyll site used.
 
 **Don't add a cookie consent library to the site code.** Consent is served as a klaro tag *inside* the GTM container — loading GTM is what triggers the banner. Adding `klaro` or `cookieconsent` to the Astro source would double up. If consent behaviour needs changing, it changes inside the GTM container, not in this repo.
 
