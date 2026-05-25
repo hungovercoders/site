@@ -225,6 +225,8 @@ Now wire it into `~/.claude/settings.json`:
 
 Hook fires silently on every edit. For non-JSON files: exit 0, nothing happens. For valid JSON: exit 0, nothing happens. For broken JSON: exit 2, Claude sees the message, has a chance to fix.
 
+And it's cheap. Each fire is one shell process plus one `jq` invocation to read the input from stdin — roughly 10ms. For `.json` files there's a second `jq` to validate, so ~20ms there. Because the hook is `PostToolUse` (runs *after* the tool call) and not `PreToolUse` (runs *before*), even that hides behind the agent's next thinking step — it's not in the latency critical path the way a `PreToolUse` guard would be. A session with a hundred edits adds about a second of hook overhead total. You won't notice. The lesson from the series here is the lifecycle event you choose matters: `PreToolUse` for cheap-and-fast guards, `PostToolUse` for observation and validation, never `PreToolUse` for anything that takes more than a few milliseconds.
+
 ## Lights Up — Running the Kit
 
 Three pieces, all wired. Let's prove they compose.
