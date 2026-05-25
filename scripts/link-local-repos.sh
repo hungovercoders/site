@@ -7,6 +7,12 @@ set -euo pipefail
 TARGET_DIR="training-repos"
 PARENT_DIR=".."
 
+# Temporarily excluded from the site pending content review.
+EXCLUDE=(
+  "learn.bento"
+  "learn.claude-code"
+)
+
 mkdir -p "$TARGET_DIR"
 
 linked=0
@@ -16,6 +22,16 @@ for repo_path in "$PARENT_DIR"/learn.*/; do
   [ -d "$repo_path" ] || continue
   repo=$(basename "$repo_path")
   abs_path=$(cd "$repo_path" && pwd)
+
+  excluded=0
+  for e in "${EXCLUDE[@]}"; do
+    if [ "$repo" = "$e" ]; then excluded=1; break; fi
+  done
+  if [ $excluded -eq 1 ]; then
+    echo "Excluded: $repo (see EXCLUDE list)"
+    skipped=$((skipped + 1))
+    continue
+  fi
 
   if [ -L "$TARGET_DIR/$repo" ]; then
     echo "Already linked: $repo"

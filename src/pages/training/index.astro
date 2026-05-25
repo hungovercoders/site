@@ -63,6 +63,16 @@ const series = [...seriesMap.entries()].map(([name, lessons]) => ({
 				color: rgb(var(--gray));
 				font-size: 0.9rem;
 			}
+			.empty {
+				border: 1px dashed rgb(var(--gray-light));
+				border-radius: 12px;
+				padding: 2rem;
+				text-align: center;
+				color: rgb(var(--gray));
+			}
+			.empty p {
+				margin: 0.5rem 0 0;
+			}
 			@media (max-width: 720px) {
 				ul li {
 					width: 100%;
@@ -75,18 +85,25 @@ const series = [...seriesMap.entries()].map(([name, lessons]) => ({
 		<Header />
 		<main>
 			<h1>Training</h1>
-			<ul>
-				{
-					series.map(({ name, count }) => (
-						<li>
-							<a href={`/training/${name}/`}>
-								<h2 class="series-name">{name}</h2>
-								<p class="lesson-count">{count} lessons</p>
-							</a>
-						</li>
-					))
-				}
-			</ul>
+			{
+				series.length === 0 ? (
+					<div class="empty">
+						<h2>Coming soon&hellip;</h2>
+						<p>Tutorial series are back in the brewhouse for a tidy-up. Check back shortly, fellow hungovercoder.</p>
+					</div>
+				) : (
+					<ul>
+						{series.map(({ name, count }) => (
+							<li>
+								<a href={`/training/${name}/`}>
+									<h2 class="series-name">{name}</h2>
+									<p class="lesson-count">{count} lessons</p>
+								</a>
+							</li>
+						))}
+					</ul>
+				)
+			}
 		</main>
 		<Footer />
 	</body>

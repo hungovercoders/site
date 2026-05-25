@@ -3,12 +3,18 @@ set -euo pipefail
 
 TARGET_DIR="training-repos"
 
+# Temporarily excluded pending content review:
+#   learn.bento
+#   learn.claude-code
 REPOS=(
-  "learn.bento"
-  "learn.claude-code"
 )
 
 mkdir -p "$TARGET_DIR"
+
+if [ ${#REPOS[@]} -eq 0 ]; then
+  echo "No training repos configured — nothing to fetch"
+  exit 0
+fi
 
 for repo in "${REPOS[@]}"; do
   if [ -L "$TARGET_DIR/$repo" ]; then
