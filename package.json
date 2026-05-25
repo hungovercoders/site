@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "./scripts/fetch-training-repos.sh && astro build && pagefind --site dist",
+    "build": "./scripts/fetch-training-repos.sh && astro build && pagefind --site dist/client",
     "preview": "npm run build && wrangler dev",
     "astro": "astro",
     "generate-types": "wrangler types",
