@@ -2,6 +2,7 @@
 import type { CollectionEntry } from 'astro:content';
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
+import GtmNoscript from '../components/GtmNoscript.astro';
 import Header from '../components/Header.astro';
 
 interface Props {
@@ -122,6 +123,7 @@ const next = currentIndex < seriesLessons.length - 1 ? seriesLessons[currentInde
 		</style>
 	</head>
 	<body>
+		<GtmNoscript />
 		<Header />
 		<div class="layout">
 			<nav class="sidebar">

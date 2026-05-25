@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import BaseHead from '../../components/BaseHead.astro';
 import Footer from '../../components/Footer.astro';
+import GtmNoscript from '../../components/GtmNoscript.astro';
 import Header from '../../components/Header.astro';
 
 const allLessons = await getCollection('training');
@@ -70,6 +71,7 @@ const series = [...seriesMap.entries()].map(([name, lessons]) => ({
 		</style>
 	</head>
 	<body>
+		<GtmNoscript />
 		<Header />
 		<main>
 			<h1>Training</h1>
