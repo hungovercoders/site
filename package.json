@@ -19,6 +19,7 @@
     "@astrojs/rss": "^4.0.18",
     "@astrojs/sitemap": "^3.7.2",
     "astro": "^6.3.7",
+    "mermaid": "^11.15.0",
     "pagefind": "^1.5.2",
     "sharp": "^0.34.3"
   },

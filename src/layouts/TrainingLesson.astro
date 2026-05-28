@@ -91,6 +91,19 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
 				max-width: 100%;
 				font-size: 0.85em;
 			}
+			.prose :global(.mermaid) {
+				display: flex;
+				justify-content: center;
+				margin: 1.5rem 0;
+				padding: 0.5rem;
+				background: rgb(var(--gray-light));
+				border-radius: 6px;
+				overflow-x: auto;
+			}
+			.prose :global(.mermaid svg) {
+				max-width: 100%;
+				height: auto;
+			}
 			.toc {
 				flex: 0 0 200px;
 				position: sticky;
