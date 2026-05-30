@@ -1,0 +1,25 @@
+# Cache policy. More-specific rules override less-specific rules.
+# HTML revalidates against the Worker — prevents post-deploy edge staleness
+# (the bug where removed pages stayed visible because CF had the old HTML
+# cached). Content-hashed assets under /_astro/* are safe to cache forever.
+
+/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/pagefind/*
+  Cache-Control: public, max-age=3600
+
+/assets/*
+  Cache-Control: public, max-age=86400
+
+/rss.xml
+  Cache-Control: public, max-age=3600
+
+/sitemap-index.xml
+  Cache-Control: public, max-age=3600
+
+/sitemap-0.xml
+  Cache-Control: public, max-age=3600

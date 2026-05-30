@@ -1,5 +1,6 @@
 ---
 import type { CollectionEntry } from 'astro:content';
+import type { MarkdownHeading } from 'astro';
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import GtmNoscript from '../components/GtmNoscript.astro';
@@ -12,9 +13,10 @@ interface Props {
 	order: number;
 	seriesLessons: CollectionEntry<'training'>[];
 	currentSlug: string;
+	headings: MarkdownHeading[];
 }
 
-const { title, description, series, seriesLessons, currentSlug } = Astro.props;
+const { title, description, series, seriesLessons, currentSlug, headings } = Astro.props;
 
 function lessonSlug(entry: CollectionEntry<'training'>) {
 	return entry.id.split('/').at(-2)!;
@@ -23,6 +25,8 @@ function lessonSlug(entry: CollectionEntry<'training'>) {
 const currentIndex = seriesLessons.findIndex((l) => lessonSlug(l) === currentSlug);
 const prev = currentIndex > 0 ? seriesLessons[currentIndex - 1] : null;
 const next = currentIndex < seriesLessons.length - 1 ? seriesLessons[currentIndex + 1] : null;
+
+const tocHeadings = headings.filter((h) => h.depth === 2);
 ---
 
 <html lang="en">
@@ -32,7 +36,7 @@ const next = currentIndex < seriesLessons.length - 1 ? seriesLessons[currentInde
 			.layout {
 				display: flex;
 				gap: 2rem;
-				max-width: 1100px;
+				max-width: 1280px;
 				margin: 2rem auto;
 				padding: 0 1rem;
 				align-items: flex-start;
@@ -87,6 +91,99 @@ const next = currentIndex < seriesLessons.length - 1 ? seriesLessons[currentInde
 				max-width: 100%;
 				font-size: 0.85em;
 			}
+			.toc {
+				flex: 0 0 200px;
+				position: sticky;
+				top: 1rem;
+				max-height: calc(100vh - 2rem);
+				overflow-y: auto;
+			}
+			.toc h3 {
+				text-transform: capitalize;
+				margin: 0 0 0.75rem;
+				font-size: 0.85rem;
+				letter-spacing: 0.05em;
+				color: rgb(var(--gray));
+			}
+			.toc ol {
+				list-style: none;
+				margin: 0;
+				padding: 0;
+				display: flex;
+				flex-direction: column;
+				gap: 0.15rem;
+			}
+			.toc ol li a {
+				display: block;
+				padding: 0.35rem 0.6rem;
+				border-left: 2px solid transparent;
+				text-decoration: none;
+				font-size: 0.85rem;
+				color: rgb(var(--gray-dark));
+				line-height: 1.35;
+				transition:
+					color 0.15s ease,
+					border-left-color 0.15s ease,
+					background 0.15s ease;
+			}
+			.toc ol li a:hover {
+				color: rgb(var(--accent));
+				background: rgba(35, 55, 255, 0.04);
+			}
+			.toc ol li a.active {
+				color: rgb(var(--accent));
+				font-weight: 600;
+				border-left-color: rgb(var(--accent));
+				background: rgba(35, 55, 255, 0.06);
+			}
+			.toc-mobile {
+				display: none;
+				margin: 0 0 1.5rem;
+				padding: 0.65rem 1rem;
+				background: rgb(var(--gray-light));
+				border-radius: 6px;
+				font-size: 0.9rem;
+			}
+			.toc-mobile summary {
+				cursor: pointer;
+				font-weight: 600;
+				color: rgb(var(--gray-dark));
+				list-style: none;
+			}
+			.toc-mobile summary::-webkit-details-marker {
+				display: none;
+			}
+			.toc-mobile summary::before {
+				content: '▸ ';
+				display: inline-block;
+				margin-right: 0.25rem;
+				transition: transform 0.15s ease;
+			}
+			.toc-mobile[open] summary::before {
+				transform: rotate(90deg);
+			}
+			.toc-mobile ol {
+				list-style: none;
+				margin: 0;
+				padding: 0.5rem 0 0;
+				display: flex;
+				flex-direction: column;
+				gap: 0.15rem;
+			}
+			.toc-mobile ol li a {
+				display: block;
+				padding: 0.3rem 0.5rem;
+				text-decoration: none;
+				color: rgb(var(--gray-dark));
+				border-radius: 4px;
+			}
+			.toc-mobile ol li a:hover {
+				color: rgb(var(--accent));
+			}
+			.toc-mobile ol li a.active {
+				color: rgb(var(--accent));
+				font-weight: 600;
+			}
 			.lesson-nav {
 				display: flex;
 				justify-content: space-between;
@@ -109,6 +206,14 @@ const next = currentIndex < seriesLessons.length - 1 ? seriesLessons[currentInde
 			}
 			.lesson-nav .next {
 				margin-left: auto;
+			}
+			@media (max-width: 1100px) {
+				.toc {
+					display: none;
+				}
+				.toc-mobile {
+					display: block;
+				}
 			}
 			@media (max-width: 720px) {
 				.layout {
@@ -150,6 +255,22 @@ const next = currentIndex < seriesLessons.length - 1 ? seriesLessons[currentInde
 			<article class="prose">
 				<h1>{title}</h1>
 				<hr />
+				{
+					tocHeadings.length > 0 && (
+						<details class="toc-mobile">
+							<summary>On this page</summary>
+							<ol>
+								{tocHeadings.map((h) => (
+									<li>
+										<a href={`#${h.slug}`} data-toc-slug={h.slug}>
+											{h.text}
+										</a>
+									</li>
+								))}
+							</ol>
+						</details>
+					)
+				}
 				<slot />
 				<nav class="lesson-nav">
 					{
@@ -168,7 +289,64 @@ const next = currentIndex < seriesLessons.length - 1 ? seriesLessons[currentInde
 					}
 				</nav>
 			</article>
+			{
+				tocHeadings.length > 0 && (
+					<aside class="toc">
+						<h3>On this page</h3>
+						<ol>
+							{tocHeadings.map((h) => (
+								<li>
+									<a href={`#${h.slug}`} data-toc-slug={h.slug}>
+										{h.text}
+									</a>
+								</li>
+							))}
+						</ol>
+					</aside>
+				)
+			}
 		</div>
 		<Footer />
+		<script>
+			// Active-section highlighting for the per-page Table of Contents.
+			// Watches every h2 in the prose; the topmost one inside the
+			// rootMargin band wins. Updates both the sticky sidebar and the
+			// inline collapsible ToC since they share data-toc-slug values.
+			const headingEls = Array.from(document.querySelectorAll<HTMLElement>('article.prose h2[id]'));
+			const tocLinks = Array.from(
+				document.querySelectorAll<HTMLAnchorElement>('a[data-toc-slug]')
+			);
+			if (headingEls.length > 0 && tocLinks.length > 0) {
+				const setActive = (slug: string) => {
+					tocLinks.forEach((link) => {
+						link.classList.toggle('active', link.dataset.tocSlug === slug);
+					});
+				};
+				const observer = new IntersectionObserver(
+					(entries) => {
+						const visible = entries
+							.filter((entry) => entry.isIntersecting)
+							.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+						if (visible.length > 0) {
+							setActive(visible[0].target.id);
+							return;
+						}
+						// Fallback: pick the last heading whose top is above the
+						// viewport's reading band so something is always highlighted.
+						const passed = headingEls.filter((h) => h.getBoundingClientRect().top < 100);
+						if (passed.length > 0) {
+							setActive(passed[passed.length - 1].id);
+						}
+					},
+					{ rootMargin: '-80px 0px -70% 0px' }
+				);
+				headingEls.forEach((h) => observer.observe(h));
+				// Initialise on load — pick whichever heading is closest to the
+				// top of the viewport so something is highlighted before scroll.
+				const initial = headingEls.find((h) => h.getBoundingClientRect().top >= 0);
+				if (initial) setActive(initial.id);
+				else if (headingEls.length > 0) setActive(headingEls[0].id);
+			}
+		</script>
 	</body>
 </html>

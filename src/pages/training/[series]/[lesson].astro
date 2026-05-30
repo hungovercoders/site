@@ -25,9 +25,14 @@ interface Props {
 
 const { lesson, seriesLessons } = Astro.props;
 const currentSlug = Astro.params.lesson;
-const { Content } = await render(lesson);
+const { Content, headings } = await render(lesson);
 ---
 
-<TrainingLesson {...lesson.data} seriesLessons={seriesLessons} currentSlug={currentSlug}>
+<TrainingLesson
+	{...lesson.data}
+	seriesLessons={seriesLessons}
+	currentSlug={currentSlug}
+	headings={headings}
+>
 	<Content />
 </TrainingLesson>
