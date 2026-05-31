@@ -9,6 +9,8 @@ tags:
 - Azure
 - Containers
 - Gitpod
+image:
+  path: /assets/2024-03-31-shift-left-with-scripts/link.png
 ---
 
 
