@@ -1,57 +1,53 @@
 ---
 import type { CollectionEntry } from 'astro:content';
+import type { MarkdownHeading } from 'astro';
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import GtmNoscript from '../components/GtmNoscript.astro';
 import Header from '../components/Header.astro';
 
-type Props = CollectionEntry<'blog'>['data'];
+type Props = CollectionEntry<'blog'>['data'] & { headings?: MarkdownHeading[] };
 
-const { title, description, date, image, tags } = Astro.props;
+const { title, description, date, image, tags, headings = [] } = Astro.props;
 const displayTags = (tags ?? []).filter((t) => t.toLowerCase() !== 'hungovercoders');
+const tocHeadings = headings.filter((h) => h.depth === 2);
 ---
 
 <html lang="en">
 	<head>
 		<BaseHead title={title} description={description} image={image?.path} ogType="article" />
 		<style>
-			main {
-				width: calc(100% - 2em);
-				max-width: 100%;
-				margin: 0;
-			}
-			.hero-image {
-				width: 100%;
-			}
-			.hero-image img {
-				display: block;
-				margin: 0 auto;
-				border-radius: 12px;
-				box-shadow: var(--box-shadow);
+			.layout {
+				display: flex;
+				gap: 3rem;
+				max-width: 1100px;
+				margin: 2rem auto;
+				padding: 0 1rem;
+				align-items: flex-start;
 			}
 			.prose {
-				width: 720px;
-				max-width: calc(100% - 2em);
-				margin: auto;
-				padding: 1em;
+				flex: 1;
+				min-width: 0;
+				max-width: 720px;
+				margin: 0 auto;
 				color: rgb(var(--gray-dark));
 			}
 			.title {
-				margin-bottom: 1em;
-				padding: 1em 0;
+				margin-bottom: 1.5em;
+				padding: 1em 0 0;
 				text-align: center;
-				line-height: 1;
 			}
 			.title h1 {
 				margin: 0 0 0.5em 0;
+				line-height: 1.15;
 			}
 			.date {
 				margin-bottom: 0.5em;
 				color: rgb(var(--gray));
-			}
-			.last-updated-on {
-				font-style: italic;
+				font-size: 0.85rem;
+				text-transform: uppercase;
+				letter-spacing: 0.6px;
 			}
 			.post-tags {
 				display: flex;
@@ -75,33 +71,214 @@ const displayTags = (tags ?? []).filter((t) => t.toLowerCase() !== 'hungovercode
 				background: var(--accent);
 				color: white;
 			}
+			.prose :global(pre) {
+				overflow-x: auto;
+				max-width: 100%;
+				font-size: 0.85em;
+			}
+			.toc {
+				flex: 0 0 220px;
+				position: sticky;
+				top: 1rem;
+				max-height: calc(100vh - 2rem);
+				overflow-y: auto;
+			}
+			.toc h3 {
+				text-transform: capitalize;
+				margin: 0 0 0.75rem;
+				font-size: 0.85rem;
+				letter-spacing: 0.05em;
+				color: rgb(var(--gray));
+			}
+			.toc ol {
+				list-style: none;
+				margin: 0;
+				padding: 0;
+				display: flex;
+				flex-direction: column;
+				gap: 0.15rem;
+			}
+			.toc ol li a {
+				display: block;
+				padding: 0.35rem 0.6rem;
+				border-left: 2px solid transparent;
+				text-decoration: none;
+				font-size: 0.85rem;
+				color: rgb(var(--gray-dark));
+				line-height: 1.35;
+				transition:
+					color 0.15s ease,
+					border-left-color 0.15s ease,
+					background 0.15s ease;
+			}
+			.toc ol li a:hover {
+				color: rgb(var(--accent));
+				background: rgba(35, 55, 255, 0.04);
+			}
+			.toc ol li a.active {
+				color: rgb(var(--accent));
+				font-weight: 600;
+				border-left-color: rgb(var(--accent));
+				background: rgba(35, 55, 255, 0.06);
+			}
+			.toc-mobile {
+				display: none;
+				margin: 0 0 1.5rem;
+				padding: 0.65rem 1rem;
+				background: rgb(var(--gray-light));
+				border-radius: 6px;
+				font-size: 0.9rem;
+			}
+			.toc-mobile summary {
+				cursor: pointer;
+				font-weight: 600;
+				color: rgb(var(--gray-dark));
+				list-style: none;
+			}
+			.toc-mobile summary::-webkit-details-marker {
+				display: none;
+			}
+			.toc-mobile summary::before {
+				content: '▸ ';
+				display: inline-block;
+				margin-right: 0.25rem;
+				transition: transform 0.15s ease;
+			}
+			.toc-mobile[open] summary::before {
+				transform: rotate(90deg);
+			}
+			.toc-mobile ol {
+				list-style: none;
+				margin: 0;
+				padding: 0.5rem 0 0;
+				display: flex;
+				flex-direction: column;
+				gap: 0.15rem;
+			}
+			.toc-mobile ol li a {
+				display: block;
+				padding: 0.3rem 0.5rem;
+				text-decoration: none;
+				color: rgb(var(--gray-dark));
+				border-radius: 4px;
+			}
+			.toc-mobile ol li a:hover {
+				color: rgb(var(--accent));
+			}
+			.toc-mobile ol li a.active {
+				color: rgb(var(--accent));
+				font-weight: 600;
+			}
+			@media (max-width: 1100px) {
+				.toc {
+					display: none;
+				}
+				.toc-mobile {
+					display: block;
+				}
+			}
+			@media (max-width: 720px) {
+				.layout {
+					flex-direction: column;
+				}
+				.prose {
+					width: 100%;
+					max-width: 100%;
+				}
+			}
 		</style>
 	</head>
 
 	<body>
 		<GtmNoscript />
 		<Header />
-		<main>
-			<article>
-				<div class="prose">
-					<div class="title">
-						<div class="date">
-							<FormattedDate date={date} />
-						</div>
-						<h1>{title}</h1>
-						{displayTags.length > 0 && (
-							<div class="post-tags">
-								{displayTags.map((t) => (
-									<a href={`/tags/${t.toLowerCase().replace(/\s+/g, '-')}/`}>{t}</a>
-								))}
-							</div>
-						)}
-						<hr />
+		<div class="layout">
+			<article class="prose">
+				<div class="title">
+					<div class="date">
+						<FormattedDate date={date} />
 					</div>
-					<slot />
+					<h1>{title}</h1>
+					{displayTags.length > 0 && (
+						<div class="post-tags">
+							{displayTags.map((t) => (
+								<a href={`/tags/${t.toLowerCase().replace(/\s+/g, '-')}/`}>{t}</a>
+							))}
+						</div>
+					)}
+					<hr />
 				</div>
+				{
+					tocHeadings.length > 0 && (
+						<details class="toc-mobile">
+							<summary>On this page</summary>
+							<ol>
+								{tocHeadings.map((h) => (
+									<li>
+										<a href={`#${h.slug}`} data-toc-slug={h.slug}>
+											{h.text}
+										</a>
+									</li>
+								))}
+							</ol>
+						</details>
+					)
+				}
+				<slot />
 			</article>
-		</main>
+			{
+				tocHeadings.length > 0 && (
+					<aside class="toc">
+						<h3>On this page</h3>
+						<ol>
+							{tocHeadings.map((h) => (
+								<li>
+									<a href={`#${h.slug}`} data-toc-slug={h.slug}>
+										{h.text}
+									</a>
+								</li>
+							))}
+						</ol>
+					</aside>
+				)
+			}
+		</div>
 		<Footer />
+		<script>
+			// Active-section highlighting for the per-page Table of Contents.
+			// Mirrors the implementation in TrainingLesson — watches every h2 in the
+			// article and updates the active class on both the sticky and mobile TOC.
+			const headingEls = Array.from(document.querySelectorAll<HTMLElement>('article.prose h2[id]'));
+			const tocLinks = Array.from(
+				document.querySelectorAll<HTMLAnchorElement>('a[data-toc-slug]')
+			);
+			if (headingEls.length > 0 && tocLinks.length > 0) {
+				const setActive = (slug: string) => {
+					tocLinks.forEach((link) => {
+						link.classList.toggle('active', link.dataset.tocSlug === slug);
+					});
+				};
+				const observer = new IntersectionObserver(
+					(entries) => {
+						const visible = entries
+							.filter((entry) => entry.isIntersecting)
+							.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+						if (visible.length > 0) {
+							setActive(visible[0].target.id);
+							return;
+						}
+						const passed = headingEls.filter((h) => h.getBoundingClientRect().top < 100);
+						if (passed.length > 0) {
+							setActive(passed[passed.length - 1].id);
+						}
+					},
+					{ rootMargin: '-80px 0px -70% 0px' }
+				);
+				headingEls.forEach((h) => observer.observe(h));
+				const initial = headingEls.find((h) => h.getBoundingClientRect().top >= 0);
+				if (initial) setActive(initial.id);
+				else if (headingEls.length > 0) setActive(headingEls[0].id);
+			}
+		</script>
 	</body>
 </html>
