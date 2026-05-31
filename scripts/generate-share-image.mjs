@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
@@ -11,7 +11,7 @@ const PORTRAIT_PATH = join(PUBLIC_DIR, 'assets', 'datagriff.png');
 
 const usage = `Usage: node scripts/generate-share-image.mjs <slug> <title> [tagline]
   slug    e.g. 2026-05-25-building-a-film-picker-with-claude-code
-  title   the post title (will be wrapped at ~24 chars per line)
+  title   the post title (will be wrapped at ~22 chars per line)
   tagline optional one-liner under the title (else "by dataGriff")
 Writes to public/assets/<slug>/link.png at 1200x630.`;
 
@@ -47,10 +47,9 @@ const totalTitleHeight = titleLines.length * lineHeight;
 const titleStartY = (630 - totalTitleHeight) / 2 + fontSize * 0.8;
 const titleEndY = titleStartY + (titleLines.length - 1) * lineHeight + fontSize * 0.15;
 
-// Recolour the symbol to white-on-transparent so it reads against the dark
-// gradient. favicon.png is black icon lines on an opaque white interior — so
-// we sample raw pixels, treat dark pixels as the icon (tint white, keep
-// alpha), treat bright pixels as background (alpha 0).
+// Symbol → white linework on transparent. favicon.png has black icon lines
+// over an opaque white interior, so a raw-pixel pass: bright = drop alpha,
+// dark = tint white.
 const { data: rawData, info: rawInfo } = await sharp(LOGO_PATH)
 	.ensureAlpha()
 	.raw()
@@ -61,11 +60,11 @@ for (let i = 0; i < lw * lh; i++) {
 	const o = i * lc;
 	const luminance = (tinted[o] + tinted[o + 1] + tinted[o + 2]) / 3;
 	if (luminance > 200) {
-		tinted[o + 3] = 0; // bright = background, drop alpha
+		tinted[o + 3] = 0;
 	} else {
 		tinted[o] = 255;
 		tinted[o + 1] = 255;
-		tinted[o + 2] = 255; // dark = icon, tint white
+		tinted[o + 2] = 255;
 	}
 }
 const whiteLogoBuffer = await sharp(tinted, { raw: { width: lw, height: lh, channels: lc } })
