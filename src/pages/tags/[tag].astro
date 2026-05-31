@@ -6,6 +6,7 @@ import FormattedDate from '../../components/FormattedDate.astro';
 import GtmNoscript from '../../components/GtmNoscript.astro';
 import Header from '../../components/Header.astro';
 import { SITE_TITLE } from '../../consts';
+import { excerpt } from '../../utils/excerpt';
 
 export async function getStaticPaths() {
 	const posts = await getCollection('blog');
@@ -135,17 +136,20 @@ const { display, posts } = Astro.props;
 			</header>
 			<ul class="posts">
 				{
-					posts.map((post) => (
-						<li class="post">
-							<a href={`/blog/${post.id}/`}>
-								<p class="date">
-									<FormattedDate date={post.data.date} />
-								</p>
-								<h2>{post.data.title}</h2>
-								<p class="desc">{post.data.description}</p>
-							</a>
-						</li>
-					))
+					posts.map((post) => {
+						const blurb = excerpt(post.body, 220) || post.data.description;
+						return (
+							<li class="post">
+								<a href={`/blog/${post.id}/`}>
+									<p class="date">
+										<FormattedDate date={post.data.date} />
+									</p>
+									<h2>{post.data.title}</h2>
+									<p class="desc">{blurb}</p>
+								</a>
+							</li>
+						);
+					})
 				}
 			</ul>
 		</main>

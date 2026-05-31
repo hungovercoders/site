@@ -6,6 +6,7 @@ import FormattedDate from '../../components/FormattedDate.astro';
 import GtmNoscript from '../../components/GtmNoscript.astro';
 import Header from '../../components/Header.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+import { excerpt } from '../../utils/excerpt';
 
 const posts = (await getCollection('blog')).sort(
 	(a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
@@ -113,6 +114,7 @@ const posts = (await getCollection('blog')).sort(
 						const tags = (post.data.tags ?? []).filter(
 							(t) => t.toLowerCase() !== 'hungovercoders',
 						);
+						const blurb = excerpt(post.body, 220) || post.data.description;
 						return (
 							<li class="post">
 								<a href={`/blog/${post.id}/`}>
@@ -120,7 +122,7 @@ const posts = (await getCollection('blog')).sort(
 										<FormattedDate date={post.data.date} />
 									</p>
 									<h2>{post.data.title}</h2>
-									<p class="desc">{post.data.description}</p>
+									<p class="desc">{blurb}</p>
 									{tags.length > 0 && (
 										<div class="tags">
 											{tags.slice(0, 4).map((t) => (
