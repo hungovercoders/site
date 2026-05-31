@@ -46,7 +46,31 @@ const lineHeight = fontSize * 1.15;
 const totalTitleHeight = titleLines.length * lineHeight;
 const titleStartY = (630 - totalTitleHeight) / 2 + fontSize * 0.8;
 
-const logoBase64 = (await readFile(LOGO_PATH)).toString('base64');
+// Recolour the symbol to white-on-transparent so it reads against the dark
+// gradient. favicon.png is black icon lines on an opaque white interior — so
+// we sample raw pixels, treat dark pixels as the icon (tint white, keep
+// alpha), treat bright pixels as background (alpha 0).
+const { data: rawData, info: rawInfo } = await sharp(LOGO_PATH)
+	.ensureAlpha()
+	.raw()
+	.toBuffer({ resolveWithObject: true });
+const { width: lw, height: lh, channels: lc } = rawInfo;
+const tinted = Buffer.from(rawData);
+for (let i = 0; i < lw * lh; i++) {
+	const o = i * lc;
+	const luminance = (tinted[o] + tinted[o + 1] + tinted[o + 2]) / 3;
+	if (luminance > 200) {
+		tinted[o + 3] = 0; // bright = background, drop alpha
+	} else {
+		tinted[o] = 255;
+		tinted[o + 1] = 255;
+		tinted[o + 2] = 255; // dark = icon, tint white
+	}
+}
+const whiteLogoBuffer = await sharp(tinted, { raw: { width: lw, height: lh, channels: lc } })
+	.png()
+	.toBuffer();
+const logoBase64 = whiteLogoBuffer.toString('base64');
 const portraitBase64 = (await readFile(PORTRAIT_PATH)).toString('base64');
 
 const svg = `<?xml version="1.0" encoding="UTF-8"?>
@@ -63,8 +87,7 @@ const svg = `<?xml version="1.0" encoding="UTF-8"?>
   <rect width="1200" height="630" fill="url(#bg)"/>
   <rect x="0" y="0" width="12" height="630" fill="#2337ff"/>
   <text x="60" y="80" font-family="Helvetica, Arial, sans-serif" font-size="28" font-weight="700" fill="#2337ff" letter-spacing="2">HUNGOVERCODERS</text>
-  <circle cx="1080" cy="100" r="72" fill="#ffffff" opacity="0.95"/>
-  <image href="data:image/png;base64,${logoBase64}" x="1010" y="30" width="140" height="140"/>
+  <image href="data:image/png;base64,${logoBase64}" x="1020" y="30" width="140" height="140"/>
   ${titleLines
 		.map(
 			(line, i) =>
