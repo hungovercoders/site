@@ -12,30 +12,6 @@ image:
 
 I've become super interested in the design, or contract, first approach to APIs, events and data products with [Open API](https://www.openapis.org/), [Async API](https://www.asyncapi.com/en) and [data contract](https://datacontract.com/) respectively. Contract driven development sounds to me like the way of removing the noise of ambiguous specifications and bridging that gap between requirements and implementation, by making the contract the source of truth, that can be used for your design and subsequent automated testing of the implementation. With Open API contracts having the longest history, and with that more maturity, I decided to explore this space of creating an Open API contract and what that process would be and what tools are available. I hope from this I can learn what I would like and expect from other integration points such as events and data products. The following blog post summarises my initial process and then provides a walkthrough with an intentionally simple whiskey CRUD API.
 
-- [Pre-Requisites](#pre-requisites)
-  - [VS Code Extensions](#vs-code-extensions)
-- [The Design First Process](#the-design-first-process)
-- [Requirements](#requirements)
-- [Domain Model](#domain-model)
-- [API Contract](#api-contract)
-  - [Post Endpoint](#post-endpoint)
-  - [Get Endpoint](#get-endpoint)
-  - [Open API Extension](#open-api-extension)
-  - [Formatting Errors](#formatting-errors)
-- [Lint API Contract](#lint-api-contract)
-  - [Out of the Box](#out-of-the-box)
-  - [Custom Rules](#custom-rules)
-  - [Spectral CLI with Docker Compose](#spectral-cli-with-docker-compose)
-- [Mock API Contract](#mock-api-contract)
-  - [Manually Test Mock API](#manually-test-mock-api)
-- [Automate Testing against Mock API](#automate-testing-against-mock-api)
-- [What Next?](#what-next)
-  - [Intgerating with Pre-Commit and CI](#intgerating-with-pre-commit-and-ci)
-  - [Changelogs](#changelogs)
-  - [Mocking and Testing Tools](#mocking-and-testing-tools)
-  - [The Role of Artificial Intelligence](#the-role-of-artificial-intelligence)
-  - [Hosting Contracts](#hosting-contracts)
-
 ## Pre-Requisites
 
 - [Github Account](https://github.com/)

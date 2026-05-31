@@ -13,13 +13,6 @@ image:
 
 I wanted to make some local breweries available to the browser client side so I can then use this in tagging exploits. Below talks through how I can make these alcoholic hotpots available in the data layer!
 
-- [PreRequisities](#prerequisities)
-- [What is the Data Layer?](#what-is-the-data-layer)
-- [Setup a Basic Web Page with DataLayer](#setup-a-basic-web-page-with-datalayer)
-- [Observe the Values of the DataLayer](#observe-the-values-of-the-datalayer)
-- [Create a GTM Data Layer Variable](#create-a-gtm-data-layer-variable)
-- [Debug Data Layer](#debug-data-layer)
-
 ## PreRequisities
 
 - You can do this with notepad but I use [VS Code](https://code.visualstudio.com/) as my IDE and text editor.

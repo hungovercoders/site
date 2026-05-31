@@ -14,17 +14,6 @@ I realised not enough people were coding under the influence and visiting the hu
 
 I may have been on Barry Island when I thought of the title of this blog post and nothing [ChatGPT](https://chat.openai.com/) was going to say was going to make me change that.
 
-- [Useful Links and Tools](#useful-links-and-tools)
-- [Importance of Meta Tags](#importance-of-meta-tags)
-- [Meta Tags on Jekyll Sites](#meta-tags-on-jekyll-sites)
-- [Analyse Site SEO Performance with Seobility](#analyse-site-seo-performance-with-seobility)
-  - [Create a Project](#create-a-project)
-  - [Adding Txt to Domain](#adding-txt-to-domain)
-- [Create a Sitemap](#create-a-sitemap)
-- [Google Search Console](#google-search-console)
-- [Manual ChatGPT Usage](#manual-chatgpt-usage)
-- [Future Thoughts](#future-thoughts)
-
 ## Useful Links and Tools
 
 - [Meta Tags Checker](https://metatags.io/) - Great for checking your meta tags are working as expected and how they will look in search results and social media link sharing.

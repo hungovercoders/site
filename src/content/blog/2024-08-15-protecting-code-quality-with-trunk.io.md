@@ -14,17 +14,6 @@ image:
 
 I recently went down a rabbit hole of [VS code extensions](https://www.freecodecamp.org/news/best-vscode-extensions/) and whilst doing some extension exploration of my own I came across one that looked interesting called [trunk](https://marketplace.visualstudio.com/items?itemName=Trunk.io). I mused that this could help me with [trunk based development](https://www.thoughtworks.com/en-gb/insights/blog/enabling-trunk-based-development-deployment-pipelines) along with my consistently poor code quality (what can I say, I am a fairly lazy hungovercoder). I quickly became intoxicated with everything that [trunk.io](https://trunk.io/) had to offer and integrated it into my workflow to easily protect my code quality before committing to the main branch!
 
-- [Pre-Requisites](#pre-requisites)
-- [What is Trunk?](#what-is-trunk)
-- [Create Trunk Account](#create-trunk-account)
-- [Initialise Trunk](#initialise-trunk)
-- [Code Quality](#code-quality)
-  - [Trunk Check](#trunk-check)
-  - [Trunk Format](#trunk-format)
-- [Enable Precommit Action](#enable-precommit-action)
-- [My New Git Workflow](#my-new-git-workflow)
-- [Mega Tidy Commit Example](#mega-tidy-commit-example)
-
 ## Pre-Requisites
 
 - [Github Account](https://github.com/)

@@ -14,19 +14,6 @@ image:
 
 I am way behind on my blogging given tis the season to be hungover and not coding... Below describes how to create a simple postman collection using the super [Marvel API](https://developer.marvel.com/) leveraging environments and variables using the [postman VS Code extension](https://marketplace.visualstudio.com/items?itemName=Postman.postman-for-vscode). This I thought would be a great opportunity for me to see how API endpoints get structured and documented for a public facing API. I then show how you can add some examples, descriptions and tests (using AI no less!) in the [Postman app](https://www.postman.com/downloads/). **dataGriff SMASH!**
 
-- [Prerequisites](#prerequisites)
-- [VS Code Extension](#vs-code-extension)
-  - [Create a Postman Environment](#create-a-postman-environment)
-  - [Create Postman Collection](#create-postman-collection)
-  - [Create a Characters Request](#create-a-characters-request)
-  - [Create a Character Request](#create-a-character-request)
-  - [Documentation](#documentation)
-- [Postman App](#postman-app)
-  - [Add Descriptions](#add-descriptions)
-  - [Add Example](#add-example)
-  - [Add Tests (Using Postman AI)](#add-tests-using-postman-ai)
-- [VS Code Extension Revisited](#vs-code-extension-revisited)
-
 ## Prerequisites
 
 - [Postman Account](https://www.postman.com/) - This will be so you can use postman and ensure your settings are synced between the application and the VS code extension.

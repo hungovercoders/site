@@ -14,29 +14,6 @@ image:
 
 I'd never made a python package before and I was keenly aware of my mismanagement of python environments in the past, especially after a few beers. Leveraging the power of [UV](https://docs.astral.sh/uv/) I was quickly able to create a virtual environment and manage my dependencies with a sobering ease.Combining this with [Taskfile](https://taskfile.dev/) allowed me to further simplify my development processes with abstractions for all my commands. This also allowed me to leverage very easily the same commands for local development and my CI. I cannot wait to use taskfile ... everywhere!
 
-- [Pre-Requisites](#pre-requisites)
-- [Create a Python Package with UV](#create-a-python-package-with-uv)
-  - [Install UV](#install-uv)
-  - [Initiate Package](#initiate-package)
-  - [Run the package locally](#run-the-package-locally)
-  - [Convert the Package into a CLI](#convert-the-package-into-a-cli)
-  - [Lint the Package](#lint-the-package)
-  - [Test the Package](#test-the-package)
-- [Create a Github Action](#create-a-github-action)
-- [Introduce a Task File](#introduce-a-task-file)
-  - [Install Task](#install-task)
-  - [Default](#default)
-  - [Install and Dependencies](#install-and-dependencies)
-  - [Build](#build)
-  - [Lint](#lint)
-    - [Lint Fix](#lint-fix)
-  - [Test](#test)
-  - [CI](#ci)
-  - [Task List](#task-list)
-  - [Task VS Code Extension](#task-vs-code-extension)
-- [Simplify Github Action](#simplify-github-action)
-- [Use the Package](#use-the-package)
-
 ## Pre-Requisites
 
 - [VS Code](https://code.visualstudio.com/download)

@@ -14,14 +14,6 @@ image:
 
 A quick post today showing how [Pydantic](https://pydantic-docs.helpmanual.io/) offers some great ways to create schemas from your data model. In this post I"ll show you how to create a JSON schema for you beers and generate some fake data!
 
-- [PreRequisites](#prerequisites)
-- [Setup your Codebase](#setup-your-codebase)
-- [Setup your Python Environment](#setup-your-python-environment)
-- [Setup your Model](#setup-your-model)
-- [Generate Model Schema](#generate-model-schema)
-- [Generate Model Code from Schema](#generate-model-code-from-schema)
-- [Generate Data](#generate-data)
-
 ## PreRequisites
 
 - You"ll need [python](https://www.python.org/downloads/) installed.

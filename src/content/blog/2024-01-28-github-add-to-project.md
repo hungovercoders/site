@@ -12,13 +12,6 @@ image:
 
 Being a hungover coder it can be difficult to remember all the ideas you've had or which ones you are currently working on... I've therefore invested in [github projects](https://docs.github.com/en/issues/planning-and-tracking-with-projects/learning-about-projects/quickstart-for-projects) and organised all my work (at least for now). One of the constraints of the github projects is that even if you link a repo, the issues or bugs are not automatically added to your project board. Below are three ways to ensure issues are automatically added to the board of your choosing!
 
-- [Prerequisites](#prerequisites)
-- [Hungovercoders Github Template](#hungovercoders-github-template)
-- [Linking a Repo to a Project](#linking-a-repo-to-a-project)
-- [Method 1: Project Automation](#method-1-project-automation)
-- [Method 2: Template Issues and Bugs](#method-2-template-issues-and-bugs)
-- [Method 3: Github Actions](#method-3-github-actions)
-
 ## Prerequisites
 
 - [Github](https://github.com/) - To utilise any of the tips below you're going to want to be working in github.

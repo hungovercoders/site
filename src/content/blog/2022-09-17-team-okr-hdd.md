@@ -13,14 +13,6 @@ image:
 
 Below is a summary of the magic ingredients you can use to dramatically improve your organisations value and staff happiness.
 
-- [Team First](#team-first)
-- [OKRs](#okrs)
-  - [Beer Team OKRs](#beer-team-okrs)
-  - [Environment Team OKRs](#environment-team-okrs)
-- [Hypothesis Driven Development](#hypothesis-driven-development)
-- [Workflow Management Hierarchy](#workflow-management-hierarchy)
-- [Monitor your Implementation](#monitor-your-implementation)
-
 ## Team First
 
 I am a firm believer in a team-first approach to an organisation, instilling pride, enthusiasm and stability in an organisations staff should be seen as key to strategic success. Whilst there appears to be no clear evidence on a [teams stability outperforming a fluid team](https://www.scrum.org/resources/blog/depth-stable-or-fluid-teams-what-does-science-say), this is more due to a lack of the study itself than it actually being disproven.

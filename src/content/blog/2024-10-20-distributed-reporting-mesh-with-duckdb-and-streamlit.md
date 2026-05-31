@@ -14,18 +14,6 @@ image:
 
 Is all data big? Not really. I wanted to find a solution to setting up a lightweight reporting mesh to compliment distributed storage in a data mesh. Is there a way we can create distributed small instances of reporting applications that provide compute on demand whilst also source controlling the visualisations? I then discovered [duckdb](https://duckdb.org/) and [streamlit](https://streamlit.io/) realising that I could indeed create a lightweight and source controlled reporting mesh with tools already available. I quickly jumped on to [kaggle](https://www.kaggle.com/) to find a nice dataset to prove the experiment - say cheese...!
 
-- [Pre-Requisites](#pre-requisites)
-- [Environment Configuration](#environment-configuration)
-  - [Requirements File](#requirements-file)
-  - [Pip Install](#pip-install)
-  - [Gitpod Configuration](#gitpod-configuration)
-- [Cheese Data from Kaggle](#cheese-data-from-kaggle)
-- [DuckDB](#duckdb)
-- [Combining Streamlit and DuckDB for the App](#combining-streamlit-and-duckdb-for-the-app)
-- [Containerising the App](#containerising-the-app)
-- [Deploying to Azure Container App](#deploying-to-azure-container-app)
-- [Summary](#summary)
-
 ## Pre-Requisites
 
 - [VS Code](https://code.visualstudio.com/download)

@@ -14,12 +14,6 @@ image:
 
 This blog is a bit of a cheat as its pretty much the same as my [previous post](https://blog.hungovercoders.com/2024-12-02-deploy-docusaurus-on-azure-static-web-apps.html) but this time I am deploying the [event catalog](https://www.eventcatalog.dev/) website to [Azure Static Web Apps](https://docs.microsoft.com/en-us/azure/static-web-apps/overview) using the [vs code extension](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-azurestaticwebapps). Below is how to create the template event catalog website and deploy it to azure static web apps.
 
-- [Pre-Requisites](#pre-requisites)
-- [Event Catlog Start](#event-catlog-start)
-- [Deploy Azure Static Webapp](#deploy-azure-static-webapp)
-- [Adding a Gitpod Configuration File](#adding-a-gitpod-configuration-file)
-- [Custom Domain - Events.Hungovercoders](#custom-domain---eventshungovercoders)
-
 ## Pre-Requisites
 
 - [VS Code](https://code.visualstudio.com/download)

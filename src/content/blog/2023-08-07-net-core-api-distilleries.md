@@ -14,17 +14,6 @@ image:
 
 Well I was definitely a hungovercoder yesterday and it was quite difficult to stare at lists of distilleries without wanting a bit of hair of the dog... Anyway below explains how to create a simple lookup API GET request using .Net core. I am not a .Net ninja, nor am I an API aficionado (yet!), but the following will create you a basic and currently very insecure API. I hope to investigate APIs further in .Net and follow-up with better practice approaches in the future. The ongoing implementation of this API can be found in the hungovercoders github organisation under [whiskey.reviews](https://github.com/hungovercoders/whiskey.reviews).
 
-- [Pre-Requisites](#pre-requisites)
-- [Plan the API](#plan-the-api)
-- [Codebase Overview](#codebase-overview)
-- [Create the API Starter Template](#create-the-api-starter-template)
-- [Install Packages](#install-packages)
-- [Create the Distillery Model](#create-the-distillery-model)
-- [Add Distillery Data](#add-distillery-data)
-- [Create the Whiskey Controller](#create-the-whiskey-controller)
-- [Test our API](#test-our-api)
-- [Get our Swagger On](#get-our-swagger-on)
-
 ## Pre-Requisites
 
 - [Visual Studio Code](https://code.visualstudio.com/)
