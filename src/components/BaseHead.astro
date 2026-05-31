@@ -80,3 +80,28 @@ const imageURL = new URL(imageSrc, Astro.site).toString();
 <meta property="twitter:title" content={title} />
 <meta property="twitter:description" content={description} />
 <meta property="twitter:image" content={imageURL} />
+
+<!--
+  Lazy-load mermaid only on pages that actually contain a mermaid code block.
+  Pages without diagrams pay just this tiny presence check; the mermaid
+  bundle ships only when needed via dynamic import code-split.
+
+  Astro's Shiki highlighter wraps fenced mermaid blocks as
+    <pre data-language="mermaid"><code><span class="line">…</span>…</code></pre>
+  with per-line spans, so we match on data-language and pull the diagram
+  source out via textContent (which preserves the line breaks between spans).
+-->
+<script>
+	if (document.querySelector('pre[data-language="mermaid"]')) {
+		import('mermaid').then(({ default: mermaid }) => {
+			mermaid.initialize({ startOnLoad: false, theme: 'default', securityLevel: 'loose' });
+			document.querySelectorAll('pre[data-language="mermaid"]').forEach((pre) => {
+				const div = document.createElement('div');
+				div.className = 'mermaid';
+				div.textContent = pre.textContent ?? '';
+				pre.replaceWith(div);
+			});
+			mermaid.run({ querySelector: '.mermaid' });
+		});
+	}
+</script>

@@ -7,6 +7,7 @@ TARGET_DIR="training-repos"
 #   learn.bento
 #   learn.claude-code
 REPOS=(
+  "learn.aws-fundamentals"
 )
 
 mkdir -p "$TARGET_DIR"
