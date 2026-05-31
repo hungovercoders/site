@@ -7,6 +7,8 @@ tags:
 - Docker
 - Azure
 - Cosmos
+image:
+  path: /assets/2024-06-29-cosmos-emulator-docker-local/link.png
 ---
 
 

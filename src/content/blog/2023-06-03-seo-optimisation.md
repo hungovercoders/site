@@ -5,6 +5,8 @@ author: dataGriff
 description: Supercharge your web page with meta tag optimization, SEO analysis, and AI-powered content assistance from ChatGPT
 tags:
 - SEO
+image:
+  path: /assets/2023-06-03-seo-optimisation/link.png
 ---
 
 

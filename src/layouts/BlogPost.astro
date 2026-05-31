@@ -8,7 +8,8 @@ import Header from '../components/Header.astro';
 
 type Props = CollectionEntry<'blog'>['data'];
 
-const { title, description, date, image } = Astro.props;
+const { title, description, date, image, tags } = Astro.props;
+const displayTags = (tags ?? []).filter((t) => t.toLowerCase() !== 'hungovercoders');
 ---
 
 <html lang="en">
@@ -52,6 +53,28 @@ const { title, description, date, image } = Astro.props;
 			.last-updated-on {
 				font-style: italic;
 			}
+			.post-tags {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.4rem;
+				justify-content: center;
+				margin-top: 1rem;
+			}
+			.post-tags a {
+				font-size: 0.75rem;
+				text-transform: uppercase;
+				letter-spacing: 0.6px;
+				padding: 0.25rem 0.7rem;
+				background: rgb(var(--gray-light));
+				color: rgb(var(--gray-dark));
+				border-radius: 999px;
+				text-decoration: none;
+				transition: 0.15s ease;
+			}
+			.post-tags a:hover {
+				background: var(--accent);
+				color: white;
+			}
 		</style>
 	</head>
 
@@ -66,6 +89,13 @@ const { title, description, date, image } = Astro.props;
 							<FormattedDate date={date} />
 						</div>
 						<h1>{title}</h1>
+						{displayTags.length > 0 && (
+							<div class="post-tags">
+								{displayTags.map((t) => (
+									<a href={`/tags/${t.toLowerCase().replace(/\s+/g, '-')}/`}>{t}</a>
+								))}
+							</div>
+						)}
 						<hr />
 					</div>
 					<slot />

@@ -15,8 +15,8 @@ export default defineConfig({
       {
           provider: fontProviders.local(),
           name: 'Atkinson',
-          cssVariable: '--font-atkinson',
-          fallbacks: ['sans-serif'],
+          cssVariable: '--font-body',
+          fallbacks: ['system-ui', 'sans-serif'],
           options: {
               variants: [
                   {
@@ -33,6 +33,22 @@ export default defineConfig({
                   },
               ],
           },
+      },
+      {
+          provider: fontProviders.google(),
+          name: 'Lora',
+          cssVariable: '--font-display',
+          fallbacks: ['Georgia', 'Cambria', 'serif'],
+          weights: [600, 700],
+          styles: ['normal'],
+      },
+      {
+          provider: fontProviders.google(),
+          name: 'JetBrains Mono',
+          cssVariable: '--font-mono',
+          fallbacks: ['Menlo', 'Consolas', 'monospace'],
+          weights: [400, 700],
+          styles: ['normal'],
       },
 	],
 

@@ -7,6 +7,8 @@ import Layout from '../layouts/BlogPost.astro';
 	description="A forty-something working developer from the South Wales valleys. Honest walkthroughs, strong opinions, source-controlled everything."
 	date={new Date('2021-08-08')}
 >
+	<img src="/assets/datagriff.png" alt="dataGriff portrait" class="portrait" width="200" height="200" />
+
 	<p>
 		I'm dataGriff — a forty-something working developer from the South Wales valleys. I've spent my
 		career in data engineering, DevOps, and anything involving making systems smaller, cheaper, and
@@ -48,3 +50,24 @@ import Layout from '../layouts/BlogPost.astro';
 
 	<p>Well done for reading this far, fellow hungovercoder. Cheers.</p>
 </Layout>
+
+<style>
+	.portrait {
+		float: right;
+		width: 180px;
+		height: 180px;
+		object-fit: cover;
+		object-position: center top;
+		border-radius: 50%;
+		margin: 0 0 1rem 1.5rem;
+		border: 3px solid rgb(var(--accent));
+		box-shadow: 0 2px 8px rgba(var(--black), 0.1);
+	}
+	@media (max-width: 720px) {
+		.portrait {
+			float: none;
+			display: block;
+			margin: 0 auto 1.5rem;
+		}
+	}
+</style>
