@@ -8,6 +8,8 @@ tags:
 - .Net
 - Container
 - Gitpod
+image:
+  path: /assets/2023-09-09-dotnet-api-container-gitpod/link.png
 ---
 
 

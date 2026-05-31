@@ -9,6 +9,8 @@ tags:
 - Github
 - Terraform
 - CDE
+image:
+  path: /assets/2023-10-29-cloud-dev-platform-template/link.png
 ---
 
 
