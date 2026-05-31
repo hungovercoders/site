@@ -11,7 +11,9 @@
     "preview": "npm run build && wrangler dev",
     "astro": "astro",
     "generate-types": "wrangler types",
-    "deploy": "npm run build && wrangler deploy"
+    "deploy": "npm run build && wrangler deploy",
+    "redirects:generate": "node redirects/generate.mjs",
+    "redirects:deploy": "npm run redirects:generate && wrangler deploy --config redirects/wrangler.jsonc"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^13.5.4",
