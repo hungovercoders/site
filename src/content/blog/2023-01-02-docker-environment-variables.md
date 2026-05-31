@@ -13,13 +13,6 @@ image:
 
 I have been looking at storing beers in a database and to do that I needed to understand how environment variables work. My alcohol-addled mind needed to hello world this before I got state involved as well. Below is a simple demonstration of how you deal with environment variables in a docker fast api setup and then how you can reference these in a deployed app with key vault in Azure.
 
-- [PreRequisites](#prerequisites)
-- [Directory Structure](#directory-structure)
-- [Setup Basic FastAPI Application Locally with Environment Variables](#setup-basic-fastapi-application-locally-with-environment-variables)
-- [Run App in Docker with Environment Variables](#run-app-in-docker-with-environment-variables)
-- [Create Azure Webapp with Docker Image and Variables](#create-azure-webapp-with-docker-image-and-variables)
-- [Add Key Vault Secrets to Azure Webapp Variables](#add-key-vault-secrets-to-azure-webapp-variables)
-
 ## PreRequisites
 
 - You"ll need a decent IDE - I use [visual studio code](https://code.visualstudio.com/download).

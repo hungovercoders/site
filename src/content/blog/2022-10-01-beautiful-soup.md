@@ -14,14 +14,6 @@ image:
 
 So we've previously looked at creating [beer in a flask api](https://www.hungovercoders.com/blog/blog/2022-09-25-flask-api), now I want to guzzle some beer from the web using the python package [beautiful soup](https://pypi.org/project/beautifulsoup4/) to scrape beer information!
 
-- [PreRequisites](#prerequisites)
-- [Setup your Codebase](#setup-your-codebase)
-- [Setup your Python Environment](#setup-your-python-environment)
-- [Create your Test Web Page](#create-your-test-web-page)
-- [Guzzle your First Beers](#guzzle-your-first-beers)
-- [Configure your Guzzling](#configure-your-guzzling)
-- [Complete Code](#complete-code)
-
 ## PreRequisites
 
 - You'll need [python](https://www.python.org/downloads/) installed.

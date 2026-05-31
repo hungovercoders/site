@@ -15,14 +15,6 @@ image:
 
 Unless you've been living under a rock (or some rubble caused by the rise of the machines) you must have heard of [chatgpt](https://chat.openai.com/) by now. This is a large language model that can write poetry, write content (see my post on [SEO](/blog/2023-06-03-seo-optimisation)) and even generate excellent boilerplate code for pretty much any language and design pattern. I was keen on seeing how well it could do at generating logical software architecture... My plan therefore is to combine new AI models with this great open source [event catalog](https://www.eventcatalog.dev/) tooling that has templates for markdown I hope to leverage. This first part of the blog series is going to be generating a domain, event and team schema JSON using chatgpt. I will then use this to feed into [event catalog markdown templates](https://www.eventcatalog.dev/docs/events/introduction) in part 2. Hold on to your drinks..!
 
-- [Prerequisites](#prerequisites)
-- [Proof of Concept Using ChaptGPT](#proof-of-concept-using-chaptgpt)
-- [Generate ChatGPT API Key](#generate-chatgpt-api-key)
-- [Configure Environment API Key Variable](#configure-environment-api-key-variable)
-- [Calling ChatGPT API Basics](#calling-chatgpt-api-basics)
-- [Generating Domain, Event and Team JSON](#generating-domain-event-and-team-json)
-- [Next Time](#next-time)
-
 ## Prerequisites
 
 - [Github Account](https://www.github.com) - If you haven't already get yourself a github account, this is how you're going to host code and optionally open up [gitpod](https://www.gitpod.io/).

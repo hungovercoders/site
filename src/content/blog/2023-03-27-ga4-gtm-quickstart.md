@@ -13,22 +13,6 @@ image:
 
 I want google analytics 4 on my website and I want it now. How else can I ensure that all the hungovercoders are learning all the best tech and finding their local breweries?? The following shows you how to setup a GA4 property and hook it up to your website with google tag manager...
 
-- [Pre-Requisites](#pre-requisites)
-- [Why use Google Analytics 4 and GTM?](#why-use-google-analytics-4-and-gtm)
-- [Creating a GA Account, Property and Data Stream](#creating-a-ga-account-property-and-data-stream)
-  - [Account](#account)
-  - [Property](#property)
-  - [Data Stream](#data-stream)
-- [Using a GTM Container with Standard Tags](#using-a-gtm-container-with-standard-tags)
-  - [Account and Container](#account-and-container)
-  - [Add Container to Your Website](#add-container-to-your-website)
-  - [Create New GTM Workspace](#create-new-gtm-workspace)
-  - [GA4 Variables](#ga4-variables)
-  - [GA4 Configuration Tag](#ga4-configuration-tag)
-  - [Preview and Monitor Page Views in GA4](#preview-and-monitor-page-views-in-ga4)
-  - [Consent Mode Setup](#consent-mode-setup)
-  - [Publish](#publish)
-
 ## Pre-Requisites
 
 You're going to need a [google account](https://myaccount.google.com/) so that you can leverage [google analytics](https://analytics.google.com/analytics/web/) and [google tag manager](https://tagmanager.google.com/). There's then a nice [google platform homepage](https://marketingplatform.google.com/home) you can use as a portal to leverage these tools (among others).

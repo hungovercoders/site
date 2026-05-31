@@ -13,21 +13,6 @@ image:
 
 After a few Guinness there is nothing I like better than to do a certification. In this instance it was the [databricks spark developer associate certification](https://www.databricks.com/learn/certification/apache-spark-developer-associate). It took me about 2 weeks from deciding to do it to passing as I was already well versed in spark. This is how I did it!
 
-- [Pre-Requisites](#pre-requisites)
-- [Useful Links](#useful-links)
-- [Spark Architecture](#spark-architecture)
-  - [Diagram](#diagram)
-  - [Terms](#terms)
-- [Spark API Cheatsheet](#spark-api-cheatsheet)
-  - [Generate Test Data](#generate-test-data)
-  - [Basic Querying Dataframes](#basic-querying-dataframes)
-  - [Reading and Writing](#reading-and-writing)
-  - [Beyond Basic Querying Dataframes](#beyond-basic-querying-dataframes)
-  - [Dates and Times](#dates-and-times)
-  - [Functions](#functions)
-  - [RePartioning](#repartioning)
-  - [Caching](#caching)
-
 ## Pre-Requisites
 
 - [Github Account](https://github.com/) - I used this to clone my own versions of the courses into and work along my own copies of the code.

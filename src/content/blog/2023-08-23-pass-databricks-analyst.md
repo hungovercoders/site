@@ -13,41 +13,6 @@ image:
 
 It was my birthday over the weekend and whilst my body was completely destroyed by whiskey and vermouth... my mind craved sustenance and my soul penance. Therefore I looked at the preparation guidelines for the [databricks analyst associate certification](https://www.databricks.com/learn/certification/data-analyst-associate) and thought "we got this!". Within 48 hours my mind was full to the brim, my soul ready to redeem some of the reprehensible activities of the weekend by passing the exam and then sharing this approach with you. Here goes...
 
-- [Pre-Requisites](#pre-requisites)
-- [Useful Links](#useful-links)
-- [Analytic Definitions](#analytic-definitions)
-- [Provision Workspace and Unity Catalog](#provision-workspace-and-unity-catalog)
-  - [Create Workspace](#create-workspace)
-  - [Create Storage Account](#create-storage-account)
-  - [Create Containers](#create-containers)
-  - [Create External Connector \& Grant Access](#create-external-connector--grant-access)
-  - [Create Unity Catalog](#create-unity-catalog)
-  - [Create External Location](#create-external-location)
-  - [Unity Catalog Overview](#unity-catalog-overview)
-- [Quick SQL Tour and Warehouse Setup](#quick-sql-tour-and-warehouse-setup)
-- [Create a Folder to Store your Work](#create-a-folder-to-store-your-work)
-- [Create Catalog and Schema](#create-catalog-and-schema)
-- [Quick Table Create](#quick-table-create)
-- [Describe, Time Travel \& Restores](#describe-time-travel--restores)
-- [Managed Tables vs UnManaged Tables](#managed-tables-vs-unmanaged-tables)
-- [Import Data](#import-data)
-- [Minimum SQL](#minimum-sql)
-  - [Select](#select)
-  - [Subquery and CTE](#subquery-and-cte)
-  - [Join](#join)
-    - [Inner Join](#inner-join)
-    - [Left Join](#left-join)
-    - [Right Join](#right-join)
-  - [Aggregations and Group by](#aggregations-and-group-by)
-  - [Transform Arrays](#transform-arrays)
-  - [Merge](#merge)
-- [Query History](#query-history)
-- [Visualisations](#visualisations)
-- [Parameters](#parameters)
-- [Dashboard](#dashboard)
-- [Alerts](#alerts)
-- [Book the Exam](#book-the-exam)
-
 ## Pre-Requisites
 
 - [Azure Account](https://portal.azure.com) - The [community edition of databricks](https://community.cloud.databricks.com/) doesn't have the SQL tools of databricks so you're going to either need to leverage one already provided for you, or create your own in [Azure](https://portal.azure.com), [AWS](https://aws.amazon.com/) or [Google](https://cloud.google.com/). I predominantly use Microsoft Azure which is why I have recommended this tooling here. We'll go through a quick setup of a bare minimum databricks workspace and unity catalog provisioning on Azure anyway just in case you have nowhere to work in.

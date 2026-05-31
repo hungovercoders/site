@@ -12,22 +12,6 @@ image:
 
 With the festive season upon us I have been more hungover than coder recently... However I was able to do this [quick react course](https://www.youtube.com/playlist?list=PL4cUxeGkcC9gZD-Tvwfod2gaISzfRiP9d) by [NetNinja](https://www.youtube.com/@NetNinja) and can now show you how to start creating beers in a simple single page app!
 
-- [PreRequisites](#prerequisites)
-- [Codebase End State](#codebase-end-state)
-- [Setup Boilerplate React App](#setup-boilerplate-react-app)
-- [Quick File Tour](#quick-file-tour)
-  - [Public Folder](#public-folder)
-  - [Src Folder](#src-folder)
-- [Example Beer Data](#example-beer-data)
-- [Adding Not Found](#adding-not-found)
-- [Adding NavBar](#adding-navbar)
-- [UseFetch and Beer List](#usefetch-and-beer-list)
-  - [UseFetch](#usefetch)
-  - [Beer List](#beer-list)
-- [Homepage](#homepage)
-- [Create a Beer](#create-a-beer)
-- [BeerDetails](#beerdetails)
-
 ## PreRequisites
 
 - You"ll need a decent IDE - I use [visual studio code](https://code.visualstudio.com/download).

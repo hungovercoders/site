@@ -15,14 +15,6 @@ image:
 
 Want to install python, spark and pyspark for some local data pipeline testing? Look no further... Accompanying this blog there is also this [video on youtube](https://www.youtube.com/watch?v=QYTPpqPYaw0). Multimedia has hit the hungovercoders!!!
 
-- [Pre-Requisites](#pre-requisites)
-- [Python Install](#python-install)
-- [Java Install](#java-install)
-- [Spark Install](#spark-install)
-- [Hadoop WinUtils Install](#hadoop-winutils-install)
-- [Confirm Spark](#confirm-spark)
-- [Pyspark Install](#pyspark-install)
-
 ## Pre-Requisites
 
 For testing you'll need to have an IDE installed, I tend to use [visual studio code](https://code.visualstudio.com/).

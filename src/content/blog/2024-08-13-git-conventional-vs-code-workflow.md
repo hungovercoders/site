@@ -13,12 +13,6 @@ image:
 
 I was recently introduced to [git conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) as a method of streamlining your commit messages and providing the ability to automatically generate [CHANGELOG](https://github.com/marketplace/actions/generate-changelog-based-on-conventional-commits). My first instinct these days is to quickly search for a [VS Code extension](https://marketplace.visualstudio.com/vscode) on any new language or topic I am given. Lo and behold I had a [hit](https://marketplace.visualstudio.com/items?itemName=vivaxy.vscode-conventional-commits)! After some preference tweaking, as recommended by the extension, and a new (but old) keyboard shortcut, I now bring to you my turbocharged git conventional commit workflow in VS code!
 
-- [Pre-Requisites](#pre-requisites)
-- [End Goal](#end-goal)
-- [Install VS Code Extension](#install-vs-code-extension)
-- [Set the Following Preferences in VS Code](#set-the-following-preferences-in-vs-code)
-- [Ctrl + S](#ctrl--s)
-
 ## Pre-Requisites
 
 In order to carry out this walkthrough you'll need the following:

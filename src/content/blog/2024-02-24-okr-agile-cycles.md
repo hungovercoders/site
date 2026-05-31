@@ -13,28 +13,6 @@ image:
 
 It's been nearly 2 years since I posted one of my [first blogs which was around OKRs (objectives and key results)](/blog/2022-09-17-team-okr-hdd). Since then I have been preaching their usage and loving the concept... but I have completely missed integrating their ideas into the day to day agile working practices, rendering them ineffective. Spurred on by co-workers, my will to ensure that prioritisation of value is easy during iteration ceremonies, and the awesome book [Succeeding with OKRs in Agile](https://www.amazon.co.uk/Succeeding-OKRs-Agile-deliver-objectives-ebook/dp/B0CGXLGL74), below are my thoughts on how to integrate OKR cycles into the agile framework.
 
-- [Quick OKR and Agile Recap](#quick-okr-and-agile-recap)
-- [Why Integrate OKRs with Agile](#why-integrate-okrs-with-agile)
-- [Making OKRs Everything](#making-okrs-everything)
-  - [Objective Zero](#objective-zero)
-- [Team OKRs Should not Link to Individual Remuneration](#team-okrs-should-not-link-to-individual-remuneration)
-- [The Football Analogy](#the-football-analogy)
-- [OKR and Agile Cycle](#okr-and-agile-cycle)
-- [OKR Ceremonies](#okr-ceremonies)
-  - [OKR Scene Setting](#okr-scene-setting)
-    - [Categories of Concern](#categories-of-concern)
-  - [OKR Creation](#okr-creation)
-  - [OKR Impact Planning](#okr-impact-planning)
-  - [OKR Retrospective](#okr-retrospective)
-- [Iteration Ceremonies](#iteration-ceremonies)
-  - [Daily Stand-ups](#daily-stand-ups)
-  - [Zero Tolerance](#zero-tolerance)
-  - [Backlog Refinement](#backlog-refinement)
-  - [Iteration Planning](#iteration-planning)
-  - [Iteration Review](#iteration-review)
-  - [Iteration Retrospective](#iteration-retrospective)
-- [Stay Agile](#stay-agile)
-
 ## Quick OKR and Agile Recap
 
 For OKRs I recommend reading my previous [blog post](/blog/2022-09-17-team-okr-hdd) on the matter but just in case here is a quick refresher:

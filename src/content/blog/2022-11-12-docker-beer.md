@@ -14,13 +14,6 @@ image:
 
 In the previous post we created a [Beer API using Fast API in python](https://www.hungovercoders.com/blog/blog/2022-11-06-fast-api). Now fellow hungovercoders we want to pour this into a docker container and publish in an azure container app, sharing our beer-fuelled goodness with the world!!!
 
-- [PreRequisites](#prerequisites)
-- [Setup your Codebase](#setup-your-codebase)
-- [Setup the FastAPI Code](#setup-the-fastapi-code)
-- [Setup the Docker File](#setup-the-docker-file)
-- [Push your Container to Docker Hub](#push-your-container-to-docker-hub)
-- [Deploy your Container to an Azure Webapp for Containers](#deploy-your-container-to-an-azure-webapp-for-containers)
-
 ## PreRequisites
 
 - You'll need [python](https://www.python.org/downloads/) installed.

@@ -14,15 +14,6 @@ image:
 
 A problem came up recently whereby we needed to run the cosmos emulator in a docker container for local development and subsequently in the CI stage of our deployment pipeline to reduce the need for a permanent environment. This was a right head scratcher due to the slowness of the emulator to start along with the need for a cert to interact with the emulator. This started to make me feel worse than a classic hungovercoder hangover, there was only way to cure myself of this... Solve the problem with my favourite of all hangover cures - doggos! Lets jump in and demonstrate how we can create a local developer experience with a dotnet app and the cosmo emulator running docker.
 
-- [Pre-Requisites](#pre-requisites)
-- [Compose your Cosmos Emulator](#compose-your-cosmos-emulator)
-- [Create your Console App](#create-your-console-app)
-- [Dockerise your Console App](#dockerise-your-console-app)
-  - [Magic Entry Script](#magic-entry-script)
-  - [Docker File](#docker-file)
-- [Compose your Console App](#compose-your-console-app)
-- [Run your Application](#run-your-application)
-
 ## Pre-Requisites
 
 In order to carry out this walkthrough you'll need the following:

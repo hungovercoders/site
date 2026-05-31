@@ -13,18 +13,6 @@ image:
 
 Its been far too long again and I need to share with you more about my contracts obsession. Starting with how to make API contracts aesthetically pleasing with code examples using [Docusaurus](https://docusaurus.io/) and the [openapi plugin](https://github.com/PaloAltoNetworks/docusaurus-openapi-docs). If you simply can't wait to see how pretty these are before you invest anytime, skip to the [Final Docs in Live Site](#final-docs-in-live-site) section.
 
-- [Pre-Requisites](#pre-requisites)
-- [Directory Layout](#directory-layout)
-- [Add API Contract](#add-api-contract)
-- [Configure Docusuarus for API Doc Generation](#configure-docusuarus-for-api-doc-generation)
-  - [Configure Docusaurus Config File](#configure-docusaurus-config-file)
-  - [Configure Sidebar](#configure-sidebar)
-- [Generate API Docs](#generate-api-docs)
-- [Resolving Issues](#resolving-issues)
-- [Code Examples](#code-examples)
-- [Final Docs in Live Site](#final-docs-in-live-site)
-- [Next Steps](#next-steps)
-
 ## Pre-Requisites
 
 - [VS Code](https://code.visualstudio.com/download)

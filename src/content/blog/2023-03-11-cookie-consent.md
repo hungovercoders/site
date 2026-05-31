@@ -12,26 +12,6 @@ image:
 
 Ok beer and code lovers, I wanted to make sure that I captured consent for analytics for anyone coming to the hungovercoders website. I'll be honest by the end of my consent rabbit hole I really fancied a can, but instead I'll share my knowledge here with you of how I leveraged [Google Tag Manager](https://tagmanager.google.com/) and [Klaro](https://heyklaro.com/docs/klaro?utm_source=hungovercoders) to manage consent for a website. The reason that this is such a great combination is that it is free, extremely customizable and you can manage your consent from a single point.
 
-- [Prerequisites](#prerequisites)
-  - [Tools](#tools)
-  - [Reading Material and Sources](#reading-material-and-sources)
-- [Enable Google Tag Manager Consent Overview](#enable-google-tag-manager-consent-overview)
-- [Capture User Consent with Klaro](#capture-user-consent-with-klaro)
-  - [Create First Party Cookie Variable](#create-first-party-cookie-variable)
-  - [Preview](#preview)
-- [Create User Defined Vairables to Hold Each Consent](#create-user-defined-vairables-to-hold-each-consent)
-- [Configure GTM Consent](#configure-gtm-consent)
-  - [Use GTM Consent State Template Variable](#use-gtm-consent-state-template-variable)
-  - [Use GTM Consent Mode Template Tag](#use-gtm-consent-mode-template-tag)
-- [Create Consent Test Tags](#create-consent-test-tags)
-- [Categorise Consent Objects in a Folder](#categorise-consent-objects-in-a-folder)
-- [Preview and Walkthrough the Work](#preview-and-walkthrough-the-work)
-  - [Navigate Preview Website](#navigate-preview-website)
-  - [Tag Assistant Logs](#tag-assistant-logs)
-- [Submit and Test Site](#submit-and-test-site)
-  - [Wait! - Set Consent Explicitly in Tags](#wait---set-consent-explicitly-in-tags)
-  - [Publish with Consent Configured](#publish-with-consent-configured)
-
 ## Prerequisites
 
 ### Tools

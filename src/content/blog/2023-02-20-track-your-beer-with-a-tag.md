@@ -12,13 +12,6 @@ image:
 
 You have a load of lovely links on your website that link to external alcoholic partners. How do you keep track of your beer fuelled journeys when a customer goes to those beer-infused partners?? With google tag manager and some tasty javascript, that's how!
 
-- [PreRequisites](#prerequisites)
-- [Create a Workspace](#create-a-workspace)
-- [Create a Tag](#create-a-tag)
-- [Create a Trigger](#create-a-trigger)
-- [Test your Trigger](#test-your-trigger)
-- [Publish your Changes](#publish-your-changes)
-
 ## PreRequisites
 
 Ok you're going to need to setup [google tag manager](https://support.google.com/tagmanager/answer/6103696?hl=en) on your website. Once this is done you can setup a trigger and a tag it as below.
