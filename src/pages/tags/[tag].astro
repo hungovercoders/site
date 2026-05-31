@@ -5,17 +5,38 @@ import Footer from '../../components/Footer.astro';
 import FormattedDate from '../../components/FormattedDate.astro';
 import GtmNoscript from '../../components/GtmNoscript.astro';
 import Header from '../../components/Header.astro';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+import { SITE_TITLE } from '../../consts';
 
-const posts = (await getCollection('blog')).sort(
-	(a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
-);
+export async function getStaticPaths() {
+	const posts = await getCollection('blog');
+	const grouped = new Map<string, { display: string; posts: typeof posts }>();
+	for (const post of posts) {
+		for (const tag of post.data.tags ?? []) {
+			if (tag.toLowerCase() === 'hungovercoders') continue;
+			const slug = tag.toLowerCase().replace(/\s+/g, '-');
+			if (!grouped.has(slug)) grouped.set(slug, { display: tag, posts: [] });
+			grouped.get(slug)!.posts.push(post);
+		}
+	}
+	return [...grouped.entries()].map(([slug, { display, posts }]) => ({
+		params: { tag: slug },
+		props: {
+			display,
+			posts: posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()),
+		},
+	}));
+}
+
+const { display, posts } = Astro.props;
 ---
 
 <!doctype html>
 <html lang="en">
 	<head>
-		<BaseHead title={`Blog | ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
+		<BaseHead
+			title={`${display} | ${SITE_TITLE}`}
+			description={`Posts tagged ${display} on hungovercoders.`}
+		/>
 		<style>
 			main {
 				width: 1100px;
@@ -25,12 +46,30 @@ const posts = (await getCollection('blog')).sort(
 				text-align: center;
 				margin-bottom: 3rem;
 			}
-			.page-header h1 {
-				margin-bottom: 0.5rem;
+			.page-header .eyebrow {
+				color: rgb(var(--gray));
+				text-transform: uppercase;
+				letter-spacing: 1.5px;
+				font-size: 0.8rem;
+				margin: 0 0 0.5rem;
 			}
-			.page-header p {
+			.page-header h1 {
+				margin: 0 0 0.5rem;
+				text-transform: lowercase;
+			}
+			.page-header .count {
 				color: rgb(var(--gray));
 				margin: 0;
+			}
+			.page-header .back {
+				display: inline-block;
+				margin-top: 1rem;
+				color: var(--accent);
+				text-decoration: none;
+				font-size: 0.9rem;
+			}
+			.page-header .back:hover {
+				text-decoration: underline;
 			}
 			.grid {
 				display: grid;
@@ -69,14 +108,12 @@ const posts = (await getCollection('blog')).sort(
 				display: block;
 				background: rgb(var(--gray-light));
 				border-bottom: 1px solid rgb(var(--gray-light));
-				border-radius: 0;
 			}
 			.card-body {
 				padding: 1.25rem 1.5rem 1.5rem;
 				display: flex;
 				flex-direction: column;
 				gap: 0.5rem;
-				flex: 1;
 			}
 			.card .date {
 				color: rgb(var(--gray));
@@ -100,22 +137,6 @@ const posts = (await getCollection('blog')).sort(
 				line-height: 1.45;
 				margin: 0;
 			}
-			.card .tags {
-				display: flex;
-				flex-wrap: wrap;
-				gap: 0.35rem;
-				margin-top: auto;
-				padding-top: 0.5rem;
-			}
-			.card .tag {
-				font-size: 0.7rem;
-				text-transform: uppercase;
-				letter-spacing: 0.5px;
-				padding: 0.2rem 0.55rem;
-				background: rgb(var(--gray-light));
-				color: rgb(var(--gray-dark));
-				border-radius: 999px;
-			}
 			@media (max-width: 720px) {
 				.grid {
 					grid-template-columns: 1fr;
@@ -129,8 +150,10 @@ const posts = (await getCollection('blog')).sort(
 		<Header />
 		<main>
 			<header class="page-header">
-				<h1>Blog</h1>
-				<p>{posts.length} posts &middot; opinions, walkthroughs, and the occasional hangover</p>
+				<p class="eyebrow">Tag</p>
+				<h1>#{display}</h1>
+				<p class="count">{posts.length} {posts.length === 1 ? 'post' : 'posts'}</p>
+				<a class="back" href="/tags/">&larr; all tags</a>
 			</header>
 			<ul class="grid">
 				{
@@ -146,13 +169,6 @@ const posts = (await getCollection('blog')).sort(
 										</p>
 										<h2>{post.data.title}</h2>
 										<p class="desc">{post.data.description}</p>
-										{post.data.tags && post.data.tags.length > 0 && (
-											<div class="tags">
-												{post.data.tags.slice(0, 3).map((t) => (
-													<span class="tag">{t}</span>
-												))}
-											</div>
-										)}
 									</div>
 								</a>
 							</li>
