@@ -13,13 +13,6 @@ image:
 
 I am quite often creating various data assets like data lake storage, databricks etc on Azure for learning. I want to automate the provision of these to make my life easier and so I decided to crack open a can and learn some [terraform on Azure](https://developer.hashicorp.com/terraform/tutorials/azure-get-started) with github actions to make this repeatable!
 
-- [Pre-Requisites](#pre-requisites)
-- [Diagram](#diagram)
-- [Terraform an Azure Resource Group with Local State](#terraform-an-azure-resource-group-with-local-state)
-- [Setup and Deploy Through Terraform Cloud](#setup-and-deploy-through-terraform-cloud)
-- [Deploy Resource Group with Github Action](#deploy-resource-group-with-github-action)
-- [Deploy Azure Data Platform Assets](#deploy-azure-data-platform-assets)
-
 ## Pre-Requisites
 
 - You'll need an [azure subscription](portal.azure.com) to host your data infrastructure and be an owner at the subscription level.

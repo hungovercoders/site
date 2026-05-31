@@ -15,9 +15,6 @@ image:
 
 I wanted to start getting feedback for my [github pages](https://pages.github.com/) hosted [jekyll minima](https://github.com/jekyll/minima) backed blog posts. These could possibly be scathing drunkards furious with my methods, so that we may enter an educational debate, or simply feedback on how to improve areas as I am always busting to elevate my code! I came across [giscus](https://giscus.app/) and found that this was very simple to do by backing it with [github discussions](https://docs.github.com/en/discussions) as follows...
 
-- [Prerequisites](#prerequisites)
-- [Create Public Discussions Repo](#create-public-discussions-repo)
-- [Generate Giscus Javascript](#generate-giscus-javascript)
 - [Add Footer File to \_includes Folder](#add-footer-file-to-_includes-folder)
 - [Comments Now Appear on Blog](#comments-now-appear-on-blog)
 

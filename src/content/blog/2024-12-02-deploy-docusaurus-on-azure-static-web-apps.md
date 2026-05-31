@@ -13,12 +13,6 @@ image:
 
 I've been meaning to move the hungovercoders website over to [docusaurus](https://docusaurus.io/) for a while after seeing it as the basis for [event catalog](https://www.eventcatalog.dev/) among other [cool community shared demos](https://docusaurus.io/showcase). Whilst experimenting I found how easy it was to deploy to [Azure Static Web Apps](https://docs.microsoft.com/en-us/azure/static-web-apps/overview) using the [vs code extension](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-azurestaticwebapps). Below is how to create the template docusaurus website and deploy it to azure static web apps.
 
-- [Pre-Requisites](#pre-requisites)
-- [Docusaurus Start](#docusaurus-start)
-- [Deploy Azure Static Webapp](#deploy-azure-static-webapp)
-- [Adding a Gitpod Configuration File](#adding-a-gitpod-configuration-file)
-- [Custom Domain - Dogusaurus](#custom-domain---dogusaurus)
-
 ## Pre-Requisites
 
 - [VS Code](https://code.visualstudio.com/download)

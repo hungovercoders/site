@@ -16,21 +16,6 @@ image:
 
 I wanted to make some Github templates using cloud developer environments to solve my ongoing configuration and development needs for infrastructure deployment. This has led to an awesome experience for myself as I can now rapidly develop and test against an Azure cloud environment in seconds using this [template.azure.platform](https://github.com/hungovercoders/template.azure.terraform) repo! Read on to find out how I did this with github, gitpod and Terraform!
 
-- [Prerequisites](#prerequisites)
-- [Why Terraform?](#why-terraform)
-- [Why Cloud Developer Environment?](#why-cloud-developer-environment)
-- [Create base image with prebuild](#create-base-image-with-prebuild)
-  - [Declare docker file](#declare-docker-file)
-  - [Configure prebuild](#configure-prebuild)
-- [Create Azure CLI Initialisation](#create-azure-cli-initialisation)
-  - [Create Azure Application Registration](#create-azure-application-registration)
-  - [Add Azure Configuration to Gitpod](#add-azure-configuration-to-gitpod)
-  - [Create Azure startup scripts](#create-azure-startup-scripts)
-- [Create Terraform Initialisation](#create-terraform-initialisation)
-  - [Create storage account](#create-storage-account)
-  - [Complete Terraform files](#complete-terraform-files)
-  - [Create Terraform startup scripts](#create-terraform-startup-scripts)
-
 ## Prerequisites
 
 - [Github Account](https://www.github.com) - If you haven't already get yourself a github account.

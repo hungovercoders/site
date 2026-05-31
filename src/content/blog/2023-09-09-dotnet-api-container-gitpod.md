@@ -15,16 +15,6 @@ image:
 
 Recently I decided to learn docker and all things containers. I dived deep into the deepest darkest spaces of my windows laptops configuration... My laptop suddenly got very angry with me and decided that the C drive was too full, or that suddenly docker desktop and the dotnet framework would disappear from my machine! I desperately wanted to just code and run the [whiskey api](https://github.com/hungovercoders/whiskey.reviews) in a container without wasting time configuring my machine. Well, everyone, there is a way, and that way is using the cloud developer environment [gitpod](https://www.gitpod.io)...
 
-- [Prerequisites](#prerequisites)
-- [Run Dotnet API Container](#run-dotnet-api-container)
-- [What is Gitpod?](#what-is-gitpod)
-- [Setup Gitpod](#setup-gitpod)
-- [Gitpod Configuration File](#gitpod-configuration-file)
-- [Containers on Containers](#containers-on-containers)
-- [Create Workspace](#create-workspace)
-- [Configure Prebuild](#configure-prebuild)
-- [What Next??](#what-next)
-
 ## Prerequisites
 
 - [Github Account](https://www.github.com) - If you haven't already get yourself a github account, this is how you're going to host code and open up gitpod.

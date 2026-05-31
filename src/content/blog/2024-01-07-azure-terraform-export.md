@@ -13,13 +13,6 @@ image:
 
 The hungovercoders [template.azure.terraform repo](https://github.com/hungovercoders/template.azure.terraform) is now an absolute beast and a template I frequently use as a starting point for any codebases that will deploy infrastructure to Azure. However, I wanted to know if there was a way to fast-track anyone who doesn't want to convert their ARM or bicep from first principles into terraform... The answer is yes and it is [aztfexport](https://github.com/Azure/aztfexport)! Lets crack open a can and automate those terraform files!
 
-- [Prerequisites](#prerequisites)
-- [Import the Resources](#import-the-resources)
-- [Validate Terraform Resources with Plan](#validate-terraform-resources-with-plan)
-- [Add a New Resource](#add-a-new-resource)
-- [Apply to a New Resource Group](#apply-to-a-new-resource-group)
-- [Use the Template](#use-the-template)
-
 ## Prerequisites
 
 You can either:

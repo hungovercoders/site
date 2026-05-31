@@ -16,26 +16,6 @@ image:
 
 Being an impatient hungovercoder due to the constant headaches the night before often brings upon me, I need to make sure I find out as early as possible whether my deployment pipeline is working. For years I have committed my code and waited for some proprietary tooling embedded within Azure devops or github actions to tell me the answer... I have changed my ways and have now brought the scripts for deployment into my codebase that I can simulate easily locally in my cloud developer environment AND then use the exact same scripts for my deployment pipeline! Read on fellow hungovercoder and find out how to shift left with scripts...
 
-- [Shifting Left with Scripts](#shifting-left-with-scripts)
-- [Goal: Deploying a Container App in Azure](#goal-deploying-a-container-app-in-azure)
-- [Prerequisites](#prerequisites)
-- [Love Environment Variables](#love-environment-variables)
-  - [Dynamic Environment Variables](#dynamic-environment-variables)
-  - [Static Environment Variables](#static-environment-variables)
-- [Smoke Test Driven Development](#smoke-test-driven-development)
-- [Local Application Development](#local-application-development)
-  - [Quick Start](#quick-start)
-  - [Containerize the API](#containerize-the-api)
-- [Local Infrastructure Development](#local-infrastructure-development)
-  - [Pre Requisites](#pre-requisites)
-  - [Terraform](#terraform)
-- [Configure Cloud Developer Startup](#configure-cloud-developer-startup)
-- [Environment Deployment](#environment-deployment)
-  - [Reusing Same Scripts for Deployment](#reusing-same-scripts-for-deployment)
-  - [Tests During Build](#tests-during-build)
-  - [Azure Outcome](#azure-outcome)
-- [To be Continued](#to-be-continued)
-
 ## Shifting Left with Scripts
 
 I have seen the light and started using scripts for my deployment processes. Along with dockerfiles all of the complexity of deployment can be abstracted away which keeps your deployment pipelines really dumb. Having the detail in the scripts too means you control the abstraction and have a deeper understanding of how things work. If you rely on third party tools, whilst they may seem quicker at first, they are not transferable nor can you recreate them locally. Not being able to do this locally can lead to a painful development process whereby you do not know the impact of your changes on a deployment pipeline until you have committed and waited an age to get that feedback... The details below hopefully show you how you can bring all of this right into your development process and shift that pipeline all the way to the left using scripts!

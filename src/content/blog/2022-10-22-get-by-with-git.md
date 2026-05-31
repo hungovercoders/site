@@ -13,23 +13,6 @@ image:
 
 Drinking too much? Can't remember all those git commands and methods without googling them every time?? Google no more, this page will help you... get by with git!
 
-- [PreRequisites](#prerequisites)
-- [WTF is git?](#wtf-is-git)
-- [Quick Reference](#quick-reference)
-  - [Local](#local)
-  - [Remote](#remote)
-  - [Branch and Commit Management](#branch-and-commit-management)
-- [Git Local](#git-local)
-  - [Setup local git config](#setup-local-git-config)
-  - [Setup repo and commit](#setup-repo-and-commit)
-  - [Branching Locally](#branching-locally)
-- [Git Remote](#git-remote)
-  - [Setup repo and synch](#setup-repo-and-synch)
-- [Protecting Main with Pull Requests](#protecting-main-with-pull-requests)
-- [Git Ignore](#git-ignore)
-  - [Example Contents of .gitnore file](#example-contents-of-gitnore-file)
-- [Using Visual Studio Code](#using-visual-studio-code)
-
 ## PreRequisites
 
 - Install [git](https://git-scm.com/downloads).
