@@ -40,11 +40,12 @@ const wrap = (text, max) => {
 const escape = (s) =>
 	s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-const titleLines = wrap(title, 24);
-const fontSize = titleLines.length > 3 ? 64 : 80;
-const lineHeight = fontSize * 1.15;
+const titleLines = wrap(title, 22);
+const fontSize = titleLines.length > 3 ? 60 : titleLines.length > 2 ? 72 : 84;
+const lineHeight = fontSize * 1.12;
 const totalTitleHeight = titleLines.length * lineHeight;
 const titleStartY = (630 - totalTitleHeight) / 2 + fontSize * 0.8;
+const titleEndY = titleStartY + (titleLines.length - 1) * lineHeight + fontSize * 0.15;
 
 // Recolour the symbol to white-on-transparent so it reads against the dark
 // gradient. favicon.png is black icon lines on an opaque white interior — so
@@ -78,26 +79,42 @@ const svg = `<?xml version="1.0" encoding="UTF-8"?>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#0f1219"/>
-      <stop offset="100%" stop-color="#222939"/>
+      <stop offset="100%" stop-color="#1a2030"/>
     </linearGradient>
+    <radialGradient id="glow" cx="20%" cy="20%" r="80%">
+      <stop offset="0%" stop-color="#2337ff" stop-opacity="0.18"/>
+      <stop offset="60%" stop-color="#2337ff" stop-opacity="0"/>
+    </radialGradient>
     <clipPath id="portrait-clip">
-      <circle cx="1080" cy="100" r="68"/>
+      <circle cx="1080" cy="100" r="64"/>
     </clipPath>
   </defs>
   <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
   <rect x="0" y="0" width="12" height="630" fill="#2337ff"/>
-  <text x="60" y="80" font-family="Helvetica, Arial, sans-serif" font-size="28" font-weight="700" fill="#2337ff" letter-spacing="2">HUNGOVERCODERS</text>
-  <circle cx="1080" cy="100" r="70" fill="none" stroke="#2337ff" stroke-width="3"/>
-  <image href="data:image/png;base64,${portraitBase64}" x="1012" y="32" width="136" height="136" preserveAspectRatio="xMidYMid slice" clip-path="url(#portrait-clip)"/>
+
+  <!-- Brand lockup: symbol + wordmark, top-left -->
+  <image href="data:image/png;base64,${logoBase64}" x="50" y="40" width="64" height="64"/>
+  <text x="124" y="86" font-family="Helvetica, Arial, sans-serif" font-size="30" font-weight="800" fill="#ffffff" letter-spacing="2">HUNGOVERCODERS</text>
+
+  <!-- Author portrait, top-right -->
+  <circle cx="1080" cy="100" r="66" fill="none" stroke="#2337ff" stroke-width="3"/>
+  <image href="data:image/png;base64,${portraitBase64}" x="1016" y="36" width="128" height="128" preserveAspectRatio="xMidYMid slice" clip-path="url(#portrait-clip)"/>
+
+  <!-- Title -->
   ${titleLines
 		.map(
 			(line, i) =>
 				`<text x="60" y="${titleStartY + i * lineHeight}" font-family="Georgia, 'Times New Roman', serif" font-size="${fontSize}" font-weight="700" fill="#ffffff">${escape(line)}</text>`,
 		)
 		.join('\n  ')}
-  <image href="data:image/png;base64,${logoBase64}" x="44" y="498" width="100" height="100"/>
-  <text x="160" y="560" font-family="Helvetica, Arial, sans-serif" font-size="26" fill="#a0a8b8">${escape(tagline)}</text>
-  <text x="1140" y="570" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="22" fill="#606f9f">hungovercoders.com</text>
+
+  <!-- Accent rule under the title -->
+  <rect x="60" y="${titleEndY + 18}" width="80" height="4" fill="#2337ff"/>
+
+  <!-- Tagline + URL -->
+  <text x="60" y="${titleEndY + 70}" font-family="Helvetica, Arial, sans-serif" font-size="26" fill="#a0a8b8">${escape(tagline)}</text>
+  <text x="1140" y="580" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="22" font-weight="600" fill="#606f9f" letter-spacing="1">hungovercoders.com</text>
 </svg>`;
 
 const outDir = join(PUBLIC_DIR, 'assets', slug);
