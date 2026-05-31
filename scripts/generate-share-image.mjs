@@ -1,11 +1,12 @@
 #!/usr/bin/env node
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = join(__dirname, '..', 'public');
+const LOGO_PATH = join(PUBLIC_DIR, 'favicon.png');
 
 const usage = `Usage: node scripts/generate-share-image.mjs <slug> <title> [tagline]
   slug    e.g. 2026-05-25-building-a-film-picker-with-claude-code
@@ -44,8 +45,10 @@ const lineHeight = fontSize * 1.15;
 const totalTitleHeight = titleLines.length * lineHeight;
 const titleStartY = (630 - totalTitleHeight) / 2 + fontSize * 0.8;
 
+const logoBase64 = (await readFile(LOGO_PATH)).toString('base64');
+
 const svg = `<?xml version="1.0" encoding="UTF-8"?>
-<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#0f1219"/>
@@ -55,6 +58,8 @@ const svg = `<?xml version="1.0" encoding="UTF-8"?>
   <rect width="1200" height="630" fill="url(#bg)"/>
   <rect x="0" y="0" width="12" height="630" fill="#2337ff"/>
   <text x="60" y="80" font-family="Helvetica, Arial, sans-serif" font-size="28" font-weight="700" fill="#2337ff" letter-spacing="2">HUNGOVERCODERS</text>
+  <circle cx="1080" cy="100" r="72" fill="#ffffff" opacity="0.95"/>
+  <image href="data:image/png;base64,${logoBase64}" x="1010" y="30" width="140" height="140"/>
   ${titleLines
 		.map(
 			(line, i) =>
