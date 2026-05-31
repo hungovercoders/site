@@ -32,56 +32,69 @@ const posts = (await getCollection('blog')).sort(
 				color: rgb(var(--gray));
 				margin: 0;
 			}
-			.grid {
-				display: grid;
-				grid-template-columns: 1fr 1fr;
-				gap: 3rem 2rem;
+			.posts {
 				list-style: none;
 				padding: 0;
 				margin: 0;
+				display: flex;
+				flex-direction: column;
 			}
-			.card a {
+			.post {
+				border-top: 1px solid rgb(var(--gray-light));
+				padding: 2rem 0;
+			}
+			.post:last-child {
+				border-bottom: 1px solid rgb(var(--gray-light));
+			}
+			.post a {
 				display: block;
 				color: inherit;
 				text-decoration: none;
 			}
-			.card-image {
-				width: 100%;
-				aspect-ratio: 1200 / 630;
-				object-fit: cover;
-				display: block;
-				border-radius: 8px;
-				margin-bottom: 1rem;
-				transition: 0.15s ease;
-			}
-			.card a:hover .card-image {
-				transform: translateY(-2px);
-				box-shadow: var(--box-shadow);
-			}
-			.card .date {
+			.post .date {
 				color: rgb(var(--gray));
-				font-size: 0.85rem;
-				margin: 0 0 0.4rem;
-			}
-			.card h2 {
+				font-size: 0.8rem;
+				text-transform: uppercase;
+				letter-spacing: 1px;
 				margin: 0 0 0.5rem;
-				font-size: 1.4rem;
-				line-height: 1.3;
-				color: rgb(var(--black));
 			}
-			.card a:hover h2 {
+			.post h2 {
+				margin: 0 0 0.5rem;
+				font-size: 1.7rem;
+				line-height: 1.25;
+				color: rgb(var(--black));
+				transition: color 0.15s ease;
+			}
+			.post a:hover h2 {
 				color: var(--accent);
 			}
-			.card .desc {
+			.post .desc {
 				color: rgb(var(--gray-dark));
-				font-size: 0.95rem;
-				line-height: 1.5;
+				font-size: 1rem;
+				line-height: 1.55;
 				margin: 0;
 			}
+			.post .tags {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.4rem;
+				margin-top: 0.85rem;
+			}
+			.post .tag {
+				font-size: 0.7rem;
+				text-transform: uppercase;
+				letter-spacing: 0.6px;
+				padding: 0.2rem 0.6rem;
+				color: rgb(var(--gray));
+				border: 1px solid rgb(var(--gray-light));
+				border-radius: 999px;
+			}
 			@media (max-width: 720px) {
-				.grid {
-					grid-template-columns: 1fr;
-					gap: 2.5rem;
+				.post {
+					padding: 1.5rem 0;
+				}
+				.post h2 {
+					font-size: 1.4rem;
 				}
 			}
 		</style>
@@ -94,19 +107,27 @@ const posts = (await getCollection('blog')).sort(
 				<h1>Blog</h1>
 				<p>{posts.length} posts &middot; opinions, walkthroughs, and the occasional hangover</p>
 			</header>
-			<ul class="grid">
+			<ul class="posts">
 				{
 					posts.map((post) => {
-						const imgPath = post.data.image?.path;
+						const tags = (post.data.tags ?? []).filter(
+							(t) => t.toLowerCase() !== 'hungovercoders',
+						);
 						return (
-							<li class="card">
+							<li class="post">
 								<a href={`/blog/${post.id}/`}>
-									{imgPath && <img class="card-image" src={imgPath} alt="" loading="lazy" />}
 									<p class="date">
 										<FormattedDate date={post.data.date} />
 									</p>
 									<h2>{post.data.title}</h2>
 									<p class="desc">{post.data.description}</p>
+									{tags.length > 0 && (
+										<div class="tags">
+											{tags.slice(0, 4).map((t) => (
+												<span class="tag">{t}</span>
+											))}
+										</div>
+									)}
 								</a>
 							</li>
 						);
