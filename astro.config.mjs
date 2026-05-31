@@ -13,12 +13,34 @@ export default defineConfig({
 
   fonts: [
       {
+          provider: fontProviders.local(),
+          name: 'Atkinson',
+          cssVariable: '--font-body',
+          fallbacks: ['system-ui', 'sans-serif'],
+          options: {
+              variants: [
+                  {
+                      src: ['./src/assets/fonts/atkinson-regular.woff'],
+                      weight: 400,
+                      style: 'normal',
+                      display: 'swap',
+                  },
+                  {
+                      src: ['./src/assets/fonts/atkinson-bold.woff'],
+                      weight: 700,
+                      style: 'normal',
+                      display: 'swap',
+                  },
+              ],
+          },
+      },
+      {
           provider: fontProviders.google(),
           name: 'Lora',
-          cssVariable: '--font-body',
+          cssVariable: '--font-display',
           fallbacks: ['Georgia', 'Cambria', 'serif'],
-          weights: [400, 500, 600, 700],
-          styles: ['normal', 'italic'],
+          weights: [600, 700],
+          styles: ['normal'],
       },
       {
           provider: fontProviders.google(),
