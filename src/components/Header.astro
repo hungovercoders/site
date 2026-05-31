@@ -6,7 +6,12 @@ import Search from './Search.astro';
 
 <header>
 	<nav>
-		<h2><a href="/">{SITE_TITLE}</a></h2>
+		<h2>
+			<a href="/" class="brand">
+				<img src="/logo.svg" alt="" class="logo" width="40" height="40" />
+				<span>{SITE_TITLE}</span>
+			</a>
+		</h2>
 		<div class="internal-links">
 			<HeaderLink href="/">Home</HeaderLink>
 			<HeaderLink href="/blog">Blog</HeaderLink>
@@ -64,6 +69,16 @@ import Search from './Search.astro';
 		white-space: nowrap;
 		overflow-wrap: normal;
 		word-break: keep-all;
+	}
+	.brand {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5em;
+	}
+	.logo {
+		height: 2em;
+		width: auto;
+		display: block;
 	}
 	nav {
 		display: flex;
