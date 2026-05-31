@@ -17,7 +17,7 @@
 		0 16px 32px rgba(var(--gray), 33%);
 }
 body {
-	font-family: var(--font-atkinson);
+	font-family: var(--font-body);
 	margin: 0;
 	padding: 0;
 	text-align: left;
@@ -26,7 +26,7 @@ body {
 	word-wrap: break-word;
 	overflow-wrap: break-word;
 	color: rgb(var(--gray-dark));
-	font-size: 20px;
+	font-size: 19px;
 	line-height: 1.7;
 }
 main {
@@ -44,21 +44,24 @@ h6 {
 	margin: 0 0 0.5rem 0;
 	color: rgb(var(--black));
 	line-height: 1.2;
+	font-weight: 700;
+	letter-spacing: -0.01em;
 }
 h1 {
-	font-size: 3.052em;
+	font-size: 2.75em;
+	letter-spacing: -0.02em;
 }
 h2 {
-	font-size: 2.441em;
+	font-size: 2.15em;
 }
 h3 {
-	font-size: 1.953em;
+	font-size: 1.7em;
 }
 h4 {
-	font-size: 1.563em;
+	font-size: 1.4em;
 }
 h5 {
-	font-size: 1.25em;
+	font-size: 1.2em;
 }
 strong,
 b {
@@ -129,16 +132,21 @@ img {
 	border-radius: 8px;
 }
 code {
+	font-family: var(--font-mono);
+	font-size: 0.9em;
 	padding: 2px 5px;
 	background-color: rgb(var(--gray-light));
 	border-radius: 2px;
 }
 pre {
+	font-family: var(--font-mono);
+	font-size: 0.9em;
 	padding: 1.5em;
 	border-radius: 8px;
 }
 pre > code {
 	all: unset;
+	font-family: var(--font-mono);
 }
 blockquote {
 	border-left: 4px solid var(--accent);
