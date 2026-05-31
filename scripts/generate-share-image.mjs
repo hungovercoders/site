@@ -81,22 +81,22 @@ const svg = `<?xml version="1.0" encoding="UTF-8"?>
       <stop offset="100%" stop-color="#222939"/>
     </linearGradient>
     <clipPath id="portrait-clip">
-      <circle cx="100" cy="550" r="44"/>
+      <circle cx="1080" cy="100" r="68"/>
     </clipPath>
   </defs>
   <rect width="1200" height="630" fill="url(#bg)"/>
   <rect x="0" y="0" width="12" height="630" fill="#2337ff"/>
   <text x="60" y="80" font-family="Helvetica, Arial, sans-serif" font-size="28" font-weight="700" fill="#2337ff" letter-spacing="2">HUNGOVERCODERS</text>
-  <image href="data:image/png;base64,${logoBase64}" x="1020" y="30" width="140" height="140"/>
+  <circle cx="1080" cy="100" r="70" fill="none" stroke="#2337ff" stroke-width="3"/>
+  <image href="data:image/png;base64,${portraitBase64}" x="1012" y="32" width="136" height="136" preserveAspectRatio="xMidYMid slice" clip-path="url(#portrait-clip)"/>
   ${titleLines
 		.map(
 			(line, i) =>
 				`<text x="60" y="${titleStartY + i * lineHeight}" font-family="Georgia, 'Times New Roman', serif" font-size="${fontSize}" font-weight="700" fill="#ffffff">${escape(line)}</text>`,
 		)
 		.join('\n  ')}
-  <circle cx="100" cy="550" r="46" fill="none" stroke="#2337ff" stroke-width="3"/>
-  <image href="data:image/png;base64,${portraitBase64}" x="56" y="506" width="88" height="88" preserveAspectRatio="xMidYMid slice" clip-path="url(#portrait-clip)"/>
-  <text x="170" y="560" font-family="Helvetica, Arial, sans-serif" font-size="26" fill="#a0a8b8">${escape(tagline)}</text>
+  <image href="data:image/png;base64,${logoBase64}" x="44" y="498" width="100" height="100"/>
+  <text x="160" y="560" font-family="Helvetica, Arial, sans-serif" font-size="26" fill="#a0a8b8">${escape(tagline)}</text>
   <text x="1140" y="570" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="22" fill="#606f9f">hungovercoders.com</text>
 </svg>`;
 
