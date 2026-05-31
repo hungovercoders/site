@@ -7,6 +7,7 @@ import sharp from 'sharp';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = join(__dirname, '..', 'public');
 const LOGO_PATH = join(PUBLIC_DIR, 'favicon.png');
+const PORTRAIT_PATH = join(PUBLIC_DIR, 'assets', 'datagriff.png');
 
 const usage = `Usage: node scripts/generate-share-image.mjs <slug> <title> [tagline]
   slug    e.g. 2026-05-25-building-a-film-picker-with-claude-code
@@ -46,6 +47,7 @@ const totalTitleHeight = titleLines.length * lineHeight;
 const titleStartY = (630 - totalTitleHeight) / 2 + fontSize * 0.8;
 
 const logoBase64 = (await readFile(LOGO_PATH)).toString('base64');
+const portraitBase64 = (await readFile(PORTRAIT_PATH)).toString('base64');
 
 const svg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -54,6 +56,9 @@ const svg = `<?xml version="1.0" encoding="UTF-8"?>
       <stop offset="0%" stop-color="#0f1219"/>
       <stop offset="100%" stop-color="#222939"/>
     </linearGradient>
+    <clipPath id="portrait-clip">
+      <circle cx="100" cy="550" r="44"/>
+    </clipPath>
   </defs>
   <rect width="1200" height="630" fill="url(#bg)"/>
   <rect x="0" y="0" width="12" height="630" fill="#2337ff"/>
@@ -66,7 +71,9 @@ const svg = `<?xml version="1.0" encoding="UTF-8"?>
 				`<text x="60" y="${titleStartY + i * lineHeight}" font-family="Georgia, 'Times New Roman', serif" font-size="${fontSize}" font-weight="700" fill="#ffffff">${escape(line)}</text>`,
 		)
 		.join('\n  ')}
-  <text x="60" y="570" font-family="Helvetica, Arial, sans-serif" font-size="26" fill="#a0a8b8">${escape(tagline)}</text>
+  <circle cx="100" cy="550" r="46" fill="none" stroke="#2337ff" stroke-width="3"/>
+  <image href="data:image/png;base64,${portraitBase64}" x="56" y="506" width="88" height="88" preserveAspectRatio="xMidYMid slice" clip-path="url(#portrait-clip)"/>
+  <text x="170" y="560" font-family="Helvetica, Arial, sans-serif" font-size="26" fill="#a0a8b8">${escape(tagline)}</text>
   <text x="1140" y="570" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="22" fill="#606f9f">hungovercoders.com</text>
 </svg>`;
 
