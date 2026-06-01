@@ -538,10 +538,10 @@ And of course I utilise the dracula theme for dark mode!
 
 ## Final Docs in Live Site
 
-These are all work in progress but I am utilising these open api docs in both the [hungovercoders](https://docs.hungovercoders.com) website and my new [dogusaurus](https://www.dogusaurus.com/) website, which I aim to be a documentation website for multiple dog related projects!
+These are all work in progress but I am utilising these open api docs in both the hungovercoders website and my new [dogusaurus](https://www.dogusaurus.com/) website, which I aim to be a documentation website for multiple dog related projects!
 
 ## Next Steps
 
-I will continue building both my [hungovercoders](https://docs.hungovercoders.com) and [dogusaurus](https://www.dogusaurus.com/) websites and will be adding more contracts to them. I want to add some automated spectral linting to the contracts and add some pre commit hooks as well as some CI/CD pipelines to ensure that the contracts are valid according to best practice and my own rules. I'd also like to potentially serve an API from my azure static website that will simply pass the raw api contracts when requested to make it easier for them to download. I'll also want to look at better methods of versioning which I think is also provided by the open api plugin.
+I will continue building both my hungovercoders and [dogusaurus](https://www.dogusaurus.com/) websites and will be adding more contracts to them. I want to add some automated spectral linting to the contracts and add some pre commit hooks as well as some CI/CD pipelines to ensure that the contracts are valid according to best practice and my own rules. I'd also like to potentially serve an API from my azure static website that will simply pass the raw api contracts when requested to make it easier for them to download. I'll also want to look at better methods of versioning which I think is also provided by the open api plugin.
 
 I'll also be adding more contract types such as [data contracts](https://datacontract.com/) and [asyncapi contracts](https://www.asyncapi.com/) to the static/contracts directory and will be rendering them in the same way as the API contracts. I'm really keen on trying some [jinja templates](https://jinja.palletsprojects.com/en/stable/) to make data contracts render in MDX so I can host them in my docusaurus websites too. Exciting times!
