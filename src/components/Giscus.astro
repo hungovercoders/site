@@ -1,0 +1,58 @@
+---
+import {
+	GISCUS_REPO,
+	GISCUS_REPO_ID,
+	GISCUS_CATEGORY,
+	GISCUS_CATEGORY_ID,
+} from '../consts';
+
+// Render nothing unless all four required values are set in consts.ts.
+const enabled = Boolean(GISCUS_REPO && GISCUS_REPO_ID && GISCUS_CATEGORY && GISCUS_CATEGORY_ID);
+---
+
+{enabled && (
+	<section class="giscus-block" aria-label="Comments">
+		<h2>Comments</h2>
+		<p class="hint">
+			Backed by <a href={`https://github.com/${GISCUS_REPO}/discussions`} target="_blank" rel="noopener">GitHub Discussions</a> via Giscus. You'll need a GitHub account to post.
+		</p>
+		<script
+			src="https://giscus.app/client.js"
+			data-repo={GISCUS_REPO}
+			data-repo-id={GISCUS_REPO_ID}
+			data-category={GISCUS_CATEGORY}
+			data-category-id={GISCUS_CATEGORY_ID}
+			data-mapping="pathname"
+			data-strict="0"
+			data-reactions-enabled="1"
+			data-emit-metadata="0"
+			data-input-position="bottom"
+			data-theme="light"
+			data-lang="en"
+			data-loading="lazy"
+			crossorigin="anonymous"
+			async
+			is:inline
+		/>
+	</section>
+)}
+
+<style>
+	.giscus-block {
+		margin-top: 3.5rem;
+		padding-top: 2rem;
+		border-top: 1px solid rgb(var(--gray-light));
+	}
+	.giscus-block h2 {
+		font-size: 1.4rem;
+		margin: 0 0 0.5rem;
+	}
+	.giscus-block .hint {
+		color: rgb(var(--gray));
+		font-size: 0.9rem;
+		margin: 0 0 1.5rem;
+	}
+	.giscus-block .hint a {
+		color: var(--accent);
+	}
+</style>
