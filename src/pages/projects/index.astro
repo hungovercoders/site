@@ -1,0 +1,260 @@
+---
+import { getCollection } from 'astro:content';
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import GtmNoscript from '../../components/GtmNoscript.astro';
+import Header from '../../components/Header.astro';
+import { SITE_TITLE } from '../../consts';
+
+const all = await getCollection('projects');
+
+type Project = (typeof all)[number];
+type Status = 'live' | 'wip' | 'archived';
+
+const sortGroup = (a: Project, b: Project) => {
+	const oa = a.data.order ?? 9999;
+	const ob = b.data.order ?? 9999;
+	if (oa !== ob) return oa - ob;
+	return b.data.started.valueOf() - a.data.started.valueOf();
+};
+
+const byStatus: Record<Status, Project[]> = {
+	live: all.filter((p) => p.data.status === 'live').sort(sortGroup),
+	wip: all.filter((p) => p.data.status === 'wip').sort(sortGroup),
+	archived: all.filter((p) => p.data.status === 'archived').sort(sortGroup),
+};
+
+const groupTitles: Record<Status, string> = {
+	live: 'Live',
+	wip: 'Work in progress',
+	archived: 'Archived',
+};
+
+const hostFromUrl = (url: string) => {
+	try {
+		return new URL(url).host.replace(/^www\./, '');
+	} catch {
+		return url;
+	}
+};
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead
+			title={`Projects | ${SITE_TITLE}`}
+			description="Apps and tools dataGriff has built — live, in progress, and archived."
+		/>
+		<style>
+			main {
+				width: 960px;
+				max-width: calc(100% - 2em);
+			}
+			.page-header {
+				text-align: center;
+				margin-bottom: 3rem;
+			}
+			.page-header h1 {
+				margin-bottom: 0.5rem;
+			}
+			.page-header p {
+				color: rgb(var(--gray));
+				margin: 0;
+			}
+			.group {
+				margin-bottom: 3rem;
+			}
+			.group-title {
+				margin: 0 0 1.25rem;
+				font-size: 0.85rem;
+				text-transform: uppercase;
+				letter-spacing: 1.5px;
+				color: rgb(var(--gray));
+			}
+			.grid {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 1.5rem;
+				list-style: none;
+				margin: 0;
+				padding: 0;
+			}
+			.grid li {
+				width: calc(50% - 0.75rem);
+			}
+			.card {
+				display: block;
+				padding: 1.5rem;
+				background: white;
+				border: 1px solid rgb(var(--gray-light));
+				border-radius: 12px;
+				text-decoration: none;
+				color: inherit;
+				transition: 0.15s ease;
+				height: 100%;
+				box-sizing: border-box;
+			}
+			a.card:hover {
+				border-color: var(--accent);
+				box-shadow: var(--box-shadow);
+				transform: translateY(-2px);
+			}
+			.card-head {
+				display: flex;
+				justify-content: space-between;
+				align-items: flex-start;
+				gap: 1rem;
+				margin-bottom: 0.5rem;
+			}
+			.card h2 {
+				margin: 0;
+				font-size: 1.25rem;
+				line-height: 1.25;
+				color: rgb(var(--black));
+			}
+			a.card:hover h2 {
+				color: var(--accent);
+			}
+			.host {
+				margin: 0 0 0.75rem;
+				font-size: 0.8rem;
+				color: rgb(var(--gray));
+				font-family: var(--font-mono);
+			}
+			.card .desc {
+				margin: 0;
+				color: rgb(var(--gray-dark));
+				font-size: 0.95rem;
+				line-height: 1.5;
+			}
+			.badge {
+				flex: 0 0 auto;
+				font-size: 0.7rem;
+				text-transform: uppercase;
+				letter-spacing: 0.6px;
+				padding: 0.2rem 0.6rem;
+				border-radius: 999px;
+				font-weight: 600;
+				white-space: nowrap;
+			}
+			.badge.live {
+				background: rgba(35, 55, 255, 0.1);
+				color: var(--accent);
+			}
+			.badge.wip {
+				background: rgba(217, 119, 6, 0.12);
+				color: #b45309;
+			}
+			.badge.archived {
+				background: rgb(var(--gray-light));
+				color: rgb(var(--gray));
+			}
+			.tags {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.3rem;
+				margin-top: 0.85rem;
+			}
+			.tag {
+				font-size: 0.68rem;
+				text-transform: uppercase;
+				letter-spacing: 0.6px;
+				padding: 0.15rem 0.55rem;
+				border: 1px solid rgb(var(--gray-light));
+				color: rgb(var(--gray));
+				border-radius: 999px;
+			}
+			.repo-link {
+				display: inline-block;
+				margin-top: 0.85rem;
+				font-size: 0.85rem;
+				color: var(--accent);
+				text-decoration: none;
+			}
+			.repo-link:hover {
+				text-decoration: underline;
+			}
+			.empty {
+				border: 1px dashed rgb(var(--gray-light));
+				border-radius: 12px;
+				padding: 2rem;
+				text-align: center;
+				color: rgb(var(--gray));
+			}
+			@media (max-width: 720px) {
+				.grid li {
+					width: 100%;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<GtmNoscript />
+		<Header />
+		<main>
+			<header class="page-header">
+				<h1>Projects</h1>
+				<p>Apps and tools I've built alongside the writing — live, in progress, and archived.</p>
+			</header>
+
+			{
+				(['live', 'wip', 'archived'] as Status[]).map((status) => {
+					const list = byStatus[status];
+					if (list.length === 0) return null;
+					return (
+						<section class="group">
+							<h2 class="group-title">{groupTitles[status]}</h2>
+							<ul class="grid">
+								{list.map((p) => {
+									const isLink = status === 'live' && Boolean(p.data.url);
+									const Inner = (
+										<>
+											<div class="card-head">
+												<h2>{p.data.title}</h2>
+												<span class={`badge ${status}`}>{groupTitles[status]}</span>
+											</div>
+											{p.data.url && <p class="host">{hostFromUrl(p.data.url)}</p>}
+											<p class="desc">{p.data.description}</p>
+											{p.data.tags && p.data.tags.length > 0 && (
+												<div class="tags">
+													{p.data.tags.map((t) => (
+														<span class="tag">{t}</span>
+													))}
+												</div>
+											)}
+											{p.data.repo && !isLink && (
+												<a class="repo-link" href={p.data.repo} target="_blank" rel="noopener">
+													View repo &rarr;
+												</a>
+											)}
+										</>
+									);
+									return (
+										<li>
+											{isLink ? (
+												<a class="card" href={p.data.url!} target="_blank" rel="noopener">
+													{Inner}
+												</a>
+											) : (
+												<div class="card">{Inner}</div>
+											)}
+										</li>
+									);
+								})}
+							</ul>
+						</section>
+					);
+				})
+			}
+
+			{all.length === 0 && (
+				<div class="empty">
+					<h2>Nothing here yet</h2>
+					<p>The portfolio is being seeded. Check back soon, fellow hungovercoder.</p>
+				</div>
+			)}
+		</main>
+		<Footer />
+	</body>
+</html>
