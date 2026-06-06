@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 460" role="img" aria-labelledby="subagentTitle subagentDesc">
+  <title id="subagentTitle">Subagent context isolation</title>
+  <desc id="subagentDesc">A diagram showing the parent Claude Code session at the top with a small context window, three subagent context windows below isolated from the parent, Task tool arrows showing the parent dispatching work, and summary-only return arrows. The parent stays small because the subagents absorb the verbose work in their own windows.</desc>
+
+  <defs>
+    <style>
+      .h { font-family: 'Lora', Georgia, serif; font-size: 14px; font-weight: 700; fill: rgb(34, 41, 57); }
+      .label { font-family: 'JetBrains Mono', Menlo, Consolas, monospace; font-size: 11px; fill: rgb(34, 41, 57); }
+      .body { font-family: 'Atkinson', system-ui, sans-serif; font-size: 11px; fill: rgb(96, 115, 159); }
+      .pill { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; fill: #fff; }
+      .arrow { stroke: rgb(96, 115, 159); fill: none; stroke-width: 1.5; }
+      .arrowAccent { stroke: #2337ff; fill: none; stroke-width: 1.8; }
+      .arrowReturn { stroke: #1ea672; fill: none; stroke-width: 1.8; }
+    </style>
+    <marker id="arrowhead" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="rgb(96, 115, 159)"/>
+    </marker>
+    <marker id="arrowheadBlue" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#2337ff"/>
+    </marker>
+    <marker id="arrowheadGreen" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#1ea672"/>
+    </marker>
+  </defs>
+
+  <rect width="720" height="460" fill="#f8f9fb"/>
+
+  <!-- Parent context window -->
+  <rect x="220" y="20" width="280" height="100" rx="6" fill="#fff" stroke="#2337ff" stroke-width="1.5"/>
+  <rect x="220" y="20" width="280" height="22" rx="6" fill="#2337ff"/>
+  <text x="360" y="36" text-anchor="middle" class="pill">PARENT SESSION</text>
+  <text x="234" y="62" class="h">Your main context</text>
+  <text x="234" y="80" class="body">Small. Focused. The conversation you're driving.</text>
+  <text x="234" y="98" class="label">~12k tokens used</text>
+  <text x="234" y="114" class="body">/audit fires the Task tool — three sub-tasks dispatched</text>
+
+  <!-- Dispatch arrows -->
+  <path d="M 280 120 L 130 200" class="arrowAccent" marker-end="url(#arrowheadBlue)"/>
+  <path d="M 360 120 L 360 200" class="arrowAccent" marker-end="url(#arrowheadBlue)"/>
+  <path d="M 440 120 L 590 200" class="arrowAccent" marker-end="url(#arrowheadBlue)"/>
+  <text x="180" y="155" class="label" fill="#2337ff">Task</text>
+  <text x="365" y="155" class="label" fill="#2337ff">Task</text>
+  <text x="540" y="155" class="label" fill="#2337ff">Task</text>
+
+  <!-- Subagent 1 -->
+  <rect x="20" y="200" width="200" height="140" rx="6" fill="#fff" stroke="rgb(96, 115, 159)"/>
+  <rect x="20" y="200" width="200" height="20" rx="6" fill="rgb(96, 115, 159)"/>
+  <text x="120" y="214" text-anchor="middle" class="pill">SUBAGENT 1 · Explore</text>
+  <text x="30" y="240" class="label">Find duplicates</text>
+  <text x="30" y="258" class="body">Reads films.json</text>
+  <text x="30" y="274" class="body">Reads CLAUDE.md</text>
+  <text x="30" y="290" class="body">Greps for title repeats</text>
+  <rect x="30" y="300" width="180" height="30" rx="3" fill="rgb(229, 233, 240)"/>
+  <text x="38" y="318" class="label">~17k tokens (own window)</text>
+
+  <!-- Subagent 2 -->
+  <rect x="250" y="200" width="220" height="140" rx="6" fill="#fff" stroke="rgb(96, 115, 159)"/>
+  <rect x="250" y="200" width="220" height="20" rx="6" fill="rgb(96, 115, 159)"/>
+  <text x="360" y="214" text-anchor="middle" class="pill">SUBAGENT 2 · Explore</text>
+  <text x="260" y="240" class="label">Find mood drift</text>
+  <text x="260" y="258" class="body">Reads films.json</text>
+  <text x="260" y="274" class="body">Reads CLAUDE.md conventions</text>
+  <text x="260" y="290" class="body">Lists moods not in canon</text>
+  <rect x="260" y="300" width="200" height="30" rx="3" fill="rgb(229, 233, 240)"/>
+  <text x="268" y="318" class="label">~14k tokens (own window)</text>
+
+  <!-- Subagent 3 -->
+  <rect x="500" y="200" width="200" height="140" rx="6" fill="#fff" stroke="rgb(96, 115, 159)"/>
+  <rect x="500" y="200" width="200" height="20" rx="6" fill="rgb(96, 115, 159)"/>
+  <text x="600" y="214" text-anchor="middle" class="pill">SUBAGENT 3 · Explore</text>
+  <text x="510" y="240" class="label">Find field issues</text>
+  <text x="510" y="258" class="body">Reads films.json</text>
+  <text x="510" y="274" class="body">Validates each row schema</text>
+  <text x="510" y="290" class="body">Reports malformed entries</text>
+  <rect x="510" y="300" width="180" height="30" rx="3" fill="rgb(229, 233, 240)"/>
+  <text x="518" y="318" class="label">~16k tokens (own window)</text>
+
+  <!-- Return arrows (summary only) -->
+  <path d="M 130 350 L 280 410" class="arrowReturn" marker-end="url(#arrowheadGreen)"/>
+  <path d="M 360 350 L 360 410" class="arrowReturn" marker-end="url(#arrowheadGreen)"/>
+  <path d="M 590 350 L 440 410" class="arrowReturn" marker-end="url(#arrowheadGreen)"/>
+  <text x="180" y="385" class="label" fill="#1ea672">summary</text>
+  <text x="365" y="385" class="label" fill="#1ea672">summary</text>
+  <text x="540" y="385" class="label" fill="#1ea672">summary</text>
+
+  <!-- Returned to parent -->
+  <rect x="220" y="410" width="280" height="40" rx="4" fill="rgb(216, 241, 225)" stroke="#1ea672"/>
+  <text x="360" y="428" text-anchor="middle" class="h" fill="rgb(34, 41, 57)">~600 tokens added to parent context</text>
+  <text x="360" y="444" text-anchor="middle" class="body">47k tokens of subagent work stayed in their own windows</text>
+</svg>
