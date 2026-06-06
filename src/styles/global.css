@@ -144,10 +144,44 @@ pre {
 	font-size: 0.9em;
 	padding: 1.5em;
 	border-radius: 8px;
+	position: relative;
 }
 pre > code {
 	all: unset;
 	font-family: var(--font-mono);
+}
+.copy-code-button {
+	position: absolute;
+	top: 0.5em;
+	right: 0.5em;
+	padding: 0.25em 0.6em;
+	font-family: var(--font-mono);
+	font-size: 0.75em;
+	background: rgba(255, 255, 255, 0.08);
+	color: rgba(255, 255, 255, 0.85);
+	border: 1px solid rgba(255, 255, 255, 0.18);
+	border-radius: 4px;
+	cursor: pointer;
+	opacity: 0;
+	transition: opacity 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+pre:hover .copy-code-button,
+.copy-code-button:focus-visible {
+	opacity: 1;
+}
+.copy-code-button:hover {
+	background: rgba(255, 255, 255, 0.15);
+	border-color: rgba(255, 255, 255, 0.3);
+}
+.copy-code-button.copied {
+	background: rgba(80, 200, 120, 0.22);
+	border-color: rgba(80, 200, 120, 0.45);
+	color: rgba(255, 255, 255, 0.95);
+}
+@media (max-width: 720px) {
+	.copy-code-button {
+		opacity: 1;
+	}
 }
 blockquote {
 	border-left: 4px solid var(--accent);

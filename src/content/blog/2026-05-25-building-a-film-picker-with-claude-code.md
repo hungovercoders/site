@@ -8,7 +8,7 @@ image:
   path: /assets/2026-05-25-building-a-film-picker-with-claude-code/link.png
 ---
 
-I've been meaning to write up Claude Code properly for a while now. Using it all the time for parallel threads of work, a writing library and a handful of skills built off the back of it, a 13-lesson tutorial shipped to go with — and yet no single post that says *"here's what's in the box and here's one small thing you can build today"*. So that's this post. The tour of what Claude Code ships first, then a twenty-minute kit that picks a film for the evening — partly because the kit shape generalises to anything you do more than twice a week, and partly because film-pickers, like release notes and standups, are exactly the daft-but-useful repeat job a slash command earns its keep on. The thing I want to land is the *composition*: Claude Code is the kit, not any one feature, and most posts demo a single feature in isolation and call it a tutorial.
+I've been meaning to write up Claude Code properly for a while now. Using it all the time for parallel threads of work, a writing library and a handful of skills built off the back of it, a 14-lesson tutorial shipped to go with — and yet no single post that says *"here's what's in the box and here's one small thing you can build today"*. So that's this post. The tour of what Claude Code ships first, then a twenty-minute kit that picks a film for the evening — partly because the kit shape generalises to anything you do more than twice a week, and partly because film-pickers, like release notes and standups, are exactly the daft-but-useful repeat job a slash command earns its keep on. The thing I want to land is the *composition*: Claude Code is the kit, not any one feature, and most posts demo a single feature in isolation and call it a tutorial.
 
 ## Pre-Requisites
 
@@ -20,7 +20,7 @@ I've been meaning to write up Claude Code properly for a while now. Using it all
 
 ## What's On the Programme
 
-The full series at [hungovercoders.com/training/claude-code](https://hungovercoders.com/training/claude-code) has thirteen lessons. Here's what Claude Code actually ships, one sentence each:
+The full series at [hungovercoders.com/training/claude-code](https://hungovercoders.com/training/claude-code) has fourteen lessons. Here's what Claude Code actually ships, one sentence each:
 
 - **Permissions and safety** — the bouncer at the door. Five permission modes, four config layers, deny rules that win over allow rules.
 - **CLAUDE.md** — the recipe card the agent reads at the start of every session. Project context, conventions, things to never do.
@@ -294,8 +294,8 @@ The worldview fit is strong. Claude Code is *source-controllable* (every kit is 
 
 ## Watch This Space, Fellow Hungovercoder
 
-The 13-lesson deep-dive lives at **[hungovercoders.com/training/claude-code](https://hungovercoders.com/training/claude-code)** — permissions, `CLAUDE.md`, plan mode, slash commands, skills, hooks, subagents, MCP, and a capstone that strings the lot together into a real workflow. Forkable at **[github.com/hungovercoders/learn.claude-code](https://github.com/hungovercoders/learn.claude-code)** if you'd rather clone it and work through the examples locally with Claude Code itself sat next to the docs.
+The 14-lesson deep-dive lives at **[hungovercoders.com/training/claude-code](https://hungovercoders.com/training/claude-code)** — permissions, `CLAUDE.md`, plan mode, slash commands, skills, hooks, subagents, MCP, and a capstone that strings the lot together into a real workflow. Forkable at **[github.com/hungovercoders/learn.claude-code](https://github.com/hungovercoders/learn.claude-code)** if you'd rather clone it and work through the examples locally with Claude Code itself sat next to the docs.
 
-This post is the appetiser; the series is the main course. Same films, same `films.json` — the tutorial picks up exactly where this post leaves off and builds the kit out into a Cinema Companion across thirteen lessons. By lesson thirteen you've got two slash commands, three skills, a schema-checking hook, an MCP server querying the catalogue in SQL, and an install script that makes the whole thing portable from any directory. If this post left you wanting one or two of those, that's the series.
+This post is the appetiser; the series is the main course. Same films, same `films.json` — the tutorial picks up exactly where this post leaves off and builds the kit out into a Cinema Companion across fourteen lessons. By lesson fourteen you've got two slash commands, three skills, a schema-checking hook, an MCP server querying the catalogue in SQL, and an install script that makes the whole thing portable from any directory. If this post left you wanting one or two of those, that's the series.
 
 What I'd do differently next time: the bigger lesson, honestly — I don't think you can do anything other than just use it to see what breaks; but if I'd had the discipline at the start I'd have set up the guardrails and *raced for auto-mode proficiency* as quickly as possible. That's where maximum throughput lives: embed the policies, then let rip with development knowing the guardrails are there. The smaller lesson — `git init` inside `~/dev/pick-film/` from day one, and a `datagriff/dotfiles` repo for the user-level bits, source-controlled and symlinked into `~/.claude/`. Source-control everything that has behaviour, *including* the bits you bolt onto your AI assistant. Watch this space for more kits between meals. Cheers, fellow hungovercoder.
