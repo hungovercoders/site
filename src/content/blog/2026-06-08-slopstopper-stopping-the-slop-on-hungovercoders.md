@@ -140,6 +140,28 @@ The deletions are remembered by slopstopper's `.ss/.workflows-installed` tracker
 
 Slopstopper ships `ss-hygiene-auto-label-pr.yml` (an `actions/labeler@v5` runner) without a `.github/labeler.yml` config file. The action fails with `The config file was not found at .github/labeler.yml`. Fair — the labels are by definition repo-specific. Fix was a one-off `.github/labeler.yml` mapping site-relevant globs (`src/content/blog/**` → `blog`, `src/content/projects/**` → `projects`, `.github/**` → `ci`, etc.) to labels. A starter `labeler.yml` template alongside the install would be a kind addition to slopstopper.
 
+### Three docs-* workflows were going green while lying
+
+Once the badges went up on the README, I noticed the **Documentation Accuracy** badge was green and thought "huh, didn't we not have a `docs/` directory?" Ran the check locally:
+
+```
+❌ docs/ directory not found
+task: Failed to run task "ss:hygiene:docs-accuracy"
+```
+
+Looked at the workflow. There it was, two lines in plain sight:
+
+```yaml
+python3 .ss/scripts/check-docs-accuracy.py || true
+python3 .ss/scripts/generate-docs-accuracy-md.py || true
+```
+
+The `|| true` swallows the script's non-zero exit. The script never writes its JSON report. The workflow then falls into an `else` branch that defaults `has_issues=false`. Green check. The audit hadn't run — it had bailed in the first line and the workflow gleefully reported success.
+
+Grepped for the same pattern across slopstopper's hygiene workflows. Found it in three places: `docs-accuracy`, `docs-structure`, and `docs-size`. All three were silently passing on hungovercoders because the site has no `docs/` Map Pattern directory (those checks assume slopstopper's own governance-doc structure, which is a deliberate convention rather than a universal pattern). A green check that's lying is worse than a red check that's honest — the red one at least prompts you to look.
+
+Two fixes in flight. Site-side: deleted the three workflows because the Map Pattern doesn't apply to an Astro blog. Slopstopper-side: opened a small upstream PR dropping the `|| true` swallow so any future failure of these scripts shows up as a real failure, not a quietly-misleading tick. That one I'd never have spotted without putting a badge in the README — the badge being honest is what made the dishonest workflow look suspicious. There's a lesson in that.
+
 ## Watching the Lights Go Green
 
 Pushing the second commit and watching the Actions tab refresh — nine red ❌s slowly turning green one by one, in the order the workers finished — was honestly the most satisfying part of this whole exercise. Not "haha, finally CI behaves" satisfying. Properly satisfying. Every green tick was a gate I'd never had on this site before, now alive and watching forever.
