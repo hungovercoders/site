@@ -8,6 +8,7 @@ The public-facing site at [hungovercoders.com](https://www.hungovercoders.com). 
 
 ### 🔒 Security
 [![SAST](https://github.com/hungovercoders/site/actions/workflows/ss-security-sast-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-security-sast-check.yml)
+[![DAST](https://github.com/hungovercoders/site/actions/workflows/ss-security-dast-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-security-dast-check.yml)
 [![Secrets](https://github.com/hungovercoders/site/actions/workflows/ss-security-secrets-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-security-secrets-check.yml)
 [![Dependency CVEs](https://github.com/hungovercoders/site/actions/workflows/ss-security-vulnerability-all-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-security-vulnerability-all-check.yml)
 
