@@ -2,7 +2,7 @@
 title: "Stopping the Slop on hungovercoders"
 date: 2026-06-08
 author: dataGriff
-description: "What slopstopper is, how I built it, and the actual story of installing it on hungovercoders.com — five loops of CI feedback, one curl one-liner, nineteen workflows, and a Gitleaks finding I didn't expect"
+description: "What slopstopper is, how I built it, and the honest story of installing it on hungovercoders.com — five loops of CI feedback, one curl one-liner, nineteen workflows, and nine red checks that taught me exactly what assumptions the install ships with"
 tags: [slopstopper, ai, devops, cloudflare, github-actions, hungovercoders]
 image:
   path: /assets/2026-06-08-slopstopper-stopping-the-slop-on-hungovercoders/link.png
@@ -89,7 +89,7 @@ This is where I'd flag a tradeoff honestly: hardcoded edits inside `ss-*.yml` wo
 
 ## Where I Cocked It Up
 
-Three things broke on the first run that I didn't expect. None of them are slopstopper bugs; all of them are exactly the kind of finding that justifies the suite existing in the first place. The honest version:
+Three things broke at my keyboard before I'd even opened the PR. Then the PR itself opened and another six checks went red. None of them were slopstopper bugs — all of them were the slopstopper suite telling me, loudly, exactly what assumptions it ships with that don't fit a non-trivial existing repo. The honest version, in the order I hit them:
 
 ### Gitleaks flagged a "secret" I'd forgotten about
 
@@ -111,15 +111,66 @@ The Python cyclomatic-complexity tool is called `lizard` (`pip install lizard`).
 
 ### The dynamic reliability workflows want a `server.js` and I haven't got one
 
-The smoke, accessibility, Core Web Vitals, and SEO workflows all have a PR/push code path that says: build the site, run `node server.js` on port 8080, then test against `http://localhost:8080`. That works on the slopstopper.dev repo because it's a static site with a bundled `server.js` — it does not work on an Astro site that builds to `dist/client` and expects a Worker or a dev server to serve it. So on PR/push those four workflows currently fail at "Start local server" with a polite `No server.js — customise this step or set X_TEST_URL.` exit. The scheduled runs against the live hungovercoders.com URL still work fine; it's only the local-build path that breaks.
+The smoke, accessibility, Core Web Vitals, SEO and DAST workflows all have a PR/push code path that says: build the site, run `node server.js` on port 8080, then test against `http://localhost:8080`. That works on the slopstopper.dev repo because it's a static site with a bundled `server.js` — it does not work on an Astro site that builds to `dist/client` and expects a Worker or a dev server to serve it. So on PR/push those workflows fail at "Start local server" with a polite `No server.js — customise this step or set X_TEST_URL.` exit. The scheduled runs against the live hungovercoders.com URL still work fine; it's only the local-build path that breaks.
 
-Two ways forward: a tiny `server.js` shim that serves `dist/client` on port 8080, or rewrite the workflow's "Start local server" step to use `npm run dev`. I'll do the shim — twenty lines of Node, keeps the workflow's expectation intact, costs nothing.
+I fixed this with a twenty-line ESM `server.js` shim that serves `dist/client/` on port 8080. Static MIME-typed file server, no dependencies, ignores the Worker bundle in `dist/server/`. Now the local-build paths for accessibility, SEO, Core Web Vitals and Playwright all start a real local server against the real built output. Honest dev/CI parity, twenty lines of code.
+
+### Node 20 in the workflows, Node 22+ required by Astro
+
+The slopstopper workflows that run `npm` (`ss-reliability-*`, `ss-playwright-tests`, `ss-security-dast-check`) all pin `node-version: '20'` in their `actions/setup-node` step. Astro 6 requires Node 22.12+. So `npm run build` failed everywhere with:
+
+```
+Node.js v20.20.2 is not supported by Astro!
+Please upgrade Node.js to a supported version: ">=22.12.0"
+```
+
+This was the single biggest source of red checks — one root cause behind four failures. Fix was a global swap of `node-version: '20'` to `'22'` across the affected workflows. The cleaner upstream answer is for slopstopper to either bump its default to the latest LTS or, better, read `engines.node` from the target's `package.json` so the workflow's Node version matches the project's own requirement. On the to-upstream list.
+
+### Three workflows that didn't fit and got deleted
+
+Some checks just don't apply to this site:
+
+- **CSP exceptions drift check** assumes a `worker/headers.json` file as the single source of truth for security headers. That's slopstopper.dev's pattern — its Worker reads that file and the drift-check guards it. The hungovercoders site uses Astro's `@astrojs/cloudflare` adapter, which serves headers via the adapter's own config, not via an edge-headers JSON. The check has nothing to guard. Deleted.
+- **DAST (OWASP ZAP)** needs a meaningful runtime surface to scan, and on a static-rendered blog the value-to-overhead ratio isn't there yet. Could revisit if we add anything dynamic. Deleted for now.
+- **Dependency Review** (the new-vulnerability gate on PRs) needs GitHub Advanced Security or a public-repo Dependency Graph to be enabled in repo settings. It returned a `Dependency review is not supported on this repository` error. Toggling the setting is a repo-admin action, not a code change — deleted for now and we'll re-enable when the Dependency Graph setting is turned on.
+
+The deletions are remembered by slopstopper's `.ss/.workflows-installed` tracker, so a future `install.sh` re-run won't quietly bring them back. That's the bit of the installer I'm most pleased with, in hindsight — it respects what you've removed.
+
+### The auto-label workflow has no labeler config
+
+Slopstopper ships `ss-hygiene-auto-label-pr.yml` (an `actions/labeler@v5` runner) without a `.github/labeler.yml` config file. The action fails with `The config file was not found at .github/labeler.yml`. Fair — the labels are by definition repo-specific. Fix was a one-off `.github/labeler.yml` mapping site-relevant globs (`src/content/blog/**` → `blog`, `src/content/projects/**` → `projects`, `.github/**` → `ci`, etc.) to labels. A starter `labeler.yml` template alongside the install would be a kind addition to slopstopper.
+
+## Watching the Lights Go Green
+
+Pushing the second commit and watching the Actions tab refresh — nine red ❌s slowly turning green one by one, in the order the workers finished — was honestly the most satisfying part of this whole exercise. Not "haha, finally CI behaves" satisfying. Properly satisfying. Every green tick was a gate I'd never had on this site before, now alive and watching forever.
+
+Here's the inventory of what I got out of the install, in concrete terms.
+
+**Now running on every PR and push to `main`, without me lifting another finger:**
+
+- **Semgrep** running SAST across the codebase. Zero findings on the first run, but the *gate exists* — the day I (or Claude Code) writes something Semgrep doesn't like, the PR can't merge until I look at it.
+- **Trivy** scanning every dependency for CVEs. Same — clean today, watching forever.
+- **Gitleaks** checking every commit for credential patterns. It found the Cosmos emulator example, which is exactly the kind of thing I'd never have noticed if I weren't looking, and now I've got a documented `.gitleaks.toml` allowlist saying *yes this file is allowed to contain this, and here's the Microsoft link explaining why.* Loud-and-source-controlled beats quietly-disabled every day of the week.
+- **Lizard** capping cyclomatic complexity. If a function gets gnarly, the build fails before it lands.
+- **Lighthouse CI** enforcing a Core Web Vitals budget. Performance regressions can't sneak in.
+- **`actions/labeler`** auto-labelling every PR by what it touched (blog, training, ci, deps, deploy…). Trivial individually, magic when you stop having to do it.
+- **Doc structure / accuracy / size** checks keeping the entry files (`README`, `AGENTS`, `CLAUDE`) under a token budget and the cross-references honest. The Map Pattern from slopstopper, applied here.
+- **Smoke / accessibility / SEO** audits running hourly against the live site *and* on every PR against the local build via the `server.js` shim. So between Cloudflare's preview deploy and slopstopper's audits, every PR gets a real environment that gets really tested.
+- **Workflow failure tracker** that auto-opens a GitHub issue if any of the above starts failing on `main`, so I can't ignore a regression because I happened to be looking the other way.
+
+**And the thing I didn't expect — the audit actually found something I'd missed.**
+
+The SEO metatag check went red on the first run flagging *every page* as missing all four `twitter:*` tags. My first reaction was "rubbish, I definitely have twitter cards." I opened the rendered HTML and there they were. Then I read the check's source: it looks for `name="twitter:card"` (the recommendation per Twitter's own validator) and the site's `BaseHead.astro` was emitting `property="twitter:card"`. Which is *technically valid HTML*, but isn't what the validators read. Which means the twitter cards I'd been confidently shipping for years almost certainly weren't being picked up by Twitter's card preview at all. Two-character fix in one file, every page now passes. I'd never have caught that without a tool that knew to look for the right attribute. **That single finding paid for the install on its own.**
+
+The accessibility audit also surfaced one serious WCAG 2.1 AA violation on `/about` and three on `/blog` — real ones, not workflow misconfig. Those are follow-up work, not for this PR, but slopstopper has now created the visibility that ensures they'll get fixed instead of forgotten.
+
+**What someone else would get by adopting it:** all of the above, for the price of a curl one-liner, twenty minutes of customisation for your repo's specific stack, and a willingness to look at what the first PR turns red. You don't have to choose between security scanning, performance budgets, accessibility eyes, SEO audit, doc hygiene, and dependency CVE alerts — they all come in the same bundle, source-controlled, runnable locally with the same `task ss:*` syntax you'd run in CI. No SaaS subscription, no vendor lock-in, no platform you don't own. Small, cheap, yours. If one slightly hungover person can install it on a Tuesday, that's the bar.
 
 ## Verdict
 
 Would I use slopstopper in production? Yes — it's how I want every site I run to look. Five loops of feedback, one curl install, one Task command per check, every gate visible in source control, the whole thing source-controllable and forkable. It's not for every repo — a one-file script doesn't need nineteen workflows, and a repo with a competing quality suite doesn't need to double up. But for a real codebase that wants honest CI without a SaaS bill, this is the shape.
 
-What I'd do differently: build a config-file mechanism for the per-repo URLs from day one, so the hardcode-in-workflows tradeoff goes away. Make the dynamic reliability workflows stack-agnostic enough that an Astro/Next/SvelteKit repo can wire up without a `server.js` shim. And ship a `.gitleaks.toml` template alongside the install so first-PR false positives don't ambush new adopters.
+What I'd do differently — the upstream wishlist after this install: a config-file mechanism for per-repo URLs (so the hardcode-in-workflows tradeoff goes away), default `node-version` read from the target's `package.json` `engines` field instead of a hardcoded `'20'` (so Astro/Next sites don't fail on day one), starter `.gitleaks.toml` and `.github/labeler.yml` templates shipped alongside the install (so first-PR false positives and missing-config errors don't ambush new adopters), and a way to mark stack-specific workflows like the CSP-exceptions drift check as opt-in rather than always-on.
 
 One more thing came out of this install. The first-run gotchas you've just read are now bottled into a Claude Code skill that lives inside the slopstopper repo at **[`.claude/skills/install-slopstopper/SKILL.md`](https://github.com/hungovercoders/slopstopper/blob/main/.claude/skills/install-slopstopper/SKILL.md)**. Next time someone (or some agent) installs slopstopper into an existing repo, the skill walks them through the pre-flight checks, the install command, the URL config tradeoffs, the verification steps, and exactly the three gotchas above so they don't have to discover them the hard way. That's the loop I want for any tool I build: install it somewhere real, capture what bit you, hand the next person the lantern.
 

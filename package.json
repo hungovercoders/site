@@ -13,7 +13,8 @@
     "generate-types": "wrangler types",
     "deploy": "npm run build && wrangler deploy",
     "redirects:generate": "node redirects/generate.mjs",
-    "redirects:deploy": "npm run redirects:generate && wrangler deploy --config redirects/wrangler.jsonc"
+    "redirects:deploy": "npm run redirects:generate && wrangler deploy --config redirects/wrangler.jsonc",
+    "test": "playwright test --config=.ss/playwright.config.js"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^13.5.4",

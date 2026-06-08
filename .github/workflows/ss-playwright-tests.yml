@@ -51,8 +51,8 @@ jobs:
         env:
           SMOKE_TEST_URL: http://localhost:8080
           ACCESSIBILITY_TEST_URL: http://localhost:8080
-          SMOKE_PAGES: '/,/features.html,/tools.html,/feedback.html'
-          ACCESSIBILITY_PAGES: '/,/features.html,/tools.html,/feedback.html'
+          SMOKE_PAGES: '/,/about,/blog'
+          ACCESSIBILITY_PAGES: '/,/about,/blog'
         run: npm test
 
       - name: Stop local server
