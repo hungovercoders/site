@@ -197,3 +197,52 @@ hr {
 	/* added line to stop words getting smushed together (as they go onto separate lines and some screen readers do not understand line feeds as a space */
 	white-space: nowrap;
 }
+
+/* ── Klaro cookie banner — WCAG 2 AA contrast overrides ─────────────
+   Klaro is configured inside the GTM container, so its stylesheet is
+   injected at runtime *after* global.css is parsed and wins on load
+   order. `!important` is needed to override klaro's own rules without
+   modifying its source. Selectors are scoped to klaro's own classes
+   so this can't bleed into the rest of the site.
+   The defaults fail WCAG 2.1 AA on: muted greys on #333 backgrounds,
+   button text on green/blue button backgrounds, and the external-link
+   colour. */
+.klaro .cookie-modal,
+.klaro .cookie-notice,
+.klaro .cm-modal,
+.klaro .cm-notice {
+	color: #fff !important;
+}
+.klaro .cookie-modal a,
+.klaro .cookie-notice a,
+.klaro .cm-modal a,
+.klaro .cm-notice a {
+	color: #6ee7b7 !important;
+	text-decoration: underline !important;
+}
+.klaro .purposes,
+.klaro .cm-list-description,
+.klaro .cm-list-description span,
+.klaro .cm-list-title {
+	color: #e5e5e5 !important;
+}
+.klaro .cm-btn.cm-btn-success,
+.klaro .cm-btn.cm-btn-accept,
+.klaro .cm-btn.cm-btn-accept-all,
+.klaro .cm-btn.cm-btn-info,
+.klaro .cm-btn.cm-btn-decline {
+	background-color: #00513a !important;
+	color: #fff !important;
+}
+.klaro .cm-powered-by,
+.klaro .cm-powered-by a {
+	color: #e5e5e5 !important;
+}
+
+/* ── Pagefind search input label ─────────────────────────────────────
+   Pagefind UI generates its input at runtime and only sets `title`.
+   axe-core flags that as `label-title-only`. Force an aria-label
+   via the placeholder text (kept in sync by the JS in Search.astro). */
+.pagefind-ui__search-input::placeholder {
+	color: rgb(var(--gray));
+}
