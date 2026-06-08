@@ -2,13 +2,13 @@
 title: "Building a Film Picker with Claude Code"
 date: 2026-05-25
 author: dataGriff
-description: "A short tour of Claude Code's eleven moving parts plus a twenty-minute three-file kit that picks a film by mood — built from a CLAUDE.md, a custom skill, and a JSON-validating hook"
+description: "A short tour of Claude Code's moving parts plus a twenty-minute three-file kit that picks a film by mood — built from a CLAUDE.md, a custom skill, and a JSON-validating hook"
 tags: [claude-code, ai, hungovercoders]
 image:
   path: /assets/2026-05-25-building-a-film-picker-with-claude-code/link.png
 ---
 
-I've been meaning to write up Claude Code properly for a while now. A few months in — daily use, a small kit or two built, an 11-lesson tutorial shipped off the back of it — and yet no single post that says *"here's what's in the box and here's one small thing you can build today"*. So that's this post. The tour of what Claude Code ships first, then a twenty-minute kit that picks a film for the evening — partly because *The Mandalorian and Grogu* at the cinema yesterday left me with a film-shaped problem on the brain, and partly because the kit shape generalises to anything you do more than twice a week. The thing I want to land is the *composition*: Claude Code is the kit, not any one feature, and most posts demo a single feature in isolation and call it a tutorial.
+I've been meaning to write up Claude Code properly for a while now. Using it all the time for parallel threads of work, a writing library and a handful of skills built off the back of it, a 14-lesson tutorial shipped to go with — and yet no single post that says *"here's what's in the box and here's one small thing you can build today"*. So that's this post. The tour of what Claude Code ships first, then a twenty-minute kit that picks a film for the evening — partly because the kit shape generalises to anything you do more than twice a week, and partly because film-pickers, like release notes and standups, are exactly the daft-but-useful repeat job a slash command earns its keep on. The thing I want to land is the *composition*: Claude Code is the kit, not any one feature, and most posts demo a single feature in isolation and call it a tutorial.
 
 ## Pre-Requisites
 
@@ -20,7 +20,7 @@ I've been meaning to write up Claude Code properly for a while now. A few months
 
 ## What's On the Programme
 
-The full series at [hungovercoders.com/training/claude-code](https://hungovercoders.com/training/claude-code) has eleven lessons. Here's what Claude Code actually ships, one sentence each:
+The full series at [hungovercoders.com/training/claude-code](https://hungovercoders.com/training/claude-code) has fourteen lessons. Here's what Claude Code actually ships, one sentence each:
 
 - **Permissions and safety** — the bouncer at the door. Five permission modes, four config layers, deny rules that win over allow rules.
 - **CLAUDE.md** — the recipe card the agent reads at the start of every session. Project context, conventions, things to never do.
@@ -261,7 +261,9 @@ The script does CLI things. The skill did the workflow. The hook ran the guardra
 
 ## Where I Cocked It Up
 
-I'll be honest, first time I wired the JSON hook I forgot to `chmod +x` it. `PostToolUse` fires, the command runs, the script doesn't execute, and Claude Code carries on as if the hook hadn't been there — no loud error in the session. Took me ten minutes of staring at the matcher pattern, second-guessing my regex, before I tried `ls -l` and saw the missing executable bit staring back. Old Unix problem, new context. If your hook isn't firing, `ls -l ~/.claude/hooks/` is the first thing to check. Before you start debugging the matcher.
+The honest version of how I got here: I got into an auto-edit-accept-changes loop without thinking and kept pressing yes without planning or reading correctly. Ended up doing a force push and rewriting history on a repo, lost all public lineage. Luckily it wasn't an important repo, but it made me realise how easy it is to give the brain over — and that getting guardrails in with an *intent to use auto mode as a discipline* is a better goal than lazily pressing 2 over and over. That's why the kit above wires `disable-model-invocation: true` on `/add-film` and pushes the schema check into a `PostToolUse` hook. The three pieces of this kit are exactly the kind of guardrails that, if you put them in first, let you race for auto-mode proficiency safely instead of finding out where the floor is the way I did.
+
+One smaller gotcha worth flagging while you're wiring hooks: if a hook script isn't executable, `PostToolUse` fires, the command runs, the script doesn't execute, and Claude Code carries on as if the hook hadn't been there — no loud error in the session. `ls -l ~/.claude/hooks/` is the first thing to check when a hook isn't firing. Before you start debugging the matcher.
 
 ## The Final Cut
 
@@ -280,20 +282,24 @@ All five blocks are in this post above. Twenty lines of bash, one JSON file, thr
 
 ## How I Actually Use Claude Code
 
-A few months in I'd call myself a happy beginner. Using it daily, a handful of kits built, still finding my way through the simple-but-powerful patterns the lesson series tries to lay out. A full "would I put this in production" verdict feels premature from where I'm standing; what I can do honestly is say *how* I'm using it today and what's earning its keep so far.
+I was happy using Copilot in an agentic chat window and felt I was doing OK there. The honest reason I tried Claude Code was the industry trumpets and increased usage around me — wanted to see what the fuss was about and ensure I was skilled in something becoming increasingly common. The love came later: it's now awesome and I love using it, including straight from the terminal — multi-threaded terminal tools like [cmux](https://github.com/coder/cmux) and [zed](https://zed.dev) have really opened my eyes. Still very much learning best practice on `CLAUDE.md` (the lesson series is part of that learning), and haven't leveraged permissions as well as I should yet — at home I run plan mode then auto-edit because I'm more cavalier; at work I run plan mode then manually accept edits.
 
 For a one-line code question (*"how do I write a Python list comprehension"*), the browser chat window is still faster. Open, ask, paste back. No install, no permissions dance, no terminal.
 
 For *anything inside a real codebase*, Claude Code wins on the only thing that matters: it can see what I see. The agent can `Read`, `Grep`, `Bash`, edit files, run my tests, read the diff. The chat window can't do any of that without copy-paste, and the copy-paste tax adds up fast. By the third paste I've lost the thread.
 
-For *custom workflows* — the kit pattern (`CLAUDE.md` + skill + hook) — this is the bit I'm most enthusiastic about and probably still under-using. The film picker is a daft demo, but the same shape covers the work I do every week: release notes, code reviews, deploy gates. Each kit is a few markdown files and ten lines of shell. The interface change — from "type a long prompt" to "type one slash invocation" — is the real product, and I'm only a few kits in to seeing where it goes.
+For *custom workflows* — the kit pattern (`CLAUDE.md` + skill + hook) — this is the bit I'm most enthusiastic about. The first proper skill I built was for **ODCS data contract creation**: when I first tried to make data contracts Claude kept giving me JSON schemas, which isn't what ODCS is. The skill bundled the prompt with the standard's reference material and locked the output shape. From there a writing library — the **hungovercoders content library** that wrote a chunk of this very tutorial series in voice — earned the full "library, not just a skill" shape because it's a *multi-focus media suite*. Everything else has stayed as skills (started as commands; conversation taught me skills were the better investment). The interface change — from "type a long prompt" to "type one slash invocation" — is the real product, and the workflow becomes conversational: interactive and refine as a pair, while the skill keeps me consistent.
 
 The worldview fit is strong. Claude Code is *source-controllable* (every kit is a few text files), *portable* (one curl install), *small* (a single binary, no dependency tree), and *local* (your config lives in your home directory and goes with you). Small, cheap, yours — the hungovercoders worldview without a sales pitch. So far the only AI tool I've found that earns its keep on a real codebase without asking me to live on someone else's platform.
 
 ## Watch This Space, Fellow Hungovercoder
 
-The 11-lesson deep-dive lives at **[hungovercoders.com/training/claude-code](https://hungovercoders.com/training/claude-code)** — permissions, `CLAUDE.md`, plan mode, slash commands, skills, hooks, subagents, MCP, and a capstone that strings the lot together into a real workflow. Forkable at **[github.com/hungovercoders/learn.claude-code](https://github.com/hungovercoders/learn.claude-code)** if you'd rather clone it and work through the examples locally with Claude Code itself sat next to the docs.
+The 14-lesson deep-dive lives at **[hungovercoders.com/training/claude-code](https://hungovercoders.com/training/claude-code)** — permissions, `CLAUDE.md`, plan mode, slash commands, skills, hooks, subagents, MCP, and a capstone that strings the lot together into a real workflow. Forkable at **[github.com/hungovercoders/learn.claude-code](https://github.com/hungovercoders/learn.claude-code)** if you'd rather clone it and work through the examples locally with Claude Code itself sat next to the docs.
 
-This post is the appetiser; the series is the main course. Same films, same `films.json` — the tutorial picks up exactly where this post leaves off and builds the kit out into a Cinema Companion across eleven lessons. By lesson eleven you've got two slash commands, three skills, a schema-checking hook, an MCP server querying the catalogue in SQL, and an install script that makes the whole thing portable from any directory. If this post left you wanting one or two of those, that's the series.
+This post is the appetiser; the series is the main course. Same films, same `films.json` — the tutorial picks up exactly where this post leaves off and builds the kit out into a Cinema Companion across fourteen lessons. By lesson fourteen you've got two slash commands, three skills, a schema-checking hook, an MCP server querying the catalogue in SQL, and an install script that makes the whole thing portable from any directory. If this post left you wanting one or two of those, that's the series.
 
-What I'd do differently next time: `git init` inside `~/dev/pick-film/` from day one, and keep a small dotfiles-style repo for the user-level bits. Source-control everything that has behaviour, *including* the bits you bolt onto your AI assistant. Watch this space for more kits between meals. Cheers, fellow hungovercoder.
+Here's the shape of what you end up with — the directory tree on the left, the composition on the right. The three pieces you wired in this post are the first three rows of the right column; the series adds the rest.
+
+![The Cinema Companion kit as it sits by lesson fourteen. Left column: directory tree of ~/dev/learn.claude-code/ showing films.json, pick-film.sh, CLAUDE.md, plans/, scripts/, .mcp.json, the PR template, and the .claude/ directory with settings, commands, skills, and hooks subdirs. Right column: four composition cards showing how the pieces compose — CONTEXT (CLAUDE.md + AGENTS.md), COMMANDS + SKILLS (film-pick, film-suggest, add-film, pair, audit, checkpoint with tight allowed-tools), HOOK (films-validate.sh on PostToolUse), and MCP (cinema-db SQLite). Below: a dark band saying the agent sees one composed workflow — /add-film fires, skill writes, hook validates, done.](/assets/training/claude-code/kit-composition.svg)
+
+What I'd do differently next time: the bigger lesson, honestly — I don't think you can do anything other than just use it to see what breaks; but if I'd had the discipline at the start I'd have set up the guardrails and *raced for auto-mode proficiency* as quickly as possible. That's where maximum throughput lives: embed the policies, then let rip with development knowing the guardrails are there. The smaller lesson — `git init` inside `~/dev/pick-film/` from day one, and a `datagriff/dotfiles` repo for the user-level bits, source-controlled and symlinked into `~/.claude/`. Source-control everything that has behaviour, *including* the bits you bolt onto your AI assistant. Watch this space for more kits between meals. Cheers, fellow hungovercoder.

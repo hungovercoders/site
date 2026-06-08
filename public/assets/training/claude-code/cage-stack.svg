@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 540" role="img" aria-labelledby="cageStackTitle cageStackDesc">
+  <title id="cageStackTitle">The cage you build across thirteen lessons</title>
+  <desc id="cageStackDesc">A vertical stack of eleven cage layers added across lessons 3 through 13 of the Claude Code tutorial series, each one a constraint that narrows what the agent can do unsupervised. Lesson 14 is the auto-mode surface that sits on top.</desc>
+
+  <defs>
+    <linearGradient id="cageGradient" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2337ff"/>
+      <stop offset="100%" stop-color="#000d8a"/>
+    </linearGradient>
+    <style>
+      .band { font-family: 'JetBrains Mono', Menlo, Consolas, monospace; font-size: 11px; fill: #fff; }
+      .layer { font-family: 'Atkinson', system-ui, sans-serif; font-size: 13px; font-weight: 600; fill: #fff; }
+      .stops { font-family: 'Atkinson', system-ui, sans-serif; font-size: 11px; fill: rgba(255,255,255,0.78); }
+      .surface { font-family: 'Lora', Georgia, serif; font-size: 16px; font-weight: 700; fill: #fff; }
+      .agent { font-family: 'JetBrains Mono', Menlo, Consolas, monospace; font-size: 12px; fill: rgb(96, 115, 159); }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="720" height="540" fill="#f8f9fb"/>
+
+  <!-- Surface (lesson 14 — auto-mode) -->
+  <rect x="20" y="14" width="680" height="36" rx="4" fill="#1ea672"/>
+  <text x="40" y="36" class="surface">Lesson 14 — Auto-mode runs safely on this surface</text>
+  <text x="675" y="38" text-anchor="end" class="band">--dangerously-skip-permissions</text>
+
+  <!-- Layer 13 — MCP -->
+  <rect x="20" y="58" width="680" height="34" rx="3" fill="#0a1a8c"/>
+  <text x="35" y="74" class="band">13</text>
+  <text x="80" y="74" class="layer">Bounded external access</text>
+  <text x="80" y="88" class="stops">MCP servers expose typed tools. Free-form `sqlite3` shelled out is blocked.</text>
+
+  <!-- Layer 12 — Context -->
+  <rect x="20" y="96" width="680" height="34" rx="3" fill="#1428a2"/>
+  <text x="35" y="112" class="band">12</text>
+  <text x="80" y="112" class="layer">Context awareness</text>
+  <text x="80" y="126" class="stops">/context, /compact, /checkpoint discipline. Long-session quality decay is caught.</text>
+
+  <!-- Layer 11 — Subagents -->
+  <rect x="20" y="134" width="680" height="34" rx="3" fill="#1c33ba"/>
+  <text x="35" y="150" class="band">11</text>
+  <text x="80" y="150" class="layer">Context isolation</text>
+  <text x="80" y="164" class="stops">Subagents do big reads in their own window. Parent context stays clean.</text>
+
+  <!-- Layer 10 — Hooks -->
+  <rect x="20" y="172" width="680" height="34" rx="3" fill="#243ec6"/>
+  <text x="35" y="188" class="band">10</text>
+  <text x="80" y="188" class="layer">Schema enforcement</text>
+  <text x="80" y="202" class="stops">PostToolUse hook refuses films.json writes that break the schema.</text>
+
+  <!-- Layer 9 — Skills -->
+  <rect x="20" y="210" width="680" height="34" rx="3" fill="#2c4ad0"/>
+  <text x="35" y="226" class="band">9</text>
+  <text x="80" y="226" class="layer">Write safety belts</text>
+  <text x="80" y="240" class="stops">disable-model-invocation on /add-film. Agent can't write on a hunch.</text>
+
+  <!-- Layer 8 — Commands -->
+  <rect x="20" y="248" width="680" height="34" rx="3" fill="#3556d4"/>
+  <text x="35" y="264" class="band">8</text>
+  <text x="80" y="264" class="layer">Tool narrowing</text>
+  <text x="80" y="278" class="stops">allowed-tools per command. /film-pick can't shell out to anything but the picker.</text>
+
+  <!-- Layer 7 — Plan -->
+  <rect x="20" y="286" width="680" height="34" rx="3" fill="#3e62d8"/>
+  <text x="35" y="302" class="band">7</text>
+  <text x="80" y="302" class="layer">Plan-before-execute</text>
+  <text x="80" y="316" class="stops">Big changes get a written plan first. No vibing into the codebase.</text>
+
+  <!-- Layer 6 — Project CLAUDE.md -->
+  <rect x="20" y="324" width="680" height="34" rx="3" fill="#476ddc"/>
+  <text x="35" y="340" class="band">6</text>
+  <text x="80" y="340" class="layer">Project conventions</text>
+  <text x="80" y="354" class="stops">CLAUDE.md encodes schema + "never do" rules. Wrong assumptions caught early.</text>
+
+  <!-- Layer 5 — Permissions -->
+  <rect x="20" y="362" width="680" height="34" rx="3" fill="#5079e0"/>
+  <text x="35" y="378" class="band">5</text>
+  <text x="80" y="378" class="layer">Permissions allow + deny</text>
+  <text x="80" y="392" class="stops">settings.json deny rules win. Unapproved Bash, rm, git push are gone.</text>
+
+  <!-- Layer 4 — Branch -->
+  <rect x="20" y="400" width="680" height="34" rx="3" fill="#5985e4"/>
+  <text x="35" y="416" class="band">4</text>
+  <text x="80" y="416" class="layer">Branch isolation</text>
+  <text x="80" y="430" class="stops">Feature branch + draft PR. main is untouchable, every change visible on remote.</text>
+
+  <!-- Layer 3 — Personal posture -->
+  <rect x="20" y="438" width="680" height="34" rx="3" fill="#6290e8"/>
+  <text x="35" y="454" class="band">3</text>
+  <text x="80" y="454" class="layer">Personal posture</text>
+  <text x="80" y="468" class="stops">User-level CLAUDE.md sets the agent's defaults: no preamble, no emoji, terse.</text>
+
+  <!-- Agent label -->
+  <text x="360" y="500" text-anchor="middle" class="agent">↑ each layer narrows what the agent can do unsupervised</text>
+  <text x="360" y="520" text-anchor="middle" class="agent">your agent operates inside this cage</text>
+</svg>

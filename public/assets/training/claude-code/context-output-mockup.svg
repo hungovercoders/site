@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 480" role="img" aria-labelledby="contextTitle contextDesc">
+  <title id="contextTitle">A typical /context output</title>
+  <desc id="contextDesc">A stylised terminal screenshot showing the /context command output for a mid-session session: total tokens used (about 67 percent of a 1M window), category breakdown (system prompt, tools, memory files, skills, messages, free space) with token counts and percentages, plus listed memory files and skills currently loaded.</desc>
+
+  <defs>
+    <style>
+      .term { font-family: 'JetBrains Mono', Menlo, Consolas, monospace; }
+      .dim { fill: rgb(140, 156, 188); }
+      .muted { fill: rgb(110, 124, 152); }
+      .label { fill: rgb(214, 220, 235); }
+      .blue { fill: #7fa9ff; }
+      .green { fill: #5fc28b; }
+      .amber { fill: #f0b04a; }
+      .red { fill: #f08070; }
+      .accent { fill: #b388ff; }
+      .gray { fill: rgb(96, 115, 159); }
+    </style>
+  </defs>
+
+  <!-- Terminal frame -->
+  <rect width="720" height="480" rx="8" fill="#0f1219"/>
+
+  <!-- Title bar -->
+  <rect x="0" y="0" width="720" height="28" rx="8" fill="#1a1f2e"/>
+  <circle cx="18" cy="14" r="5" fill="#f08070"/>
+  <circle cx="36" cy="14" r="5" fill="#f0b04a"/>
+  <circle cx="54" cy="14" r="5" fill="#5fc28b"/>
+  <text x="360" y="19" text-anchor="middle" class="term muted" font-size="11">claude — ~/dev/learn.claude-code</text>
+
+  <!-- Prompt + command -->
+  <text x="20" y="58" class="term blue" font-size="12">&gt;</text>
+  <text x="40" y="58" class="term label" font-size="12">/context</text>
+
+  <!-- Header -->
+  <text x="20" y="90" class="term label" font-size="13" font-weight="700">Context Usage</text>
+  <text x="155" y="90" class="term dim" font-size="13">— Opus 4.7 (1M context)</text>
+
+  <text x="20" y="112" class="term amber" font-size="14" font-weight="700">686.8k</text>
+  <text x="78" y="112" class="term dim" font-size="13">/ 1m tokens</text>
+  <text x="178" y="112" class="term amber" font-size="13" font-weight="700">(69%)</text>
+
+  <!-- Usage bar -->
+  <rect x="20" y="128" width="600" height="14" rx="3" fill="#1a1f2e"/>
+  <rect x="20" y="128" width="6" height="14" rx="2" fill="#7fa9ff"/>
+  <rect x="28" y="128" width="11" height="14" rx="2" fill="#5fc28b"/>
+  <rect x="41" y="128" width="1" height="14" fill="#f0b04a"/>
+  <rect x="44" y="128" width="2" height="14" rx="1" fill="#b388ff"/>
+  <rect x="48" y="128" width="356" height="14" rx="2" fill="#f0b04a"/>
+  <rect x="406" y="128" width="180" height="14" rx="2" fill="rgb(60, 70, 95)"/>
+  <text x="630" y="139" class="term dim" font-size="11">30% free</text>
+
+  <!-- Category breakdown -->
+  <text x="20" y="170" class="term dim" font-size="12">Estimated usage by category</text>
+  <line x1="20" y1="176" x2="700" y2="176" stroke="#1a1f2e" stroke-width="1"/>
+
+  <text x="20" y="196" class="term blue" font-size="12">⛁</text>
+  <text x="40" y="196" class="term label" font-size="12">System prompt</text>
+  <text x="240" y="196" class="term label" font-size="12">8.8k</text>
+  <text x="320" y="196" class="term dim" font-size="12">0.9%</text>
+
+  <text x="20" y="216" class="term green" font-size="12">⛁</text>
+  <text x="40" y="216" class="term label" font-size="12">System tools</text>
+  <text x="240" y="216" class="term label" font-size="12">15.4k</text>
+  <text x="320" y="216" class="term dim" font-size="12">1.5%</text>
+
+  <text x="20" y="236" class="term amber" font-size="12">⛁</text>
+  <text x="40" y="236" class="term label" font-size="12">Memory files</text>
+  <text x="240" y="236" class="term label" font-size="12">865</text>
+  <text x="320" y="236" class="term dim" font-size="12">0.1%</text>
+
+  <text x="20" y="256" class="term accent" font-size="12">⛁</text>
+  <text x="40" y="256" class="term label" font-size="12">Skills</text>
+  <text x="240" y="256" class="term label" font-size="12">2.6k</text>
+  <text x="320" y="256" class="term dim" font-size="12">0.3%</text>
+
+  <text x="20" y="276" class="term amber" font-size="12">⛁</text>
+  <text x="40" y="276" class="term label" font-size="12" font-weight="700">Messages</text>
+  <text x="240" y="276" class="term label" font-size="12" font-weight="700">672.7k</text>
+  <text x="320" y="276" class="term amber" font-size="12" font-weight="700">67.3%</text>
+
+  <text x="20" y="296" class="term muted" font-size="12">⛶</text>
+  <text x="40" y="296" class="term dim" font-size="12">Free space</text>
+  <text x="240" y="296" class="term dim" font-size="12">299.6k</text>
+  <text x="320" y="296" class="term dim" font-size="12">30.0%</text>
+
+  <!-- Memory files section -->
+  <text x="20" y="334" class="term dim" font-size="12">Memory files</text>
+  <line x1="20" y1="340" x2="700" y2="340" stroke="#1a1f2e" stroke-width="1"/>
+  <text x="20" y="358" class="term label" font-size="11.5">~/.claude/CLAUDE.md</text>
+  <text x="380" y="358" class="term dim" font-size="11.5">577 tokens</text>
+  <text x="20" y="376" class="term label" font-size="11.5">~/dev/learn.claude-code/CLAUDE.md</text>
+  <text x="380" y="376" class="term dim" font-size="11.5">288 tokens</text>
+
+  <!-- Skills -->
+  <text x="20" y="408" class="term dim" font-size="12">Skills</text>
+  <line x1="20" y1="414" x2="700" y2="414" stroke="#1a1f2e" stroke-width="1"/>
+  <text x="20" y="432" class="term label" font-size="11.5">add-film · pair · audit · checkpoint</text>
+  <text x="380" y="432" class="term dim" font-size="11.5">~2.6k tokens combined</text>
+
+  <!-- Caret -->
+  <text x="20" y="462" class="term blue" font-size="12">&gt;</text>
+  <rect x="38" y="452" width="9" height="14" fill="#7fa9ff" opacity="0.7"/>
+</svg>

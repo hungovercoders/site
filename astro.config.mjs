@@ -3,6 +3,7 @@
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import { defineConfig, fontProviders } from 'astro/config';
+import rehypeExternalLinks from 'rehype-external-links';
 
 import cloudflare from '@astrojs/cloudflare';
 
@@ -10,6 +11,15 @@ import cloudflare from '@astrojs/cloudflare';
 export default defineConfig({
   site: 'https://hungovercoders.com',
   integrations: [mdx(), sitemap()],
+
+  markdown: {
+    rehypePlugins: [
+      [
+        rehypeExternalLinks,
+        { target: '_blank', rel: ['noopener', 'noreferrer'] },
+      ],
+    ],
+  },
 
   fonts: [
       {
