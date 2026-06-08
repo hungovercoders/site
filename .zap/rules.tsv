@@ -1,0 +1,9 @@
+# OWASP ZAP rule overrides for the DAST scan.
+# Format: <plugin-id>\tIGNORE\t# why this is accepted on this site
+# See https://www.zaproxy.org/docs/alerts/ for the plugin registry.
+#
+# Honoured by slopstopper's dast:analyze task if the file exists at this path.
+# Keep the list short and justified — each entry is a documented exception
+# to the build gate, not a way to silence findings we should be fixing.
+90003	IGNORE	# SRI: GTM script and a couple of older blog-post embeds are cross-domain with unstable hashes. SRI on GTM-served scripts isn't viable — GTM rotates content per container update. Documented in docs/security/README.md.
+10099	IGNORE	# Source Code Disclosure - SQL: false positive on tutorial blog posts containing SQL code blocks (Databricks/Spark/Cosmos emulator). ZAP's heuristic matches the SQL syntax in <pre><code> blocks as if the application were leaking source code; it isn't.

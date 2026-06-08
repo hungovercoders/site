@@ -805,13 +805,25 @@ tasks:
           echo "📍 Using Docker-compatible target: $TARGET"
         fi
         
+        # LOCAL PATCH (drift gotcha): pass consumer-side ZAP rule overrides
+        # from .zap/rules.tsv if it exists, mounting it into the container.
+        # Upstream PR pending — when merged + re-installed, this local edit
+        # gets wiped and the new install-time version handles it natively.
+        ZAP_RULES_VOL=""
+        ZAP_RULES_FLAG=""
+        if [ -f .zap/rules.tsv ]; then
+          ZAP_RULES_VOL="-v $(pwd)/.zap:/zap/wrk/.zap:ro"
+          ZAP_RULES_FLAG="-c .zap/rules.tsv"
+        fi
         docker run --rm \
           -v "$(pwd)/.ss/reports/dast:/zap/wrk/:rw" \
+          $ZAP_RULES_VOL \
           ghcr.io/zaproxy/zaproxy:stable \
           zap-baseline.py \
           -t "$TARGET" \
           -J "dast-report.json" \
           -I \
+          $ZAP_RULES_FLAG \
           || true
         
         python3 .ss/scripts/generate-dast-md.py

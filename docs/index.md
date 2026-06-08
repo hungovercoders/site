@@ -14,6 +14,7 @@ Each category has a README that defines its purpose. Content within categories e
 | [content/](content/) | Authoring blog posts, training lessons and project entries | [README](content/README.md) |
 | [deployment/](deployment/) | Cloudflare Workers Builds, DNS, the `dist/client` gotcha | [README](deployment/README.md) |
 | [operations/](operations/) | Pipeline gates, runbooks, slopstopper notes | [README](operations/README.md) |
+| [security/](security/) | Security headers, CSP, DAST exceptions, false-positive rule allowlist | [README](security/README.md) |
 
 ## Governance Model
 
