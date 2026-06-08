@@ -20,7 +20,7 @@ The local `server.js` shim parses `_headers` and applies matching rules per requ
 
 ## DAST findings policy
 
-The DAST workflow (`ss-security-dast-check.yml`) runs OWASP ZAP via Docker against the locally-served build on every PR. The gate (`check-dast-alerts.py`) blocks the build on any medium-or-high finding *except* CSP findings on paths documented in [`CSP_EXCEPTIONS.md`](./CSP_EXCEPTIONS.md).
+The DAST workflow at `.github/workflows/ss-security-dast-check.yml` runs OWASP ZAP via Docker against the locally-served build on every PR. The gate at `.ss/scripts/check-dast-alerts.py` blocks the build on any medium-or-high finding *except* CSP findings on paths documented in [`CSP_EXCEPTIONS.md`](./CSP_EXCEPTIONS.md).
 
 Two classes of finding are accepted by design and silenced via the consumer-side ZAP rule allowlist at [`.zap/rules.tsv`](../../.zap/rules.tsv):
 
