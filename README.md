@@ -13,6 +13,7 @@ The public-facing site at [hungovercoders.com](https://www.hungovercoders.com). 
 
 ### 🧹 Hygiene
 [![Complexity](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-complexity-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-complexity-check.yml)
+[![Entry Files](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-entry-files-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-entry-files-check.yml)
 [![Docs Accuracy](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-docs-accuracy-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-docs-accuracy-check.yml)
 [![Docs Size](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-docs-size-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-docs-size-check.yml)
 [![Docs Structure](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-docs-structure-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-docs-structure-check.yml)
@@ -24,6 +25,7 @@ The public-facing site at [hungovercoders.com](https://www.hungovercoders.com). 
 [![Accessibility](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-accessibility-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-accessibility-check.yml)
 [![Core Web Vitals](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-core-web-vitals.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-core-web-vitals.yml)
 [![SEO Metatags](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-seo-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-seo-check.yml)
+[![Broken Links](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-broken-links-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-broken-links-check.yml)
 
 ### 🤖 Operational
 [![Doc Auto-Updater](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-doc-updater.lock.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-doc-updater.lock.yml)
