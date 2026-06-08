@@ -31,3 +31,9 @@ training-repos/
 .dev.vars*
 !.dev.vars.example
 !.env.example
+
+# slopstopper local outputs
+.ss/reports/
+playwright-report/
+test-results/
+.lighthouseci/
