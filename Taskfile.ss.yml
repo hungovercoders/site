@@ -805,10 +805,13 @@ tasks:
           echo "📍 Using Docker-compatible target: $TARGET"
         fi
         
-        # LOCAL PATCH (drift gotcha): pass consumer-side ZAP rule overrides
-        # from .zap/rules.tsv if it exists, mounting it into the container.
-        # Upstream PR pending — when merged + re-installed, this local edit
-        # gets wiped and the new install-time version handles it natively.
+        # Honour consumer-side ZAP rule overrides at .zap/rules.tsv if present.
+        # Format (tab-separated): <plugin-id>\tIGNORE\t# why this is accepted.
+        # Lets adopters silence false-positive rules (e.g. SRI on a GTM-served
+        # script with rotating content, SQL Source Code Disclosure firing on
+        # blog posts containing SQL code blocks) without modifying slopstopper.
+        # Keep the list short and document each entry — every line is a
+        # justified gate exception, not a way to quiet findings you should fix.
         ZAP_RULES_VOL=""
         ZAP_RULES_FLAG=""
         if [ -f .zap/rules.tsv ]; then
