@@ -15,6 +15,10 @@
 /assets/*
   Cache-Control: public, max-age=86400
 
+/og-image.png
+  Cross-Origin-Resource-Policy: cross-origin
+  Cache-Control: public, max-age=86400
+
 /rss.xml
   Cache-Control: public, max-age=3600
 
