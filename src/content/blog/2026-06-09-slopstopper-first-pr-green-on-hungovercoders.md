@@ -14,16 +14,9 @@ image:
   path: /assets/2026-06-09-slopstopper-first-pr-green-on-hungovercoders/link.png
 ---
 
-I wanted slopstopper's installer to be the thing that earns trust, not the thing that demands it. One `curl` should drop in a proper quality pipeline, the first PR should be green, and a fellow hungovercoder should be back at the pub before the round goes flat. So I built [slopstopper](https://slopstopper.dev/) — a portable suite of GitHub Actions, Task targets, and analysis scripts that anyone can drop into any repo for a consistent quality pipeline. Then I built a Claude Code skill to walk the install. Then I ran both, on this very site, from a fresh `main` branch with no install baggage. This is the honest tour — what landed, the two checks that went red on the first push, and the seven follow-ups I'm shipping next.
+I've been vibe-coding more than I'd like to admit lately — Claude Code shipping features faster than I can think about whether they're actually safe. It's a brilliant way to get something working on a Tuesday night, but the honest version is this: I'm not great at security, I'm not great at testing, and the faster I move the more there is for a future me to regret. So I built [slopstopper](https://slopstopper.dev/) — partly to learn the gates I should have been running all along, partly so I'd never have to remember to run them again. One curl into any repo and the suite shows up: SAST, DAST, secrets, CVEs, accessibility, performance, doc hygiene, the lot. If I can't remember which scanner to install, I shouldn't have to — the install should remember for me.
 
-## Pre-Requisites
-
-- A repo you'd like to add quality gates to
-- A terminal and `curl`
-- Optional: [Task runner](https://taskfile.dev) (`brew install go-task/tap/go-task` on macOS) if you want to run the same checks locally
-- Optional: [Claude Code](https://claude.com/claude-code) — the `slopstopper-install` skill drives the whole install end-to-end and catches the gotchas before they bite
-
-## What slopstopper actually is
+## What it actually does
 
 Five feedback loops, all firing on every PR and every push to `main`. The same `task ss:*` command runs them locally and in CI — same source, same output, no drift between dev and pipeline.
 
@@ -35,7 +28,16 @@ Five feedback loops, all firing on every PR and every push to `main`. The same `
 | 🤖 **Operations** | Failed workflows auto-raise issues; an agentic doc updater opens weekly sync PRs | GitHub Actions, gh-aw |
 | 🚀 **Deployment** | Preview deploys per PR, prod releases, preview cleanup | Cloudflare Workers Builds |
 
-Deployment is the only loop that lives outside slopstopper — Cloudflare Workers Builds handles it via Git integration, no GitHub Actions involvement, no secrets dance. The other four are the suite proper.
+Deployment is the only loop that lives outside slopstopper — Cloudflare Workers Builds handles it via Git integration, no GitHub Actions involvement, no secrets dance. The other four are the suite proper. The bit that mattered most to me when I designed it was the *bundling*: I never have to remember which tool catches what. I just install slopstopper, and whatever's broken comes back to me as a red check with a `task ss:*` command to reproduce it on my laptop. That's the learning loop. The first time `ss-security-dast-check.yml` flagged a CSP I didn't understand, I went and read about CSP. The first time Trivy yelled at me about a transitive CVE, I went and read about Trivy. The suite is a reading list I can't avoid.
+
+The rest of this post is the honest tour of bringing it home — installing slopstopper on this very site from a fresh `main` branch and watching what broke. Sixteen of eighteen checks went green on the first push. The other two taught me something. Here's how.
+
+## Pre-Requisites
+
+- A repo you'd like to add quality gates to
+- A terminal and `curl`
+- Optional: [Task runner](https://taskfile.dev) (`brew install go-task/tap/go-task` on macOS) if you want to run the same checks locally
+- Optional: [Claude Code](https://claude.com/claude-code) — the `slopstopper-install` skill drives the whole install end-to-end and catches the gotchas before they bite
 
 ## Cracking Open the Install — the Skill Driving
 
