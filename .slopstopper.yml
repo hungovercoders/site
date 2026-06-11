@@ -40,10 +40,22 @@ urls:
   preview:    https://site.griff182uk.workers.dev
 
 # Pages to exercise on each dynamic check (comma-separated paths).
+#
+# Strategy: cover every page TYPE (homepage + each section index +
+# one exemplar blog post + one exemplar training lesson). Tests the
+# layouts/templates that drive every other instance. A new post added
+# later won't regress because BlogPost.astro is tested via its exemplar.
+#
+# When slopstopper supports sitemap-driven discovery, switch SEO and
+# accessibility to that (every URL, no hand-maintained list).
 pages:
-  smoke:         /
-  accessibility: /
-  seo:           /
+  smoke:         /,/blog,/training,/projects,/tags,/about
+  accessibility: /,/blog,/training,/projects,/tags,/about,/blog/2026-06-09-slopstopper-first-pr-green-on-hungovercoders,/training/claude-code/01-what-is-claude-code
+  # SEO exemplar uses an already-deployed post so its absolute og:image
+  # resolves against production. Per-post share images can't validate
+  # against production until they're deployed (slopstopper follow-up to
+  # support test-base substitution).
+  seo:           /,/blog,/training,/projects,/about,/blog/2025-08-15-simplify-python-package-development-with-uv-and-taskfile,/training/claude-code/01-what-is-claude-code
   broken_links:  /
 
 # ── Smoke test customizations ────────────────────────────────────────
