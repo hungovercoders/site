@@ -31,3 +31,13 @@ training-repos/
 .dev.vars*
 !.dev.vars.example
 !.env.example
+
+# slopstopper begin
+# Generated outputs from slopstopper checks. Safe to delete locally.
+.ss/reports/
+.ss/.workflows-installed
+.ss/**/__pycache__/
+playwright-report/
+test-results/
+.lighthouseci/
+# slopstopper end

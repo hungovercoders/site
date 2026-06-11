@@ -1,0 +1,17 @@
+# gitleaks config — allowlist false positives for the hungovercoders content
+#
+# Slopstopper's ss-security-secrets-check workflow runs gitleaks on every PR.
+# This file lets us mark known-safe tutorial examples without disabling the
+# rule across the whole repo.
+
+title = "hungovercoders gitleaks allowlist"
+
+[extend]
+# Inherit the default gitleaks ruleset
+useDefault = true
+
+[[allowlists]]
+description = "Cosmos DB Emulator default account key — documented by Microsoft, not a real credential. See: https://learn.microsoft.com/en-us/azure/cosmos-db/local-emulator"
+paths = [
+  '''src/content/blog/2024-06-29-cosmos-emulator-docker-local\.md''',
+]
