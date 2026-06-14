@@ -1,0 +1,68 @@
+name: SlopStopper · Hygiene - CSP Exceptions Drift Check
+
+# Validates that CSP exceptions declared in code (suppressions,
+# allowlists) match docs/security/CSP_EXCEPTIONS.md. Triggers: PR,
+# push to main. Workflow fails on drift; no separate main-branch
+# issue (exit code is the signal).
+# Docs: docs/security/CSP_EXCEPTIONS.md.
+
+on:
+  pull_request:
+    paths:
+      - 'worker/headers.json'
+      - 'docs/security/CSP_EXCEPTIONS.md'
+      - '.github/workflows/ss-hygiene-csp-exceptions-check.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'worker/headers.json'
+      - 'docs/security/CSP_EXCEPTIONS.md'
+      - '.github/workflows/ss-hygiene-csp-exceptions-check.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  check-csp-exceptions:
+    name: CSP Exceptions Drift Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install slopstopper-cli
+        run: |
+          # Editable install when run inside slopstopper.dev itself
+          # (cli/ source present); PyPI install for adopter repos.
+          if [ -f cli/pyproject.toml ]; then
+            pip install -e ./cli
+          else
+            pip install slopstopper-cli
+          fi
+
+      - name: Run CSP exceptions check
+        id: check
+        run: slopstopper run hygiene:csp-exceptions
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: csp-exceptions-report-${{ github.run_id }}
+          path: .ss/reports/csp/
+          retention-days: 30
+          if-no-files-found: ignore
+
+      - name: Emit PR comment
+        if: github.event_name == 'pull_request' && always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: slopstopper emit hygiene:csp-exceptions --target pr-comment

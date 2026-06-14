@@ -1,0 +1,104 @@
+name: SlopStopper · DAST Analysis
+
+# Runs OWASP ZAP baseline scan against a running app and gates on
+# alerts not declared in docs/security/CSP_EXCEPTIONS.md. Triggers:
+# PR, push to main. Emits a rolling PR comment (with the
+# swallowed-CSP preamble inline) and a main-branch tracking issue on
+# real findings.
+# Docs: docs/security/README.md.
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  dast:
+    name: Dynamic Application Security Testing with OWASP ZAP
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install slopstopper-cli
+        run: |
+          # Editable install when run inside slopstopper.dev itself
+          # (cli/ source present); PyPI install for adopter repos.
+          if [ -f cli/pyproject.toml ]; then
+            pip install -e ./cli
+          else
+            pip install slopstopper-cli
+          fi
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ vars.SLOPSTOPPER_NODE_VERSION || '20' }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Start local server
+        run: |
+          npm run build
+          slopstopper serve &
+          echo "SERVER_PID=$!" >> $GITHUB_ENV
+          for i in $(seq 1 10); do
+            if curl -s http://localhost:8080 > /dev/null; then
+              echo "✅ Server ready"
+              break
+            fi
+            sleep 1
+          done
+
+      - name: Run DAST analysis + gate
+        id: dast
+        continue-on-error: true
+        run: slopstopper run security:dast -- --target http://localhost:8080
+
+      - name: Stop local server
+        if: always()
+        run: kill $SERVER_PID || true
+
+      - name: Upload DAST reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dast-reports
+          path: |
+            .ss/reports/dast/dast-report.md
+            .ss/reports/dast/dast-report.json
+            .ss/reports/dast/dast-gate.json
+          retention-days: 30
+          if-no-files-found: warn
+
+      - name: Emit PR comment
+        if: github.event_name == 'pull_request' && always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: slopstopper emit security:dast --target pr-comment
+
+      - name: Emit issue on main (if blocking alerts)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.dast.outcome == 'failure'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: slopstopper emit security:dast --target issue
+
+      - name: Fail job if gate found blocking alerts
+        if: steps.dast.outcome == 'failure'
+        run: |
+          echo "::error::DAST gate found blocking alerts. See .ss/reports/dast/dast-report.md."
+          exit 1

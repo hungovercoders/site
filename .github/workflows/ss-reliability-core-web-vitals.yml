@@ -1,0 +1,200 @@
+name: SlopStopper · Core Web Vitals
+
+# Measures Core Web Vitals (LCP, FID, CLS) with Lighthouse CI against
+# the thresholds in cli/slopstopper/data/lighthouserc{,.prod}.json.
+# Triggers: PR, push to main, daily schedule, Cloudflare deployment
+# events. Emits a rolling PR comment with the threshold table and a
+# main-branch tracking issue on regressions; auto-closes the issue
+# on a green run.
+# Docs: docs/reliability/README.md.
+
+on:
+  deployment_status:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'URL to audit'
+        required: true
+        default: 'https://slopstopper.dev/'
+        type: string
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  cwv:
+    name: Core Web Vitals (Lighthouse CI)
+    if: |
+      github.event_name == 'pull_request' ||
+      github.event_name == 'push' ||
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'schedule' ||
+      (github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ vars.SLOPSTOPPER_NODE_VERSION || '20' }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install slopstopper-cli
+        run: |
+          # Editable install when run inside slopstopper.dev itself
+          # (cli/ source present); PyPI install for adopter repos.
+          if [ -f cli/pyproject.toml ]; then
+            pip install -e ./cli
+          else
+            pip install slopstopper-cli
+          fi
+
+      # ── Local server (PR / push to main) ────────────────────────────────────
+      # CUSTOMISE FOR YOUR APP: these two steps build and serve this
+      # repo's static site. Replace with your app's build/serve
+      # commands, or remove them and only audit deployed URLs.
+      - name: Build site
+        if: github.event_name == 'pull_request' || github.event_name == 'push'
+        run: |
+          if [ -f package.json ] && node -e "process.exit(require('./package.json').scripts?.build ? 0 : 1)"; then
+            npm run build
+          else
+            echo "ℹ️  No build script — skipping."
+          fi
+
+      - name: Start local server
+        if: github.event_name == 'pull_request' || github.event_name == 'push'
+        run: |
+          slopstopper serve &
+          echo "SERVER_PID=$!" >> "$GITHUB_ENV"
+          for i in $(seq 1 15); do
+            if curl -s http://localhost:8080 > /dev/null; then
+              echo "✅ Server is ready"
+              break
+            fi
+            sleep 1
+          done
+
+      - name: Determine audit URL
+        id: audit-url
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_URL: ${{ github.event.inputs.url }}
+          DEPLOYMENT_URL: ${{ github.event.deployment_status.target_url }}
+        run: |
+          validate_url() {
+            local url="$1"
+            if [[ ! "$url" =~ ^https?://[^[:space:][:cntrl:]]+$ ]]; then
+              echo "Error: Invalid URL format: $url" >&2
+              exit 1
+            fi
+            printf '%s' "$url"
+          }
+
+          # `prod` toggles the stricter lighthouserc (deployment_status,
+          # schedule, and the no-event fallback all use it).
+          if [ "$EVENT_NAME" == "pull_request" ] || [ "$EVENT_NAME" == "push" ]; then
+            echo "url=http://localhost:8080" >> "$GITHUB_OUTPUT"
+            echo "prod=false" >> "$GITHUB_OUTPUT"
+          elif [ "$EVENT_NAME" == "workflow_dispatch" ]; then
+            SAFE_URL="$(validate_url "$INPUT_URL")"
+            echo "url=$SAFE_URL" >> "$GITHUB_OUTPUT"
+            echo "prod=false" >> "$GITHUB_OUTPUT"
+          elif [ "$EVENT_NAME" == "deployment_status" ]; then
+            SAFE_URL="$(validate_url "$DEPLOYMENT_URL")"
+            echo "url=$SAFE_URL" >> "$GITHUB_OUTPUT"
+            echo "prod=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "url=https://slopstopper.dev" >> "$GITHUB_OUTPUT"
+            echo "prod=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run Core Web Vitals audit
+        id: cwv
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+          AUDIT_URL: ${{ steps.audit-url.outputs.url }}
+          IS_PROD: ${{ steps.audit-url.outputs.prod }}
+        continue-on-error: true
+        run: |
+          echo "🔍 Auditing: $AUDIT_URL  (prod=$IS_PROD)"
+          if [ "$IS_PROD" = "true" ]; then
+            slopstopper run reliability:cwv -- --url "$AUDIT_URL" --prod
+          else
+            slopstopper run reliability:cwv -- --url "$AUDIT_URL"
+          fi
+
+      - name: Stop local server
+        if: (github.event_name == 'pull_request' || github.event_name == 'push') && always()
+        run: kill "$SERVER_PID" || true
+
+      - name: Upload Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports-${{ github.run_id }}
+          path: .lighthouseci/
+          retention-days: 30
+          if-no-files-found: warn
+
+      - name: Comment on PR with results
+        if: github.event_name == 'pull_request' && always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: slopstopper emit reliability:cwv --target pr-comment
+
+      - name: Open / update issue on CWV failure (main / schedule / deploy)
+        if: |
+          steps.cwv.outcome == 'failure' && (
+            (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+            github.event_name == 'schedule' ||
+            github.event_name == 'deployment_status'
+          )
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: slopstopper emit reliability:cwv --target issue
+
+      - name: Close CWV failure issue on success
+        if: |
+          steps.cwv.outcome == 'success' && (
+            (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+            github.event_name == 'schedule' ||
+            github.event_name == 'deployment_status'
+          )
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          title='❌ Core Web Vitals Below Threshold'
+          label='cwv-failure'
+          numbers=$(gh issue list --state open --label "$label" --search "in:title $title" --json number,title --jq ".[] | select(.title==\"$title\") | .number")
+          for n in $numbers; do
+            gh issue comment "$n" --body "✅ Core Web Vitals are now passing all thresholds. Closing this issue automatically."
+            gh issue close "$n"
+          done
+
+      - name: Fail the job if CWV thresholds were not met
+        if: steps.cwv.outcome == 'failure'
+        run: |
+          echo "::error::Core Web Vitals thresholds not met. See .ss/reports/cwv/cwv-report.md for details."
+          exit 1

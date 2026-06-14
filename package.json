@@ -25,7 +25,11 @@
     "sharp": "^0.34.3"
   },
   "devDependencies": {
-    "wrangler": "^4.94.0"
+    "wrangler": "^4.94.0",
+    "@axe-core/playwright": "^4.11.1",
+    "@lhci/cli": "^0.14.0",
+    "@playwright/test": "^1.40.0",
+    "markdownlint-cli": "^0.47.0"
   },
   "overrides": {
     "vite": "^7"
