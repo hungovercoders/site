@@ -1,0 +1,9 @@
+# Cloudflare _redirects — 301s applied at the edge.
+# Format: <source>  <destination>  <status>
+#
+# https://developers.cloudflare.com/pages/configuration/redirects/
+
+# Slopstopper launch post — renamed from the first-PR-green framing to the
+# packaged-distribution framing when the install model changed in v0.5.0.
+/blog/2026-06-09-slopstopper-first-pr-green-on-hungovercoders/  /blog/2026-06-14-adding-packaged-slopstopper-to-hungovercoders/  301
+/blog/2026-06-09-slopstopper-first-pr-green-on-hungovercoders   /blog/2026-06-14-adding-packaged-slopstopper-to-hungovercoders/  301

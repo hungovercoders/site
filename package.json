@@ -32,6 +32,7 @@
     "markdownlint-cli": "^0.47.0"
   },
   "overrides": {
-    "vite": "^7"
+    "vite": "^7",
+    "esbuild": "^0.28.1"
   }
 }
