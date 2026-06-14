@@ -52,12 +52,6 @@ test.describe('Accessibility Audit', () => {
 
       const results = await new AxeBuilder({ page })
         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
-        // Klaro cookie-consent UI is third-party and ships its own contrast
-        // styling we can't easily override at the page level. Excluding the
-        // consent container keeps the audit honest about site code (which we
-        // control) and silent about Klaro's modal markup (which we don't).
-        .exclude('.klaro')
-        .exclude('[id^="service-item-"]')
         .analyze();
 
       // Filter to violations at or above the configured impact level
