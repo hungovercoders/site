@@ -38,7 +38,7 @@ npm run dev
 
 1. Create the `learn.<topic>` repo following the `content/` + `examples/` layout (see that repo's `AGENTS.md`)
 2. Add `"learn.<topic>"` to the `REPOS` array in `scripts/fetch-training-repos.sh`
-3. `link-local-repos.sh` picks it up automatically for local dev (no change needed)
+3. `scripts/link-local-repos.sh` picks it up automatically for local dev (no change needed)
 
 ## Conventions
 

@@ -1,0 +1,76 @@
+name: SlopStopper · Hygiene - Entry-File Budget Check
+
+# Enforces word-count budgets on root-level entry files (README.md,
+# AGENTS.md, CLAUDE.md). Triggers: PR, push to main. Emits a rolling
+# PR comment; workflow fails on over-budget — no separate main-branch
+# issue (exit code is the signal).
+# Docs: docs/hygiene/README.md.
+
+on:
+  pull_request:
+    paths:
+      - 'README.md'
+      - 'AGENTS.md'
+      - 'CLAUDE.md'
+      - '.github/workflows/ss-hygiene-entry-files-check.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'README.md'
+      - 'AGENTS.md'
+      - 'CLAUDE.md'
+      - '.github/workflows/ss-hygiene-entry-files-check.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  check-entry-files:
+    name: Entry-File Budget Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install slopstopper-cli
+        run: |
+          # Editable install when run inside slopstopper.dev itself
+          # (cli/ source present); PyPI install for adopter repos.
+          if [ -f cli/pyproject.toml ]; then
+            pip install -e ./cli
+          else
+            pip install slopstopper-cli
+          fi
+
+      - name: Install Task runner
+        uses: arduino/setup-task@v2
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run entry-file budget check
+        id: check
+        run: task ss:hygiene:entry-files
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: entry-files-report-${{ github.run_id }}
+          path: .ss/reports/entry-files/
+          retention-days: 30
+          if-no-files-found: ignore
+
+      - name: Emit PR comment
+        if: github.event_name == 'pull_request' && always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: slopstopper emit hygiene:entry-files --target pr-comment

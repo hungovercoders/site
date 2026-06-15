@@ -1,0 +1,263 @@
+version: '3'
+
+# Canonical adopter interface for the slopstopper quality suite.
+#
+# This Taskfile is THE entry point — humans, agents and CI all invoke
+# checks through `task ss:<category>:<check>`. The underlying
+# `slopstopper-cli` is the implementation each shim calls; it is not
+# a parallel surface to promote to adopters.
+#
+# Workflows in .github/workflows/ss-*-check.yml install the Task
+# runner and go through these shims by default. Adopters who don't
+# want Task in their CI can re-run install.sh with --no-task to get
+# workflows post-processed to call slopstopper-cli directly.
+
+tasks:
+  # ───────────── Reliability (need a URL) ─────────────
+
+  reliability:smoke:
+    desc: Run smoke tests against a live URL
+    summary: |
+      Run portable smoke tests (page loads + OG-image reachability)
+      against a live URL. Reads `pages.smoke` and `smoke.og_image_path`
+      from `.slopstopper.yml`.
+
+      Usage:
+        task ss:reliability:smoke -- https://your-site.example.com
+        task ss:reliability:smoke -- https://your-site.example.com --ci
+        SMOKE_TEST_URL=https://your-site.example.com task ss:reliability:smoke
+    cmds:
+      - slopstopper run reliability:smoke -- {{.CLI_ARGS}}
+
+  reliability:cwv:
+    desc: Run a Core Web Vitals (Lighthouse CI) audit
+    summary: |
+      Run a Core Web Vitals (Lighthouse CI) audit against a live URL
+      using the bundled thresholds (override at `.ss/lighthouserc.json`
+      or `.ss/lighthouserc.prod.json` if present).
+
+      Thresholds (default lighthouserc.json):
+        - Performance score  ≥ 70
+        - LCP                ≤ 4 s
+        - TBT                ≤ 600 ms
+        - CLS                ≤ 0.25
+
+      Usage:
+        task ss:reliability:cwv -- https://your-site.example.com
+        task ss:reliability:cwv -- https://your-site.example.com --prod
+        CWV_URL=https://your-site.example.com task ss:reliability:cwv
+    cmds:
+      - slopstopper run reliability:cwv -- {{.CLI_ARGS}}
+
+  reliability:seo:
+    desc: Validate SEO + social-share metatags on a live URL
+    summary: |
+      Fetches one or more pages and asserts the presence of `<title>`,
+      meta description, canonical, viewport, OpenGraph (og:title /
+      description / type / url / image) and Twitter Card (twitter:card
+      / title / description / image). Also HEAD-checks og:image to
+      confirm it is reachable and returns image/* content.
+
+      Configuration (environment variables; SEO_PAGES is also read
+      from .slopstopper.yml's `pages.seo`):
+        SEO_TEST_URL          - base URL to audit (required)
+        SEO_PAGES             - comma-separated paths (default: /)
+        SEO_REQUIRE_OG_IMAGE  - 0 to skip og:image presence check (default: 1)
+        SEO_VERIFY_OG_IMAGE   - 0 to skip HEAD-fetching og:image (default: 1)
+        SEO_OG_IMAGE_BASE     - rewrite absolute og:image / twitter:image
+                                origin to this base before HEAD-checking
+
+      Usage:
+        task ss:reliability:seo -- https://your-site.example.com
+        SEO_TEST_URL=https://your-site.example.com task ss:reliability:seo
+    cmds:
+      - slopstopper run reliability:seo -- {{.CLI_ARGS}}
+
+  reliability:accessibility:
+    desc: Run accessibility audit against a live URL
+    summary: |
+      Run a WCAG 2.1 AA accessibility audit against a live URL.
+      Reads `pages.accessibility` from `.slopstopper.yml`.
+
+      Configuration (environment variables):
+        ACCESSIBILITY_TEST_URL  - URL to audit (required; also accepts SMOKE_TEST_URL)
+        ACCESSIBILITY_IMPACT    - critical|serious|moderate|minor (default: serious)
+        ACCESSIBILITY_THRESHOLD - max allowed violations (default: 0)
+
+      Usage:
+        task ss:reliability:accessibility -- https://your-site.example.com
+        task ss:reliability:accessibility -- https://your-site.example.com --ci
+        ACCESSIBILITY_TEST_URL=https://your-site.example.com task ss:reliability:accessibility
+    cmds:
+      - slopstopper run reliability:accessibility -- {{.CLI_ARGS}}
+
+  reliability:broken-links:
+    desc: Run broken-link checks against a live URL
+    summary: |
+      Crawl internal anchors from configured pages and fail on
+      4xx/5xx destinations. Reads `pages.broken_links` from
+      `.slopstopper.yml`.
+
+      Configuration (environment variables):
+        BROKEN_LINKS_TEST_URL - URL to audit (required; also accepts SMOKE_TEST_URL)
+        BROKEN_LINKS_PAGES    - comma-separated paths to scan (default: /)
+
+      Usage:
+        task ss:reliability:broken-links -- https://your-site.example.com
+        task ss:reliability:broken-links -- https://your-site.example.com --ci
+        BROKEN_LINKS_TEST_URL=https://your-site.example.com task ss:reliability:broken-links
+    cmds:
+      - slopstopper run reliability:broken-links -- {{.CLI_ARGS}}
+
+  # ───────────── Hygiene (static analysis) ─────────────
+
+  hygiene:complexity:
+    desc: Analyze code complexity using Lizard
+    summary: |
+      Performs code complexity analysis on the codebase using Lizard.
+      Generates both MD and CSV reports under .ss/reports/complexity/.
+
+      Usage:
+        task ss:hygiene:complexity
+    cmds:
+      - slopstopper run hygiene:complexity
+
+  hygiene:docs-size:
+    desc: Monitor documentation size against configured thresholds
+    summary: |
+      Analyzes documentation size against thresholds tunable in .slopstopper.yml:
+        hygiene:
+          docs_size:
+            max_total_size_kb: 150
+            max_file_size_kb: 20
+            max_files: 25
+
+      Generates a report at .ss/reports/docs/docs-size-report.md.
+
+      Usage:
+        task ss:hygiene:docs-size
+    cmds:
+      - slopstopper run hygiene:docs-size
+
+  hygiene:docs-structure:
+    desc: Validate documentation structure matches the governance model
+    summary: |
+      Validates that the docs/ tree matches the governance model
+      declared in docs/index.md. Generates JSON + MD reports under
+      .ss/reports/docs/.
+
+      Usage:
+        task ss:hygiene:docs-structure
+    cmds:
+      - slopstopper run hygiene:docs-structure
+
+  hygiene:entry-files:
+    desc: Enforce <2k token budget on agent entry files (README.md, AGENTS.md, CLAUDE.md)
+    summary: |
+      The agent entry files are loaded into every conversation. docs/index.md
+      declares they should stay under ~2k tokens each so they don't crowd
+      the context window. This check enforces that with a 1,500-word cap
+      (≈ 2k tokens for English prose) and exits non-zero if any file is
+      over budget — moving the over-budget file's bulk into the category
+      README that owns the topic is the fix.
+
+      Generates a report at .ss/reports/entry-files/entry-file-size-report.md.
+
+      Usage:
+        task ss:hygiene:entry-files
+    cmds:
+      - slopstopper run hygiene:entry-files
+
+  hygiene:csp-exceptions:
+    desc: Validate per-page CSP relaxations match docs/security/CSP_EXCEPTIONS.md
+    summary: |
+      Parses the headers source (worker/headers.json by default; pluggable
+      via headers.source in .slopstopper.yml) and docs/security/CSP_EXCEPTIONS.md
+      and fails if either side has a per-path CSP exception the other doesn't
+      document.
+
+      Usage:
+        task ss:hygiene:csp-exceptions
+    cmds:
+      - slopstopper run hygiene:csp-exceptions
+
+  hygiene:docs-accuracy:
+    desc: Check documentation for broken links + stale refs
+    summary: |
+      Scans all markdown files under docs/ for accuracy issues:
+      - Broken internal markdown links
+      - References to non-existent Taskfile tasks
+      - References to non-existent GitHub Actions workflows
+      - Possible stale source-file references
+
+      Usage:
+        task ss:hygiene:docs-accuracy
+    cmds:
+      - slopstopper run hygiene:docs-accuracy
+
+  hygiene:test:
+    desc: Run all hygiene checks (docs-size, docs-structure, docs-accuracy, entry-files, csp-exceptions, complexity)
+    cmds:
+      - task: hygiene:docs-size
+      - task: hygiene:docs-structure
+      - task: hygiene:docs-accuracy
+      - task: hygiene:entry-files
+      - task: hygiene:csp-exceptions
+      - task: hygiene:complexity
+
+  # ───────────── Security (need external tools on PATH) ─────────────
+
+  security:sast:
+    desc: Run static application security testing using Semgrep
+    summary: |
+      Subprocess-invokes `semgrep` (must be installed on PATH):
+        pip install --user semgrep
+
+      Usage:
+        task ss:security:sast
+    cmds:
+      - slopstopper run security:sast
+
+  security:vulnerability:all:
+    desc: Run vulnerability scanning using Trivy
+    summary: |
+      Subprocess-invokes `trivy` (must be installed on PATH). See
+      https://trivy.dev/latest/getting-started/installation/.
+
+      Usage:
+        task ss:security:vulnerability:all
+    cmds:
+      - slopstopper run security:vulnerability:all
+
+  security:dast:
+    desc: Run dynamic application security testing using OWASP ZAP
+    summary: |
+      Subprocess-invokes `docker run ghcr.io/zaproxy/zaproxy:stable
+      zap-baseline.py` (Docker must be running). The CLI also runs the
+      CSP-exception gate against the resulting JSON — see
+      docs/security/CSP_EXCEPTIONS.md.
+
+      Usage:
+        task ss:security:dast -- http://localhost:8080
+        task ss:security:dast -- https://staging.example.com
+    cmds:
+      - slopstopper run security:dast -- {{.CLI_ARGS}}
+
+  security:secrets:
+    desc: Run secrets detection using Gitleaks
+    summary: |
+      Subprocess-invokes `gitleaks` (must be installed on PATH). See
+      https://gitleaks.io/.
+
+      Usage:
+        task ss:security:secrets
+    cmds:
+      - slopstopper run security:secrets
+
+  security:scan:
+    desc: Run full security scan suite (SAST + vulnerabilities + DAST + secrets)
+    cmds:
+      - task: security:sast
+      - task: security:vulnerability:all
+      - task: security:dast
+      - task: security:secrets

@@ -1,0 +1,107 @@
+name: SlopStopper · SAST Analysis
+
+# Runs Semgrep static analysis. Workflow gates fail and emit-issue
+# on the count of ERROR-severity findings in the Semgrep JSON;
+# INFO/WARNING findings are reported but non-blocking. Triggers: PR,
+# push to main. Emits a rolling PR comment with all findings and a
+# main-branch tracking issue on ERROR-severity regressions.
+# Docs: docs/security/README.md.
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  sast:
+    name: Static Application Security Testing with Semgrep
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install Semgrep
+        run: |
+          pip install --upgrade pip
+          pip install semgrep
+
+      - name: Install slopstopper-cli
+        run: |
+          # Editable install when run inside slopstopper.dev itself
+          # (cli/ source present); PyPI install for adopter repos.
+          if [ -f cli/pyproject.toml ]; then
+            pip install -e ./cli
+          else
+            pip install slopstopper-cli
+          fi
+
+      - name: Install Task runner
+        uses: arduino/setup-task@v2
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run SAST analysis
+        id: sast
+        run: task ss:security:sast
+
+      - name: Detect error-severity findings
+        id: gate
+        run: |
+          if [ -f .ss/reports/sast/sast-report.json ]; then
+            ERROR_COUNT=$(python3 -c "
+          import json
+          with open('.ss/reports/sast/sast-report.json') as f:
+              data = json.load(f)
+          errors = [r for r in data.get('results', []) if r.get('extra', {}).get('severity', '').upper() == 'ERROR']
+          print(len(errors))
+          ")
+          else
+            ERROR_COUNT=0
+          fi
+          echo "errors_found=$([ "$ERROR_COUNT" -gt 0 ] && echo 1 || echo 0)" >> "$GITHUB_OUTPUT"
+          if [ "$ERROR_COUNT" -gt 0 ]; then
+            echo "⚠️  Found $ERROR_COUNT error-severity finding(s)"
+          fi
+
+      - name: Upload SAST reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sast-reports
+          path: |
+            .ss/reports/sast/sast-report.md
+            .ss/reports/sast/sast-report.json
+          retention-days: 30
+          if-no-files-found: warn
+
+      - name: Emit PR comment
+        if: github.event_name == 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: slopstopper emit security:sast --target pr-comment
+
+      - name: Emit issue on main (if error-severity findings)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.gate.outputs.errors_found == '1'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: slopstopper emit security:sast --target issue
+
+      - name: Fail job if error-severity findings
+        if: steps.gate.outputs.errors_found == '1'
+        run: |
+          echo "::error::SAST error-severity findings detected. Review and address before merge."
+          exit 1

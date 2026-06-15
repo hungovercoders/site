@@ -1,0 +1,135 @@
+name: SlopStopper · Hygiene - Documentation Accuracy Check
+
+# Scans the repo for documentation references that no longer match
+# the code or links they describe. Triggers: PR, push to main, weekly
+# schedule. Emits a rolling PR comment, opens/updates a main-branch
+# tracking issue on findings, and auto-closes the issue when docs are
+# clean.
+# Docs: docs/hygiene/README.md.
+
+on:
+  # Weekly schedule (every Monday at 07:00 UTC)
+  schedule:
+    - cron: '0 7 * * 1'
+
+  pull_request:
+    paths:
+      - 'docs/**'
+      - 'README.md'
+      - 'AGENTS.md'
+      - 'CLAUDE.md'
+      - 'CONTRIBUTING.md'
+      - '*.html'
+      - '*.js'
+      - '*.css'
+      - 'Taskfile.yml'
+      - 'Taskfile.ss.yml'
+      - 'wrangler.jsonc'
+      - 'worker/**'
+      - 'server.js'
+      - '.github/workflows/**'
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/**'
+      - 'README.md'
+      - 'AGENTS.md'
+      - 'CLAUDE.md'
+      - 'CONTRIBUTING.md'
+      - '*.html'
+      - '*.js'
+      - '*.css'
+      - 'Taskfile.yml'
+      - 'Taskfile.ss.yml'
+      - 'wrangler.jsonc'
+      - 'worker/**'
+      - 'server.js'
+      - '.github/workflows/**'
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  check-docs-accuracy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install slopstopper-cli
+        run: |
+          # Editable install when run inside slopstopper.dev itself
+          # (cli/ source present); PyPI install for adopter repos.
+          if [ -f cli/pyproject.toml ]; then
+            pip install -e ./cli
+          else
+            pip install slopstopper-cli
+          fi
+
+      - name: Install Task runner
+        uses: arduino/setup-task@v2
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run documentation accuracy check
+        id: check
+        continue-on-error: true
+        run: task ss:hygiene:docs-accuracy
+
+      - name: Emit PR comment
+        if: github.event_name == 'pull_request' && steps.check.outcome == 'failure'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: slopstopper emit hygiene:docs-accuracy --target pr-comment
+
+      - name: Emit issue (push / schedule / dispatch — when issues found)
+        if: >-
+          (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+          && steps.check.outcome == 'failure'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: slopstopper emit hygiene:docs-accuracy --target issue
+
+      - name: Auto-close issue when clean
+        if: >-
+          (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+          && steps.check.outcome == 'success'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Auto-close any open tracking issue when docs are clean.
+          # emit.py models only create/update, so the close path lives
+          # here as a small inline gh loop.
+          numbers=$(gh issue list --state open --label documentation-accuracy --json number --jq '.[].number')
+          for n in $numbers; do
+            gh issue comment "$n" --body "✅ Documentation accuracy checks now pass. Closing automatically."
+            gh issue close "$n"
+          done
+
+      - name: Upload accuracy report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-accuracy-report
+          path: .ss/reports/docs/docs-accuracy-report.md
+          retention-days: 30
+
+      - name: Fail job if issues
+        if: steps.check.outcome == 'failure'
+        run: |
+          echo "::error::Documentation accuracy issues detected. See report."
+          exit 1
