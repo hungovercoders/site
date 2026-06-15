@@ -1,0 +1,8 @@
+# Cloudflare-style redirects served by the @astrojs/cloudflare adapter.
+# Format: <from> <to> <status>
+# 301 = permanent; preserves the path component if you use a splat.
+
+# The original 2026-06-09 launch post for slopstopper was replaced by the
+# 2026-06-15 install walkthrough. 301 so any inbound link to the old slug
+# lands on the new post rather than 404.
+/blog/2026-06-09-slopstopper-first-pr-green-on-hungovercoders/  /blog/2026-06-15-slopstopper-on-tap/  301
