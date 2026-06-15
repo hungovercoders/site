@@ -1,6 +1,6 @@
 # CSP exceptions
 
-This file is the **single source of truth** for every per-path Content-Security-Policy relaxation on the hungovercoders site. The slopstopper DAST gate ([`.ss/scripts/check-dast-alerts.py`](../../.ss/scripts/check-dast-alerts.py)) reads this file and swallows CSP findings whose URL path appears under `## Exceptions` below. Non-CSP findings and undocumented paths still block.
+This file is the **single source of truth** for every per-path Content-Security-Policy relaxation on the hungovercoders site. The slopstopper DAST gate (`task ss:security:dast`) reads this file and swallows CSP findings whose URL path appears under `## Exceptions` below. Non-CSP findings and undocumented paths still block.
 
 ## Why this exists
 

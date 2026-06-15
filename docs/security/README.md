@@ -16,11 +16,11 @@ Site-wide defaults under `/*`:
 - `Permissions-Policy` — denies geolocation, camera, microphone, and opts out of FLoC/Topics via `interest-cohort=()`
 - `Referrer-Policy: strict-origin-when-cross-origin`
 
-The local `server.js` shim parses `_headers` and applies matching rules per request, so CI tests asserting headers behave identically to the deployed Worker.
+The bundled `slopstopper serve` parses `_headers` and applies matching rules per request, so CI tests asserting headers behave identically to the deployed Worker.
 
 ## DAST findings policy
 
-The DAST workflow at `.github/workflows/ss-security-dast-check.yml` runs OWASP ZAP via Docker against the locally-served build on every PR. The gate at `.ss/scripts/check-dast-alerts.py` blocks the build on any medium-or-high finding *except* CSP findings on paths documented in [`CSP_EXCEPTIONS.md`](./CSP_EXCEPTIONS.md).
+The DAST workflow at `.github/workflows/ss-security-dast-check.yml` runs OWASP ZAP via Docker against the locally-served build on every PR. The gate at `task ss:security:dast` blocks the build on any medium-or-high finding *except* CSP findings on paths documented in [`CSP_EXCEPTIONS.md`](./CSP_EXCEPTIONS.md).
 
 Two classes of finding are accepted by design and silenced via the consumer-side ZAP rule allowlist at [`.zap/rules.tsv`](../../.zap/rules.tsv):
 

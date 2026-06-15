@@ -1,17 +1,21 @@
 name: SlopStopper · SEO Metatag Check
 
+# Validates `<title>`, meta description, canonical, OpenGraph, and
+# Twitter Card metatags on the deployed site (and HEAD-fetches
+# og:image to confirm reachability). Triggers: PR, push to main,
+# daily schedule, Cloudflare deployment events. Emits a rolling PR
+# comment; workflow fails on missing/invalid tags — no separate
+# main-branch issue (exit code is the signal).
+# Docs: docs/reliability/SEO.md.
+
 on:
   pull_request:
     branches: [main]
-
   push:
     branches: [main]
-
   deployment_status:
-
   schedule:
     - cron: '0 7 * * *'
-
   workflow_dispatch:
     inputs:
       url:
@@ -19,11 +23,16 @@ on:
         required: false
         default: ''
         type: string
+      coverage_mode:
+        description: 'Force discovery mode (overrides .slopstopper.yml)'
+        required: false
+        default: ''
+        type: choice
+        options: ['', 'sitemap', 'changed']
 
 permissions:
   contents: read
   pull-requests: write
-  issues: write
 
 jobs:
   seo:
@@ -35,23 +44,36 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ vars.SLOPSTOPPER_NODE_VERSION || '20' }}
           cache: 'npm'
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
-      - name: Install Task
+      - name: Install slopstopper-cli
         run: |
-          curl -sL https://taskfile.dev/install.sh | sh -s -- -b /usr/local/bin
-          task --version
+          # Editable install when run inside slopstopper.dev itself
+          # (cli/ source present); PyPI install for adopter repos.
+          if [ -f cli/pyproject.toml ]; then
+            pip install -e ./cli
+          else
+            pip install slopstopper-cli
+          fi
+
+      - name: Install Task runner
+        uses: arduino/setup-task@v2
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Determine audit URL
         id: url
@@ -91,49 +113,53 @@ jobs:
 
       - name: Start local server (PR / push builds)
         if: steps.url.outputs.use_local == 'true'
-        # CUSTOMISE FOR YOUR APP: this step is wired for this repo's static
-        # site (build + node server.js). Replace with whatever starts your
-        # app on port 8080 — or set use_local=false in the Determine audit
-        # URL step and point SEO_TEST_URL at a deployed environment.
+        # CUSTOMISE FOR YOUR APP: by default this runs `npm run build`
+        # then `slopstopper serve` (the bundled static server). Point
+        # SEO_TEST_URL at a deployed environment to skip the local serve,
+        # or eject the bundled server with
+        # `slopstopper templates eject server.js` and customise `.ss/server.js`.
         run: |
-          if [ -f server.js ] && [ -f package.json ] && node -e "process.exit(require('./package.json').scripts?.build ? 0 : 1)"; then
+          if [ -f package.json ] && node -e "process.exit(require('./package.json').scripts?.build ? 0 : 1)"; then
             npm run build
-            node server.js &
-            echo "SERVER_PID=$!" >> "$GITHUB_ENV"
-            for i in $(seq 1 10); do
-              if curl -s http://localhost:8080 > /dev/null; then
-                echo "✅ Server ready"
-                break
-              fi
-              sleep 1
-            done
-          else
-            echo "ℹ️  No server.js to start. Customise this step or set SEO_TEST_URL."
-            exit 1
           fi
+          slopstopper serve &
+          echo "SERVER_PID=$!" >> "$GITHUB_ENV"
+          for i in $(seq 1 10); do
+            if curl -s http://localhost:8080 > /dev/null; then
+              echo "✅ Server ready"
+              break
+            fi
+            sleep 1
+          done
 
       - name: Pages to audit
         if: steps.url.outputs.use_local == 'true'
-        # Reads pages.seo from .slopstopper.yml. Falls back to '/' if not
-        # configured. Override per-repo in .slopstopper.yml:
-        #   pages:
-        #     seo: /,/blog,/about
+        env:
+          DISPATCH_MODE: ${{ github.event.inputs.coverage_mode }}
+          GITHUB_BASE_REF: ${{ github.base_ref || 'main' }}
         run: |
-          PAGES=$(python3 .ss/scripts/load_config.py pages.seo /)
+          case "${{ github.event_name }}" in
+            pull_request|pull_request_target) EVENT=pr ;;
+            push)              EVENT=main ;;
+            schedule)          EVENT=cron ;;
+            deployment_status) EVENT=main ;;
+            workflow_dispatch) EVENT="${DISPATCH_MODE:-main}" ;;
+            *)                 EVENT=main ;;
+          esac
+          PAGES=$(slopstopper discover seo --event="$EVENT")
           echo "SEO_PAGES=$PAGES" >> "$GITHUB_ENV"
 
       - name: Run SEO metatag audit
         id: audit
         env:
-          SEO_TEST_URL: ${{ steps.url.outputs.url }}
-          # og:image is an absolute URL pointing at the production domain
-          # (required by social-share crawlers). The reachability HEAD check
-          # can't succeed when auditing localhost, so skip it for local
-          # builds. Keep the presence assertion on. Schedule and
-          # deployment_status runs still verify reachability against the
+          # og:image is an absolute URL pointing at the production
+          # domain (required by social-share crawlers). The reachability
+          # HEAD check can't succeed when auditing localhost, so skip
+          # for local builds. Keep the presence assertion on. Schedule
+          # and deployment_status runs verify reachability against the
           # real deployed URL.
           SEO_VERIFY_OG_IMAGE: ${{ steps.url.outputs.use_local == 'true' && '0' || '1' }}
-        run: task ss:reliability:seo:ci
+        run: task ss:reliability:seo -- ${{ steps.url.outputs.url }}
 
       - name: Stop local server
         if: steps.url.outputs.use_local == 'true' && always()
@@ -148,36 +174,8 @@ jobs:
           retention-days: 30
           if-no-files-found: ignore
 
-      - name: Comment on PR with SEO results
+      - name: Emit PR comment
         if: github.event_name == 'pull_request' && always()
-        uses: actions/github-script@v7
         env:
-          JOB_STATUS: ${{ job.status }}
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        with:
-          script: |
-            const status = process.env.JOB_STATUS === 'success' ? '✅ PASSED' : '❌ FAILED';
-            const runUrl = process.env.RUN_URL;
-
-            let body = `## 🔎 SEO Metatag Audit ${status}\n\n`;
-            body += 'Checks each page for `<title>`, meta description, canonical, viewport, the OpenGraph set (og:title/description/type/url/image) and the Twitter Card set (twitter:card/title/description/image). Also HEAD-fetches `og:image` to confirm reachability.\n\n';
-
-            if (process.env.JOB_STATUS !== 'success') {
-              body += '> ⚠️ Missing or unreachable tags. See workflow logs / artifact for details.\n\n';
-            }
-
-            body += '### 🔍 How to Check Locally\n\n';
-            body += '```bash\n';
-            body += '# Audit the local build\n';
-            body += 'task ss:reliability:seo -- http://localhost:8080\n\n';
-            body += '# Or audit a deployed URL\n';
-            body += 'task ss:reliability:seo -- https://your-site.example.com\n';
-            body += '```\n\n';
-            body += `[Full report in workflow artifacts](${runUrl})\n`;
-
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body
-            });
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: slopstopper emit reliability:seo --target pr-comment

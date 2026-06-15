@@ -29,10 +29,10 @@
     "@axe-core/playwright": "^4.11.1",
     "@lhci/cli": "^0.14.0",
     "@playwright/test": "^1.40.0",
-    "markdownlint-cli": "^0.47.0",
-    "typescript": "^5.9.3"
+    "markdownlint-cli": "^0.47.0"
   },
   "overrides": {
-    "vite": "^7"
+    "vite": "^7",
+    "esbuild": ">=0.28.1"
   }
 }

@@ -1,12 +1,20 @@
 name: SlopStopper · Broken Links Check
 
+# Crawls the deployed site for broken internal links via Playwright.
+# Page list resolved by `slopstopper discover` (reads
+# pages.broken_links from .slopstopper.yml, falls back to sitemap or
+# changed-files heuristics) and surfaced via the BROKEN_LINKS_PAGES
+# env var. Triggers: PR, push to main, daily schedule, Cloudflare
+# deployment events. Emits a rolling PR comment and a main-branch
+# tracking issue; auto-closes on a clean run.
+# Docs: docs/reliability/README.md.
+
 on:
   pull_request:
     branches: [main]
   push:
     branches: [main]
   deployment_status:
-  # Run daily at 08:00 UTC
   schedule:
     - cron: '0 8 * * *'
   workflow_dispatch:
@@ -16,6 +24,12 @@ on:
         required: false
         default: ''
         type: string
+      coverage_mode:
+        description: 'Force discovery mode (overrides .slopstopper.yml)'
+        required: false
+        default: ''
+        type: choice
+        options: ['', 'sitemap', 'changed']
 
 permissions:
   contents: read
@@ -31,10 +45,14 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+        with:
+          # `slopstopper discover --event=pr` runs in changed-mode and
+          # needs git history vs the base branch.
+          fetch-depth: 0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ vars.SLOPSTOPPER_NODE_VERSION || '20' }}
           cache: 'npm'
@@ -45,10 +63,26 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
-      - name: Install Task
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install slopstopper-cli
         run: |
-          curl -sL https://taskfile.dev/install.sh | sh -s -- -b /usr/local/bin
-          task --version
+          # Editable install when run inside slopstopper.dev itself
+          # (cli/ source present); PyPI install for adopter repos.
+          if [ -f cli/pyproject.toml ]; then
+            pip install -e ./cli
+          else
+            pip install slopstopper-cli
+          fi
+
+      - name: Install Task runner
+        uses: arduino/setup-task@v2
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Determine check URL
         id: url
@@ -86,7 +120,7 @@ jobs:
         if: steps.url.outputs.use_local == 'true'
         run: |
           npm run build
-          node server.js &
+          slopstopper serve &
           echo "SERVER_PID=$!" >> "$GITHUB_ENV"
           for i in $(seq 1 10); do
             if curl -s http://localhost:8080 > /dev/null; then
@@ -98,19 +132,28 @@ jobs:
 
       - name: Pages to audit
         if: steps.url.outputs.use_local == 'true'
-        # Reads pages.broken_links from .slopstopper.yml. Falls back to '/'
-        # if not configured. Override per-repo in .slopstopper.yml:
-        #   pages:
-        #     broken_links: /,/blog,/about
+        env:
+          DISPATCH_MODE: ${{ github.event.inputs.coverage_mode }}
+          GITHUB_BASE_REF: ${{ github.base_ref || 'main' }}
+        # Maps GH event → slopstopper discover's --event flag. Falls
+        # through to pages.broken_links when reliability.coverage.* is
+        # unset, so existing adopters see no behaviour change.
         run: |
-          PAGES=$(python3 .ss/scripts/load_config.py pages.broken_links /)
+          case "${{ github.event_name }}" in
+            pull_request|pull_request_target) EVENT=pr ;;
+            push)              EVENT=main ;;
+            schedule)          EVENT=cron ;;
+            deployment_status) EVENT=main ;;
+            workflow_dispatch) EVENT="${DISPATCH_MODE:-main}" ;;
+            *)                 EVENT=main ;;
+          esac
+          PAGES=$(slopstopper discover broken_links --event="$EVENT")
           echo "BROKEN_LINKS_PAGES=$PAGES" >> "$GITHUB_ENV"
 
       - name: Run broken-link checks
         env:
-          BROKEN_LINKS_TEST_URL: ${{ steps.url.outputs.url }}
           BROKEN_LINKS_PAGES: ${{ env.BROKEN_LINKS_PAGES }}
-        run: task ss:reliability:links:ci
+        run: task ss:reliability:broken-links -- ${{ steps.url.outputs.url }} --ci
 
       - name: Stop local server
         if: always() && steps.url.outputs.use_local == 'true'
@@ -129,36 +172,36 @@ jobs:
 
       - name: Comment on PR with results
         if: github.event_name == 'pull_request' && always()
-        uses: actions/github-script@v7
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           JOB_STATUS: ${{ job.status }}
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           CHECK_URL: ${{ steps.url.outputs.url }}
-        with:
-          script: |
-            const status = process.env.JOB_STATUS === 'success' ? '✅ PASSED' : '❌ FAILED';
-            const runUrl = process.env.RUN_URL;
-            const checkUrl = process.env.CHECK_URL;
+        run: |
+          status_marker=$([ "$JOB_STATUS" = "success" ] && echo "✅ PASSED" || echo "❌ FAILED")
+          run_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          body=$(cat <<EOF
+          ## 🔗 Broken Links Check ${status_marker}
 
-            const body = [
-              `## 🔗 Broken Links Check ${status}`,
-              '',
-              `**Checked URL:** ${checkUrl}`,
-              '',
-              '### 🔍 How to Check Locally',
-              '',
-              '```bash',
-              'BROKEN_LINKS_TEST_URL=https://your-site.example.com task ss:reliability:links',
-              '',
-              'task ss:reliability:links -- https://your-site.example.com',
-              '```',
-              '',
-              `[Full report in workflow artifacts](${runUrl})`,
-            ].join('\n');
+          **Checked URL:** ${CHECK_URL}
 
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body,
-            });
+          ### 🔍 How to Check Locally
+
+          \`\`\`bash
+          task ss:reliability:broken-links -- https://your-site.example.com
+          \`\`\`
+
+          [Full report in workflow artifacts](${run_url})
+          EOF
+          )
+          # Match the existing bot comment by the H2 marker and update
+          # in place, else create. Keeps one rolling comment per PR
+          # rather than appending on every push.
+          marker='🔗 Broken Links Check'
+          pr_number=$(jq -r '.pull_request.number' "$GITHUB_EVENT_PATH")
+          existing=$(gh api "repos/${GITHUB_REPOSITORY}/issues/${pr_number}/comments" \
+            --jq ".[] | select(.user.type==\"Bot\" and (.body | contains(\"$marker\"))) | .id" | head -n1)
+          if [ -n "$existing" ]; then
+            gh api -X PATCH "repos/${GITHUB_REPOSITORY}/issues/comments/${existing}" -f body="$body"
+          else
+            gh pr comment "$pr_number" --body "$body"
+          fi

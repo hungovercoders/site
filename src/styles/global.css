@@ -149,14 +149,6 @@ pre > code {
 	all: unset;
 	font-family: var(--font-mono);
 }
-/* Shiki github-dark theme uses #6A737D for comments, which only reaches a
-   3.2:1 contrast ratio against the theme's own #24292e background — under
-   WCAG 2 AA's 4.5:1 floor. Overriding to #8B949E (~5.0:1) keeps the github
-   palette but raises comments above the threshold. Applies via attribute
-   selector because Shiki ships colours inline. */
-pre.astro-code.github-dark span[style="color:#6A737D"] {
-	color: #8B949E !important;
-}
 blockquote {
 	border-left: 4px solid var(--accent);
 	padding: 0 0 0 20px;

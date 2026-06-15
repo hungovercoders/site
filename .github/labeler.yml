@@ -1,61 +1,38 @@
-# Auto-labeling rules for PRs based on changed files
-# Used by: .github/workflows/ss-hygiene-auto-label-pr.yml
-# Docs: https://github.com/actions/labeler
-
-blog:
-  - changed-files:
-    - any-glob-to-any-file:
-      - 'src/content/blog/**'
-      - 'public/assets/2*-*-*/**'
-
-training:
-  - changed-files:
-    - any-glob-to-any-file:
-      - 'training-repos/**'
-      - 'src/pages/training/**'
-      - 'src/layouts/TrainingLesson.astro'
-
-projects:
-  - changed-files:
-    - any-glob-to-any-file:
-      - 'src/content/projects/**'
-      - 'src/pages/projects.astro'
-
-site:
-  - changed-files:
-    - any-glob-to-any-file:
-      - 'src/components/**'
-      - 'src/layouts/**'
-      - 'src/pages/**'
-      - 'src/styles/**'
-      - 'astro.config.mjs'
-      - 'src/consts.ts'
-      - 'src/content.config.ts'
+# .github/labeler.yml — seeded by slopstopper install.sh.
+#
+# Drives the ss-hygiene-auto-label-pr workflow. Maps changed-file globs
+# to PR labels. Adjust to your repo's structure — these are sensible
+# starting categories.
+#
+# Format: actions/labeler@v5
+#   <label-name>:
+#     - changed-files:
+#         - any-glob-to-any-file: ['<glob1>', '<glob2>']
 
 docs:
   - changed-files:
-    - any-glob-to-any-file:
-      - '*.md'
-      - 'AGENTS.md'
-      - 'CLAUDE.md'
+      - any-glob-to-any-file: ['docs/**', '**/*.md', 'README.md', 'AGENTS.md', 'CLAUDE.md']
 
 ci:
   - changed-files:
-    - any-glob-to-any-file:
-      - '.github/**'
-      - 'Taskfile.yml'
-      - 'Taskfile.ss.yml'
-      - '.ss/**'
+      - any-glob-to-any-file: ['.github/**', 'Taskfile*.yml', '.ss/**', 'install*.sh']
 
 deps:
   - changed-files:
-    - any-glob-to-any-file:
-      - 'package.json'
-      - 'package-lock.json'
+      - any-glob-to-any-file: ['package.json', 'package-lock.json', 'requirements*.txt', 'pyproject.toml']
 
-deploy:
+src:
   - changed-files:
-    - any-glob-to-any-file:
-      - 'wrangler.jsonc'
-      - 'redirects/**'
-      - 'scripts/**'
+      - any-glob-to-any-file: ['src/**', 'app/**', 'lib/**', 'components/**']
+
+tests:
+  - changed-files:
+      - any-glob-to-any-file: ['tests/**', '**/*.test.*', '**/*.spec.*']
+
+security:
+  - changed-files:
+      - any-glob-to-any-file: ['.zap/**', '.gitleaks.toml', 'docs/security/**']
+
+config:
+  - changed-files:
+      - any-glob-to-any-file: ['.slopstopper.yml', 'wrangler.jsonc', 'vercel.json', 'netlify.toml']
