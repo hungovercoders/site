@@ -13,15 +13,17 @@ image:
   path: /assets/2026-06-15-slopstopper-on-tap/link.png
 ---
 
-I wanted a quality gate I could pour straight into any repo and stop the slop at source — not a slack thread of half-remembered linters I keep forgetting to copy into the next project. So I dropped [slopstopper](https://slopstopper.dev) onto the only place I'd notice a regression first: this site. Astro 6 on Cloudflare Workers, a blog stuffed with code samples, an Open Graph image per post, the usual GTM container in the head. If it's going to bite anywhere, it's going to bite here.
+I built [slopstopper](https://slopstopper.dev) because I was sick of bolting half-remembered quality gates onto every new repo and watching them drift — the linter you turned off three months ago, the workflow nobody ever pinned to the right Node version, the SEO check copied from somewhere and never tuned. One portable suite of checks I can drop into any repo, that runs the same `task ss:<check>` in CI as I run locally, and stops the slop at source before it ever ends up in a PR.
+
+The only place I'd notice a regression first is this site. Astro 6 on Cloudflare Workers, a blog stuffed with code samples, an Open Graph image per post, the usual GTM container in the head. If slopstopper's going to bite anywhere, it's going to bite here — so this is where I install it first.
 
 This post is the walk through that install. The canonical docs live at [slopstopper.dev](https://slopstopper.dev); this is the path through them on a real site, with the bits that bit me on the way.
 
-![The slopstopper install banner mid-stream, showing the canonical Task invocation message at the bottom](/assets/2026-06-15-slopstopper-on-tap/step-02-install-output.png)
-
 ## Five Loops, One Bar
 
-The pitch is one short table:
+Slopstopper is a Python CLI — [`slopstopper-cli`](https://pypi.org/project/slopstopper-cli/) on PyPI — backed by a check suite and twenty GitHub Actions workflows that all defer to `task ss:<check>`. It's dogfooded at [slopstopper.dev](https://slopstopper.dev), where every check in the suite runs against the slopstopper site itself; if a gate doesn't hold up on the tool's own marketing site, it doesn't ship to adopters. Same wheel, same workflows, same Task interface.
+
+I built it because I kept forgetting things on new projects. The accessibility check I meant to add. The SEO meta-tags I'd promised myself I'd audit. The OWASP ZAP scan I kept rationalising as a phase-two job. The Lighthouse CI run that never made it past Slack. The Map Pattern for `docs/` that worked beautifully on one repo and never made it to the next. Five loops, one set of gates, one task surface — codify them once and stop having to remember.
 
 | Loop | What it does | Tools under the hood |
 | --- | --- | --- |
@@ -39,10 +41,6 @@ The thing worth leading on is the invocation surface: **`task ss:<check>` is the
 
 It sounds small. It isn't. Most quality-suites I've ever bolted onto a repo have had two flavours of invocation — the one CI uses, and the one humans use — and the two slowly diverge until something fails on CI that's green locally and you spend a wet Wednesday afternoon working out why. Slopstopper closes time on that whole class of problem on the way in, which is by itself worth the install.
 
-`slopstopper doctor` is the first thing I'd run on a new box. It tells you what's reachable, what isn't, and what to install if it isn't.
-
-![slopstopper doctor showing every required tool found and reachable](/assets/2026-06-15-slopstopper-on-tap/step-04-doctor.png)
-
 ## Pouring the First Pint
 
 The install is one curl:
@@ -53,13 +51,13 @@ curl -fsSL https://raw.githubusercontent.com/hungovercoders/slopstopper/main/ins
 
 That seeds `Taskfile.ss.yml` (the canonical adopter interface — every check is a task here), drops twenty `ss-*.yml` workflows under `.github/workflows/`, merges devDeps for Playwright + Lighthouse CI + axe-core + markdownlint into `package.json`, and writes a `.slopstopper.yml` for you to fill in with your URLs, your pages, and where your security headers live.
 
-The pre-flight summary is the bit I'd want to print and stick on the wall — twelve questions about your repo answered before a single file lands. Node version, deploy model, headers format, whether you ship a site-wide `/og-image.png`, whether you have GHAS, whether your Taskfile already includes other taskfiles. Cheap, anticipatory, exactly the kind of thing a new tool ought to do.
+![The install.sh banner at the start of the run, cloning the template repository and printing the source + target paths](/assets/2026-06-15-slopstopper-on-tap/step-01-preflight.png)
 
-![The slopstopper-install skill's pre-flight summary running through twelve checks before the install starts](/assets/2026-06-15-slopstopper-on-tap/step-01-preflight.png)
+By the time it finishes, you've got a status block that names every file it touched and tells you which checks are active out of the box, which ones need config, and which ones are inert until you wire secrets in. No guessing what landed.
 
-The footprint in your repo is tiny: `.ss/` carries just `reports/` (gitignored output) and `.workflows-installed` (a manifest of what landed so re-runs respect anything you've deleted). All the check logic, the Playwright specs, the bundled server — it all lives inside the Python wheel, not in your repo. When slopstopper releases a new version, you `pipx upgrade` and every adopter gets the new behaviour without a single line moving in their repo. No copy-paste, no per-repo drift.
+![The install.sh status block at the end of the run, listing every file it seeded and the canonical task ss:&lt;check&gt; invocation](/assets/2026-06-15-slopstopper-on-tap/step-02-install-output.png)
 
-![ls -la .ss/ showing the entire on-disk footprint — just .workflows-installed; the check logic lives inside the wheel](/assets/2026-06-15-slopstopper-on-tap/step-03-tiny-ss-dir.png)
+There's a fair amount of *config* that landed — Taskfile, twenty workflows, `.slopstopper.yml`, the security headers block, the ZAP allowlist, the devDeps in `package.json`. That's all visible, owned, easy to read; you can see exactly what gates your PR. What's striking is what's missing: the directory you'd expect to hold the actual check scripts — `.ss/` — is empty. Just `.workflows-installed` (a manifest so re-runs respect anything you've deleted) and a gitignored `reports/` folder for output. All the check logic, the Playwright specs, the bundled local server lives inside the `slopstopper-cli` Python wheel, not your repo. When a new slopstopper version ships, you `pipx upgrade` and every adopter gets the new behaviour without a single line moving in their repos — no copy-paste, no per-repo drift, no merge conflicts on tool internals when you pull from upstream.
 
 After the install, configure `.slopstopper.yml` (URLs, page lists, headers source path) and push the Node version pin into a GitHub repo variable:
 
@@ -67,7 +65,17 @@ After the install, configure `.slopstopper.yml` (URLs, page lists, headers sourc
 gh variable set SLOPSTOPPER_NODE_VERSION --body 22
 ```
 
+A quick `slopstopper doctor` confirms every external tool the suite needs is on PATH — Node, Task, Docker for OWASP ZAP, Python for the Trivy + Lizard backbone. Anything missing is named, with the command to fix it. Run it once after install; you shouldn't need to run it again unless you change your dev box.
+
+![slopstopper doctor showing every required tool found and reachable](/assets/2026-06-15-slopstopper-on-tap/step-04-doctor.png)
+
 Then you're done seeding. From here on it's the local loop.
+
+## Driving It With a Skill
+
+The install is one curl. The hard bit is having the right answers ready: where your build writes to, what Node version you need, whether your headers live in `public/_headers` or `worker/headers.json`, whether you ship a site-wide `/og-image.png` or per-post share images. I also built a [Claude Code](https://claude.com/claude-code) skill — `slopstopper-install` — that asks those twelve questions for you, reads the answers straight out of your repo where it can, then drives the installer, configures `.slopstopper.yml`, sets up the `docs/` Map Pattern, and runs the local Pass A and Pass B until they're both green. By the time CI runs on the PR, it's a confirmation pass, not a discovery pass.
+
+I drove that skill for this install. It read [`AGENTS.md`](https://github.com/hungovercoders/site/blob/main/AGENTS.md) for the deploy model and the per-post share-image convention, predicted three gotchas based on what it found, then walked through the install accordingly. The whole skill trio — `slopstopper-install`, `slopstopper-update`, `slopstopper-triage` — lives in the [slopstopper repo](https://github.com/hungovercoders/slopstopper); installation is documented at [slopstopper.dev](https://slopstopper.dev). Treat the skill as the pre-flight half of a serious adoption; the curl is just the bit where files land.
 
 ## Last Orders Before the Push
 
