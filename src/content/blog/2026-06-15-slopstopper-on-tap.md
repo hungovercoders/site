@@ -19,11 +19,11 @@ The only place I'd notice a regression first is this site. Astro 6 on Cloudflare
 
 This post is the walk through that install. The canonical docs live at [slopstopper.dev](https://slopstopper.dev); this is the path through them on a real site, with the bits that bit me on the way.
 
-## Five Loops, One Bar
+## Four Loops, One Bar
 
 Slopstopper is a Python CLI — [`slopstopper-cli`](https://pypi.org/project/slopstopper-cli/) on PyPI — backed by a check suite and twenty GitHub Actions workflows that all defer to `task ss:<check>`. It's dogfooded at [slopstopper.dev](https://slopstopper.dev), where every check in the suite runs against the slopstopper site itself; if a gate doesn't hold up on the tool's own marketing site, it doesn't ship to adopters. Same wheel, same workflows, same Task interface.
 
-I built it because I kept forgetting things on new projects. The accessibility check I meant to add. The SEO meta-tags I'd promised myself I'd audit. The OWASP ZAP scan I kept rationalising as a phase-two job. The Lighthouse CI run that never made it past Slack. The Map Pattern for `docs/` that worked beautifully on one repo and never made it to the next. Five loops, one set of gates, one task surface — codify them once and stop having to remember.
+I built it because I kept forgetting things on new projects. The accessibility check I meant to add. The SEO meta-tags I'd promised myself I'd audit. The OWASP ZAP scan I kept rationalising as a phase-two job. The Lighthouse CI run that never made it past Slack. The Map Pattern for `docs/` that worked beautifully on one repo and never made it to the next. Four loops, one set of gates, one task surface — codify them once and stop having to remember.
 
 | Loop | What it does | Tools under the hood |
 | --- | --- | --- |
@@ -31,9 +31,8 @@ I built it because I kept forgetting things on new projects. The accessibility c
 | 🧹 **Hygiene** | Complexity caps, doc structure / accuracy / size, entry-file budget, CSP drift, auto-label PRs | Lizard, custom Python, actions/labeler |
 | ✅ **Reliability** | Smoke, accessibility (WCAG 2.1 AA), Core Web Vitals, SEO + OpenGraph, broken links | Playwright, axe-core, Lighthouse CI |
 | 🤖 **Operations** | Failed workflows auto-raise issues; an agentic doc updater opens weekly sync PRs | GitHub Actions, gh-aw |
-| 🚀 **Deployment** | Preview per PR, prod on merge, preview cleanup on close | Cloudflare Workers Builds |
 
-Deployment sits outside slopstopper — Cloudflare's Git integration handles it, no GitHub Actions involvement, no secrets dance. The other four loops are the suite proper.
+Deployment sits outside slopstopper deliberately — Cloudflare's Git integration handles preview-per-PR and prod-on-merge with no GitHub Actions involvement and no secrets dance. Four loops in the suite, one platform underneath them.
 
 ## Calling Time on Two Syntaxes
 
@@ -43,21 +42,21 @@ It sounds small. It isn't. Most quality-suites I've ever bolted onto a repo have
 
 ## Pouring the First Pint
 
-The install is one curl:
+The install is one curl — or one [Claude Code skill](#driving-it-with-a-skill) that drives it, if you'd rather walk through the pre-flight questions first. The curl is what ends up running either way:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/hungovercoders/slopstopper/main/install.sh | bash
 ```
 
-That seeds `Taskfile.ss.yml` (the canonical adopter interface — every check is a task here), drops twenty `ss-*.yml` workflows under `.github/workflows/`, merges devDeps for Playwright + Lighthouse CI + axe-core + markdownlint into `package.json`, and writes a `.slopstopper.yml` for you to fill in with your URLs, your pages, and where your security headers live.
+That does two things. First, it `pipx install`s the [`slopstopper-cli`](https://pypi.org/project/slopstopper-cli/) Python wheel from PyPI — the CLI that carries every check, the Playwright suite, and the bundled local server, and the one your workflows shell out to from here on. Second, it seeds your repo with the thin layer that lets your project plug into the CLI: `Taskfile.ss.yml` (the canonical adopter interface — every check is a task here), twenty `ss-*.yml` workflows under `.github/workflows/`, devDeps for Playwright + Lighthouse CI + axe-core + markdownlint merged into `package.json`, and a `.slopstopper.yml` for you to fill in with your URLs, your pages, and where your security headers live.
 
-![The install.sh banner at the start of the run, cloning the template repository and printing the source + target paths](/assets/2026-06-15-slopstopper-on-tap/step-01-preflight.png)
+![The install.sh banner at the start of the run — pipx-installing slopstopper-cli from PyPI and reporting the source + target paths](/assets/2026-06-15-slopstopper-on-tap/step-01-preflight.png)
 
 By the time it finishes, you've got a status block that names every file it touched and tells you which checks are active out of the box, which ones need config, and which ones are inert until you wire secrets in. No guessing what landed.
 
 ![The install.sh status block at the end of the run, listing every file it seeded and the canonical task ss:&lt;check&gt; invocation](/assets/2026-06-15-slopstopper-on-tap/step-02-install-output.png)
 
-There's a fair amount of *config* that landed — Taskfile, twenty workflows, `.slopstopper.yml`, the security headers block, the ZAP allowlist, the devDeps in `package.json`. That's all visible, owned, easy to read; you can see exactly what gates your PR. What's striking is what's missing: the directory you'd expect to hold the actual check scripts — `.ss/` — is empty. Just `.workflows-installed` (a manifest so re-runs respect anything you've deleted) and a gitignored `reports/` folder for output. All the check logic, the Playwright specs, the bundled local server lives inside the `slopstopper-cli` Python wheel, not your repo. When a new slopstopper version ships, you `pipx upgrade` and every adopter gets the new behaviour without a single line moving in their repos — no copy-paste, no per-repo drift, no merge conflicts on tool internals when you pull from upstream.
+All the config that landed — Taskfile, twenty workflows, `.slopstopper.yml`, the security headers block, the ZAP allowlist, the devDeps in `package.json` — is exactly what it should be: visible, owned, easy to read, the bit *you* tune. The check logic itself sits inside the CLI where you don't have to look at it. `.ss/` ends up as a near-empty marker directory (just `.workflows-installed` plus a gitignored `reports/`), and a new slopstopper release is just `pipx upgrade slopstopper-cli` — every adopter gets the new behaviour without a single line moving in their tree, no copy-paste, no per-repo drift, no merge conflicts on tool internals when you pull from upstream.
 
 After the install, configure `.slopstopper.yml` (URLs, page lists, headers source path) and push the Node version pin into a GitHub repo variable:
 
@@ -124,13 +123,13 @@ Note the shape: every fix lives in *my* repo. None of them required editing slop
 
 ## Eighteen on Tap
 
-Pushed the branch. Eighteen checks green on the first run.
+Pushed the branch. Twenty workflows ship; the two operational ones (the failure auto-reporter and the agentic doc updater) only fire on failure or schedule, so a clean PR shows eighteen — and all eighteen went green on the first push.
 
 ![GitHub PR checks page showing all eighteen slopstopper workflows passing on the first push](/assets/2026-06-15-slopstopper-on-tap/step-07-pr-checks.png)
 
 The reason the first push went green is that local Pass A and Pass B are the same `task ss:*` invocations CI runs. There's no second-syntax surprise. Fix it locally, push, watch it confirm.
 
-The Actions tab on the repo tells the same story from a different angle — each workflow with its own run, all of them passing on this branch, no separate "CI scripts" anywhere because the workflows just call `task`.
+The Actions tab on the repo tells the same story from a different angle — each workflow with its own run, all of them passing on this branch.
 
 ![GitHub Actions tab showing every slopstopper workflow with a successful run on the branch](/assets/2026-06-15-slopstopper-on-tap/step-08-pr-actions.png)
 
@@ -138,14 +137,14 @@ And inside any single run, every step is one of: install Task, install slopstopp
 
 ![A single workflow run on GitHub showing all eighteen steps of the DAST job complete successfully](/assets/2026-06-15-slopstopper-on-tap/step-09-workflow-detail.png)
 
-That's the whole pitch in a sentence: one Task invocation surface, run the same way locally, in CI, and in whatever shell-of-the-future ends up driving builds in three years.
+Eighteen steps, eighteen greens, no surprises — because there were no surprises left for CI to surface.
 
 ## Would I Pour Another One
 
-Yes. Tiny adopter footprint (`.ss/` is a near-empty marker), one invocation surface, eighteen gates running the same `task ss:<check>` commands in CI as I run locally. It's a clean separation between *what the tool does* and *what your repo carries* — exactly the right divide for slopping it onto more repos and not minding that they all stay in lockstep with the upstream.
+Yes. Tiny adopter footprint (`.ss/` is a near-empty marker), eighteen gates from a single curl, and a clean separation between *what the tool does* and *what your repo carries* — exactly the right divide for slopping it onto more repos and not minding that they all stay in lockstep with the upstream.
 
 One short caveat: if your repo is a monorepo with five sub-apps, the current shape assumes one set of pages to test, one set of URLs, one Cloudflare deployment. You can make it work but you're going to fight the defaults. Single-app repos are the sweet spot, and that's most of mine.
 
-If you're staring at a repo where the quality gates have drifted and you can't remember which linter you turned off three months ago — `curl install.sh | bash` over the top of it and let the pre-flight tell you what'll bite. The honest list above is what one looked like for me. Yours will be different, but it'll be the same shape: things your repo already had, that you'll be glad to find out about.
+If you're staring at a repo where the quality gates have drifted and you can't remember which linter you turned off three months ago — `curl install.sh | bash` over the top of it and let the pre-flight tell you what'll bite. The six findings under *What Bit on the Way* are what one looked like for me. Yours will be different, but it'll be the same shape: things your repo already had, that you'll be glad to find out about.
 
 Cheers, fellow hungovercoder. Pour one for the gate that catches the regression you didn't have to write a Slack thread about.
