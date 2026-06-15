@@ -35,9 +35,9 @@ Deployment sits outside slopstopper — Cloudflare's Git integration handles it,
 
 ## Calling Time on Two Syntaxes
 
-The thing I want to lead on is what's different about this version: **`task ss:<check>` is the only invocation surface there is**. Local dev, GitHub Actions, you running it on your laptop at half eleven on a Tuesday — same command, same output shape, one mental model. There's no separate CLI to learn for CI because the workflows themselves call `task` exactly the way you do.
+The thing worth leading on is the invocation surface: **`task ss:<check>` is the only one there is**. Local dev, GitHub Actions, you running it on your laptop at half eleven on a Tuesday — same command, same output shape, one mental model. There's no separate CLI to learn for CI because the workflows themselves call `task` exactly the way you do.
 
-It sounds small. It isn't. Every quality-suite I've ever bolted onto a repo has had two flavours of invocation — the one CI uses, and the one humans use — and the two slowly diverge until something fails on CI that's green locally and you spend a wet Wednesday afternoon working out why. Closing time on that whole class of problem is, by itself, worth the install.
+It sounds small. It isn't. Most quality-suites I've ever bolted onto a repo have had two flavours of invocation — the one CI uses, and the one humans use — and the two slowly diverge until something fails on CI that's green locally and you spend a wet Wednesday afternoon working out why. Slopstopper closes time on that whole class of problem on the way in, which is by itself worth the install.
 
 `slopstopper doctor` is the first thing I'd run on a new box. It tells you what's reachable, what isn't, and what to install if it isn't.
 
@@ -57,9 +57,9 @@ The pre-flight summary is the bit I'd want to print and stick on the wall — tw
 
 ![The slopstopper-install skill's pre-flight summary running through twelve checks before the install starts](/assets/2026-06-15-slopstopper-on-tap/step-01-preflight.png)
 
-What you don't get any more is half the wheel. Slopstopper used to copy its check scripts into adopter repos under `.ss/scripts/` and its Playwright suite under `.ss/tests/`. Now both ship inside the Python wheel and `.ss/` is just `reports/` (gitignored output) and `.workflows-installed` (a manifest of what landed so re-runs respect anything you've deleted). When the wheel updates, every adopter gets the new check logic — no copy-paste, no per-repo drift.
+The footprint in your repo is tiny: `.ss/` carries just `reports/` (gitignored output) and `.workflows-installed` (a manifest of what landed so re-runs respect anything you've deleted). All the check logic, the Playwright specs, the bundled server — it all lives inside the Python wheel, not in your repo. When slopstopper releases a new version, you `pipx upgrade` and every adopter gets the new behaviour without a single line moving in their repo. No copy-paste, no per-repo drift.
 
-![ls -la .ss/ showing just .workflows-installed — the entire check logic now lives in the wheel](/assets/2026-06-15-slopstopper-on-tap/step-03-tiny-ss-dir.png)
+![ls -la .ss/ showing the entire on-disk footprint — just .workflows-installed; the check logic lives inside the wheel](/assets/2026-06-15-slopstopper-on-tap/step-03-tiny-ss-dir.png)
 
 After the install, configure `.slopstopper.yml` (URLs, page lists, headers source path) and push the Node version pin into a GitHub repo variable:
 
@@ -134,7 +134,7 @@ That's the whole pitch in a sentence: one Task invocation surface, run the same 
 
 ## Would I Pour Another One
 
-Yes. The `.ss/` directory being a near-empty marker is a category leap from where this tool started — the check logic lives in the wheel, the workflows defer to Task, the adopter repo carries config and headers and not much else. When slopstopper updates, every site running it gets the new behaviour without a single line moving in adopter repos.
+Yes. Tiny adopter footprint (`.ss/` is a near-empty marker), one invocation surface, eighteen gates running the same `task ss:<check>` commands in CI as I run locally. It's a clean separation between *what the tool does* and *what your repo carries* — exactly the right divide for slopping it onto more repos and not minding that they all stay in lockstep with the upstream.
 
 One short caveat: if your repo is a monorepo with five sub-apps, the current shape assumes one set of pages to test, one set of URLs, one Cloudflare deployment. You can make it work but you're going to fight the defaults. Single-app repos are the sweet spot, and that's most of mine.
 
