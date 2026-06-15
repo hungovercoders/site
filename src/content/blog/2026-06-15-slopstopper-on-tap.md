@@ -122,6 +122,16 @@ Pushed the branch. Eighteen checks green on the first run.
 
 The reason the first push went green is that local Pass A and Pass B are the same `task ss:*` invocations CI runs. There's no second-syntax surprise. Fix it locally, push, watch it confirm.
 
+The Actions tab on the repo tells the same story from a different angle — each workflow with its own run, all of them passing on this branch, no separate "CI scripts" anywhere because the workflows just call `task`.
+
+![GitHub Actions tab showing every slopstopper workflow with a successful run on the branch](/assets/2026-06-15-slopstopper-on-tap/step-08-pr-actions.png)
+
+And inside any single run, every step is one of: install Task, install slopstopper-cli, install Node, install deps, then `task ss:<check>`. The DAST run is the heaviest of the suite (OWASP ZAP in a Docker container, spinning up the bundled local server, eighteen steps end-to-end) and it still finishes green:
+
+![A single workflow run on GitHub showing all eighteen steps of the DAST job complete successfully](/assets/2026-06-15-slopstopper-on-tap/step-09-workflow-detail.png)
+
+That's the whole pitch in a sentence: one Task invocation surface, run the same way locally, in CI, and in whatever shell-of-the-future ends up driving builds in three years.
+
 ## Would I Pour Another One
 
 Yes. The `.ss/` directory being a near-empty marker is a category leap from where this tool started — the check logic lives in the wheel, the workflows defer to Task, the adopter repo carries config and headers and not much else. When slopstopper updates, every site running it gets the new behaviour without a single line moving in adopter repos.
