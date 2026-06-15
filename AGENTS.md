@@ -1,27 +1,73 @@
 # site — agent context
 
-Open standard for agents, AI assistants and automation tools working in this repo. Conformant with [agents.md](https://agents.md).
-
-> 🗺️ **Documentation map.** [`docs/index.md`](./docs/index.md) is the single index of all project documentation. This file, [`CLAUDE.md`](./CLAUDE.md) and [`README.md`](./README.md) are intentionally thin entry points — they point at the map rather than duplicating its content. When you need detail on any topic — the build pipeline, the deploy gotcha, content authoring, runbooks — start at [`docs/index.md`](./docs/index.md) and follow its links to the category README that owns it. The [`ss:hygiene:entry-files`](./Taskfile.ss.yml) check enforces a <1500-word cap on each entry file; the [`ss:hygiene:docs-structure`](./Taskfile.ss.yml) check keeps the map honest against the directory tree.
-
 ## What this repo is
 
-The public-facing site at `hungovercoders.com` (apex 301s to `www.hungovercoders.com`). Built with Astro + `@astrojs/cloudflare`, deployed to Cloudflare Workers via Workers Builds. Serves blog posts from `src/content/blog/`, projects from `src/content/projects/`, and training lessons sourced from sibling `learn.*` repos at build time. Quality pipeline by [slopstopper](https://slopstopper.dev) — see [`docs/operations/README.md`](./docs/operations/README.md).
+The public-facing site at `hungovercoders.com` (apex 301s to `www.hungovercoders.com`). Built with Astro, deployed to Cloudflare Workers via the `@astrojs/cloudflare` adapter. Serves blog posts from `src/content/blog/` and training lessons sourced from sibling `learn.*` repos.
 
-## Where to look for what
+## Repo layout
 
-| If you're changing… | Start at |
-| ------------------- | -------- |
-| Blog posts, training lessons, project entries — frontmatter, slugs, share images | [`docs/content/README.md`](./docs/content/README.md) |
-| Site structure — components, layouts, Astro content collections, training-repo wiring | [`docs/architecture/README.md`](./docs/architecture/README.md) |
-| Deploy — Cloudflare Workers Builds, DNS at Namecheap, the `dist/client` gotcha, cookie consent | [`docs/deployment/README.md`](./docs/deployment/README.md) |
-| Pipeline gates, runbooks, slopstopper checks, common failures | [`docs/operations/README.md`](./docs/operations/README.md) |
+```
+src/content.config.ts   content collections: blog + training
+src/pages/              routes — blog/[...slug].astro, training/[series]/[lesson].astro
+src/layouts/            BlogPost.astro, TrainingLesson.astro
+src/components/         BaseHead, Header, Footer, Search
+scripts/
+  fetch-training-repos.sh   CI: shallow-clones learn.* repos into training-repos/
+  link-local-repos.sh       local dev: symlinks sibling learn.* repos into training-repos/
+training-repos/             gitignored — populated by one of the two scripts above
+```
 
-## Conventions worth knowing up front
+## Training content — how it works
 
-- **YAML / Astro files use tab indentation.** Markdown frontmatter is YAML and follows the same rule.
-- **CSS is scoped per-component** with `<style>` blocks; mobile breakpoint is 720px.
-- **British English** in all prose. `description` frontmatter has no trailing period.
-- **Blog post slugs** follow `YYYY-MM-DD-<slug>.md` (enforced by the Astro content collection glob in `src/content.config.ts`).
-- **Training repos are not committed** here. `training-repos/` is gitignored and populated by `scripts/fetch-training-repos.sh` (CI) or `scripts/link-local-repos.sh` (local).
-- **Share images live under `public/`.** Anything written outside `dist/client/` at build time is not deployed — see [`docs/deployment/README.md`](./docs/deployment/README.md) for the full story.
+Lesson markdown lives canonically in the `learn.*` tutorial repos (e.g. `learn.bento/content/*.md`). The Astro glob loader reads from `training-repos/` at build time. The `training-repos/` directory is never committed.
+
+- **CI / Cloudflare Workers**: `npm run build` runs `fetch-training-repos.sh` first, which shallow-clones each repo listed in the script.
+- **Local dev**: run `./scripts/link-local-repos.sh` once after cloning. It auto-discovers every `learn.*` sibling directory and symlinks it into `training-repos/`. Edit lesson markdown locally and changes appear immediately in `npm run dev`.
+
+## Local dev setup (first time)
+
+```bash
+git clone https://github.com/hungovercoders/site.git
+cd site
+npm install
+./scripts/link-local-repos.sh   # requires learn.* repos to be cloned as siblings
+npm run dev
+```
+
+## Adding a new training series
+
+1. Create the `learn.<topic>` repo following the `content/` + `examples/` layout (see that repo's `AGENTS.md`)
+2. Add `"learn.<topic>"` to the `REPOS` array in `scripts/fetch-training-repos.sh`
+3. `link-local-repos.sh` picks it up automatically for local dev (no change needed)
+
+## Conventions
+
+- Blog posts live in `src/content/blog/` with pattern `YYYY-MM-DD-slug.md`
+- Training lessons require frontmatter: `title`, `series`, `order`, `description`, `canonical_url`
+- YAML / Astro files use tab indentation
+- CSS is scoped per-component with `<style>` blocks; breakpoint is 720px
+
+## Deploy — Cloudflare Workers + the `dist/client` gotcha
+
+The site deploys via Cloudflare Workers (`@astrojs/cloudflare` adapter). The worker is named `site` (config in `wrangler.jsonc`) and exposes the deployment at `site.griff182uk.workers.dev`, custom-bound to `hungovercoders.com` + `www.hungovercoders.com`. CF dashboard build settings: build cmd `npm run build`, deploy cmd `npx wrangler deploy`, production branch `main`. DNS is hosted at Namecheap (nameservers `dns1/2.registrar-servers.com`) with A records pointing at Cloudflare anycast IPs — so DNS record changes happen at Namecheap, not in the Cloudflare dashboard.
+
+**The gotcha that will bite you:** the adapter splits the build into
+
+- `dist/client/` — static assets that wrangler uploads via the `ASSETS` binding (this is the public web root)
+- `dist/server/` — the worker bundle
+
+Anything written into `dist/` *outside* `dist/client/` is **not deployed**. This caught us once with pagefind: `pagefind --site dist` wrote `dist/pagefind/`, local builds served it fine, production 404'd silently. The fix was `pagefind --site dist/client`.
+
+For any post-`astro build` step that produces static assets (search indexes, redirect files, sitemap appenders, generated images), the output path must live under `dist/client/`. When debugging a "works locally, 404 in prod" asset, check the wrangler deploy log for `Read N files from .../dist/client` — that's the upload root.
+
+## Analytics + cookie consent
+
+Google Tag Manager (`GTM-5RJBJWL`, configured in `src/consts.ts`) is loaded on every page via `BaseHead.astro` (head script) and a shared `GtmNoscript` component (body iframe). The container ID is the same one the old datagriff Jekyll site used.
+
+**Don't add a cookie consent library to the site code.** Consent is served as a klaro tag *inside* the GTM container — loading GTM is what triggers the banner. Adding `klaro` or `cookieconsent` to the Astro source would double up. If consent behaviour needs changing, it changes inside the GTM container, not in this repo.
+
+## Per-post share images (Open Graph)
+
+Blog frontmatter takes an optional `image.path` (Jekyll-style nesting, e.g. `image: { path: /assets/<slug>/link.png }`). `BaseHead.astro` URL-resolves it against `astro.config.mjs`'s `site` and emits absolute `og:image` / `twitter:image` tags. `og:type` is `article` for blog posts, `website` for everything else.
+
+Use `scripts/generate-share-image.mjs <slug> "<title>" "<tagline>"` to produce a branded 1200×630 PNG at `public/assets/<slug>/link.png`. The `hc-launch` skill runs this automatically; for ad-hoc posts, invoke it manually. Verify after deploy at `https://metatags.io/`.
