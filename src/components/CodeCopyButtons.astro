@@ -1,0 +1,85 @@
+---
+// Injects a "Copy" button into every fenced code block inside article.prose.
+// Mounted once per markdown layout (BlogPost, TrainingLesson).
+---
+
+<script>
+	const init = () => {
+		document.querySelectorAll<HTMLPreElement>('article.prose pre').forEach((pre) => {
+			if (pre.dataset.copyInit) return;
+			pre.dataset.copyInit = 'true';
+			const code = pre.querySelector('code');
+			if (!code) return;
+			const btn = document.createElement('button');
+			btn.type = 'button';
+			btn.className = 'code-copy-btn';
+			btn.setAttribute('aria-label', 'Copy code');
+			btn.textContent = 'Copy';
+			btn.addEventListener('click', async () => {
+				try {
+					await navigator.clipboard.writeText(code.innerText);
+					btn.textContent = 'Copied!';
+					btn.classList.add('is-copied');
+					window.setTimeout(() => {
+						btn.textContent = 'Copy';
+						btn.classList.remove('is-copied');
+					}, 1500);
+				} catch {
+					btn.textContent = 'Failed';
+					window.setTimeout(() => {
+						btn.textContent = 'Copy';
+					}, 1500);
+				}
+			});
+			pre.appendChild(btn);
+		});
+	};
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', init);
+	} else {
+		init();
+	}
+</script>
+
+<style is:global>
+	article.prose pre {
+		position: relative;
+	}
+	.code-copy-btn {
+		position: absolute;
+		top: 0.5rem;
+		right: 0.5rem;
+		padding: 0.25rem 0.55rem;
+		font-family: var(--font-mono);
+		font-size: 0.7rem;
+		line-height: 1;
+		color: rgb(var(--gray));
+		background: rgba(255, 255, 255, 0.08);
+		border: 1px solid rgba(255, 255, 255, 0.15);
+		border-radius: 4px;
+		cursor: pointer;
+		opacity: 0;
+		transition:
+			opacity 0.15s ease,
+			background 0.15s ease,
+			color 0.15s ease;
+	}
+	article.prose pre:hover .code-copy-btn,
+	.code-copy-btn:focus-visible {
+		opacity: 1;
+	}
+	.code-copy-btn:hover {
+		color: white;
+		background: rgba(255, 255, 255, 0.18);
+	}
+	.code-copy-btn.is-copied {
+		color: white;
+		background: var(--accent);
+		border-color: transparent;
+	}
+	@media (hover: none) {
+		.code-copy-btn {
+			opacity: 1;
+		}
+	}
+</style>

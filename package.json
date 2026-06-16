@@ -32,7 +32,9 @@
     "markdownlint-cli": "^0.47.0"
   },
   "overrides": {
-    "vite": "^7",
-    "esbuild": ">=0.28.1"
+    "vite": "^7.3.5",
+    "esbuild": ">=0.28.1",
+    "ws": "^8.21.0",
+    "js-yaml": "^4.2.0"
   }
 }
