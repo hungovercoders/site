@@ -2,6 +2,7 @@
 import type { CollectionEntry } from 'astro:content';
 import type { MarkdownHeading } from 'astro';
 import BaseHead from '../components/BaseHead.astro';
+import CodeCopyButtons from '../components/CodeCopyButtons.astro';
 import Footer from '../components/Footer.astro';
 import GtmNoscript from '../components/GtmNoscript.astro';
 import Header from '../components/Header.astro';
@@ -307,6 +308,7 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
 			}
 		</div>
 		<Footer />
+		<CodeCopyButtons />
 		<script>
 			// Active-section highlighting for the per-page Table of Contents.
 			// Watches every h2 in the prose; the topmost one inside the
