@@ -65,6 +65,16 @@ const articleLd = ogType === 'article' && date
 	: null;
 ---
 
+<script is:inline>
+	(() => {
+		try {
+			const stored = localStorage.getItem('theme');
+			const dark = stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches);
+			if (dark) document.documentElement.setAttribute('data-theme', 'dark');
+		} catch (_) {}
+	})();
+</script>
+
 {import.meta.env.PROD && (
 	<>
 		<!-- Google Tag Manager -->

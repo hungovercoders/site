@@ -25,7 +25,7 @@ interface Props {
 
 const { lesson, seriesLessons } = Astro.props;
 const currentSlug = Astro.params.lesson;
-const { Content, headings } = await render(lesson);
+const { Content, headings, remarkPluginFrontmatter } = await render(lesson);
 ---
 
 <TrainingLesson
@@ -33,6 +33,7 @@ const { Content, headings } = await render(lesson);
 	seriesLessons={seriesLessons}
 	currentSlug={currentSlug}
 	headings={headings}
+	minutesRead={remarkPluginFrontmatter.minutesRead}
 >
 	<Content />
 </TrainingLesson>

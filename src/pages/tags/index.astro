@@ -52,7 +52,7 @@ const slugify = (t: string) => t.toLowerCase().replace(/\s+/g, '-');
 				align-items: baseline;
 				gap: 0.4rem;
 				padding: 0.5rem 1rem;
-				background: white;
+				background: rgb(var(--surface));
 				border: 1px solid rgb(var(--gray-light));
 				border-radius: 999px;
 				color: rgb(var(--gray-dark));
@@ -74,7 +74,7 @@ const slugify = (t: string) => t.toLowerCase().replace(/\s+/g, '-');
 	<body>
 		<GtmNoscript />
 		<Header />
-		<main>
+		<main id="main-content">
 			<header class="page-header">
 				<h1>Tags</h1>
 				<p>{tags.length} topics across {posts.length} posts</p>

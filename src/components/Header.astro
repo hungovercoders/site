@@ -4,6 +4,7 @@ import HeaderLink from './HeaderLink.astro';
 import Search from './Search.astro';
 ---
 
+<a href="#main-content" class="skip-link">Skip to content</a>
 <header>
 	<nav>
 		<h2>
@@ -21,6 +22,20 @@ import Search from './Search.astro';
 			<HeaderLink href="/about">About</HeaderLink>
 		</div>
 		<Search />
+		<button
+			type="button"
+			class="theme-toggle"
+			data-theme-toggle
+			aria-label="Toggle dark mode"
+			title="Toggle dark mode"
+		>
+			<svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true" width="22" height="22">
+				<path fill="currentColor" d="M12 4V2m0 20v-2m8-8h2M2 12h2m13.66-5.66l1.41-1.41M4.93 19.07l1.41-1.41m0-11.32L4.93 4.93m14.14 14.14l-1.41-1.41M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10z" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+			</svg>
+			<svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true" width="22" height="22">
+				<path fill="currentColor" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+			</svg>
+		</button>
 		<div class="social-links">
 			<a href="https://github.com/hungovercoders" target="_blank" rel="noopener">
 				<span class="sr-only">hungovercoders on GitHub</span>
@@ -41,11 +56,36 @@ import Search from './Search.astro';
 		</div>
 	</nav>
 </header>
+<script is:inline>
+	(() => {
+		const btn = document.querySelector('[data-theme-toggle]');
+		if (!btn) return;
+		const apply = (dark) => {
+			document.documentElement.toggleAttribute('data-theme-set', true);
+			if (dark) document.documentElement.setAttribute('data-theme', 'dark');
+			else document.documentElement.removeAttribute('data-theme');
+			btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+			const giscus = document.querySelector('iframe.giscus-frame');
+			if (giscus) {
+				giscus.contentWindow.postMessage(
+					{ giscus: { setConfig: { theme: dark ? 'dark' : 'light' } } },
+					'https://giscus.app',
+				);
+			}
+		};
+		apply(document.documentElement.getAttribute('data-theme') === 'dark');
+		btn.addEventListener('click', () => {
+			const next = document.documentElement.getAttribute('data-theme') !== 'dark';
+			localStorage.setItem('theme', next ? 'dark' : 'light');
+			apply(next);
+		});
+	})();
+</script>
 <style>
 	header {
 		margin: 0;
 		padding: 0 1em;
-		background: white;
+		background: rgb(var(--surface));
 		box-shadow: 0 2px 8px rgba(var(--black), 5%);
 		position: relative;
 	}
@@ -65,6 +105,7 @@ import Search from './Search.astro';
 		display: inline-flex;
 		align-items: center;
 		gap: 0.5em;
+		color: rgb(var(--black));
 	}
 	.logo {
 		height: 2em;
@@ -75,20 +116,54 @@ import Search from './Search.astro';
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
+		gap: 0.5em;
 	}
 	nav a {
 		padding: 1em 0.5em;
-		color: var(--black);
+		color: rgb(var(--black));
 		border-bottom: 4px solid transparent;
+		text-decoration: none;
+	}
+	nav a:hover {
 		text-decoration: none;
 	}
 	nav a.active {
 		text-decoration: none;
 		border-bottom-color: var(--accent);
 	}
+	.theme-toggle {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 36px;
+		height: 36px;
+		padding: 0;
+		background: transparent;
+		border: none;
+		border-radius: 6px;
+		color: rgb(var(--gray-dark));
+		cursor: pointer;
+		transition: background 0.15s ease, color 0.15s ease;
+	}
+	.theme-toggle:hover {
+		background: rgb(var(--gray-light));
+		color: var(--accent);
+	}
+	.theme-toggle .icon-moon {
+		display: none;
+	}
+	[data-theme='dark'] .theme-toggle .icon-sun {
+		display: none;
+	}
+	[data-theme='dark'] .theme-toggle .icon-moon {
+		display: inline;
+	}
 	.social-links,
 	.social-links a {
 		display: flex;
+	}
+	.social-links a {
+		color: rgb(var(--gray-dark));
 	}
 	@media (max-width: 720px) {
 		nav {
@@ -111,7 +186,15 @@ import Search from './Search.astro';
 			padding: 0.5em;
 		}
 		.social-links {
-			display: none;
+			gap: 0.25em;
+		}
+		.social-links a svg {
+			width: 22px;
+			height: 22px;
+		}
+		.theme-toggle {
+			width: 32px;
+			height: 32px;
 		}
 	}
 </style>

@@ -6,10 +6,19 @@ import { defineConfig, fontProviders } from 'astro/config';
 
 import cloudflare from '@astrojs/cloudflare';
 
+import { remarkReadingTime } from './scripts/remark-reading-time.mjs';
+
 // https://astro.build/config
 export default defineConfig({
   site: 'https://hungovercoders.com',
   integrations: [mdx(), sitemap()],
+
+  markdown: {
+    remarkPlugins: [remarkReadingTime],
+    shikiConfig: {
+      themes: { light: 'github-light', dark: 'github-dark' },
+    },
+  },
 
   fonts: [
       {

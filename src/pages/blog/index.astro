@@ -103,7 +103,7 @@ const posts = (await getCollection('blog')).sort(
 	<body>
 		<GtmNoscript />
 		<Header />
-		<main>
+		<main id="main-content">
 			<header class="page-header">
 				<h1>Blog</h1>
 				<p>{posts.length} posts &middot; opinions, walkthroughs, and the occasional hangover</p>
