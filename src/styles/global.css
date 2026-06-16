@@ -15,6 +15,44 @@
 	--box-shadow:
 		0 2px 6px rgba(var(--gray), 25%), 0 8px 24px rgba(var(--gray), 33%),
 		0 16px 32px rgba(var(--gray), 33%);
+	--surface: 255, 255, 255;
+	--space-1: 0.25rem;
+	--space-2: 0.5rem;
+	--space-3: 0.75rem;
+	--space-4: 1rem;
+	--space-5: 1.5rem;
+	--space-6: 2rem;
+	--space-7: 3rem;
+}
+[data-theme='dark'] {
+	--accent: #8a96ff;
+	--accent-dark: #b6beff;
+	--black: 232, 236, 245;
+	--gray: 148, 160, 188;
+	--gray-light: 36, 42, 60;
+	--gray-dark: 215, 220, 232;
+	--gray-gradient: rgb(20, 24, 36), rgb(13, 16, 25);
+	--surface: 17, 21, 33;
+}
+[data-theme='dark'] body {
+	background-color: rgb(var(--surface));
+}
+[data-theme='dark'] tbody tr:nth-child(even) {
+	background: rgba(255, 255, 255, 0.02);
+}
+[data-theme='dark'] tbody tr:hover {
+	background: rgba(138, 150, 255, 0.08);
+}
+[data-theme='dark'] code {
+	background-color: rgba(255, 255, 255, 0.06);
+}
+[data-theme='dark'] .astro-code,
+[data-theme='dark'] .astro-code span {
+	color: var(--shiki-dark) !important;
+	background-color: var(--shiki-dark-bg) !important;
+	font-style: var(--shiki-dark-font-style) !important;
+	font-weight: var(--shiki-dark-font-weight) !important;
+	text-decoration: var(--shiki-dark-text-decoration) !important;
 }
 body {
 	font-family: var(--font-body);
@@ -73,6 +111,13 @@ a {
 }
 a:hover {
 	color: var(--accent);
+	text-decoration: underline;
+}
+a:focus-visible,
+button:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+	border-radius: 2px;
 }
 p {
 	margin-bottom: 1em;
@@ -94,7 +139,7 @@ table {
 	margin: 1.5em 0;
 	font-size: 0.9em;
 	line-height: 1.5;
-	background: white;
+	background: rgb(var(--surface));
 	border: 1px solid rgb(var(--gray-light));
 	border-radius: 8px;
 	overflow: hidden;
@@ -178,6 +223,55 @@ hr {
 	h4 {
 		font-size: 1.3em;
 	}
+}
+
+.btn {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--space-2);
+	padding: var(--space-2) var(--space-4);
+	border: 1px solid rgb(var(--gray-light));
+	border-radius: 6px;
+	background: transparent;
+	color: rgb(var(--gray-dark));
+	font-size: 0.9rem;
+	text-decoration: none;
+	transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+	cursor: pointer;
+}
+.btn:hover {
+	border-color: var(--accent);
+	color: var(--accent);
+	text-decoration: none;
+}
+.btn--primary {
+	background: var(--accent);
+	color: white;
+	border-color: var(--accent);
+}
+.btn--primary:hover {
+	background: var(--accent-dark);
+	border-color: var(--accent-dark);
+	color: white;
+}
+
+.skip-link {
+	position: absolute;
+	top: var(--space-2);
+	left: var(--space-2);
+	padding: var(--space-2) var(--space-4);
+	background: var(--accent);
+	color: white;
+	border-radius: 4px;
+	font-size: 0.9rem;
+	text-decoration: none;
+	z-index: 1000;
+	transform: translateY(-200%);
+	transition: transform 0.15s ease;
+}
+.skip-link:focus {
+	transform: translateY(0);
+	color: white;
 }
 
 .sr-only {

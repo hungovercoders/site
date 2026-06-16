@@ -9,9 +9,12 @@ import Giscus from '../components/Giscus.astro';
 import GtmNoscript from '../components/GtmNoscript.astro';
 import Header from '../components/Header.astro';
 
-type Props = CollectionEntry<'blog'>['data'] & { headings?: MarkdownHeading[] };
+type Props = CollectionEntry<'blog'>['data'] & {
+	headings?: MarkdownHeading[];
+	minutesRead?: number;
+};
 
-const { title, description, date, image, tags, headings = [] } = Astro.props;
+const { title, description, date, image, tags, author, headings = [], minutesRead } = Astro.props;
 const displayTags = (tags ?? []).filter((t) => t.toLowerCase() !== 'hungovercoders');
 const tocHeadings = headings.filter((h) => h.depth === 2);
 ---
@@ -50,6 +53,19 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
 				font-size: 0.85rem;
 				text-transform: uppercase;
 				letter-spacing: 0.6px;
+			}
+			.meta {
+				display: inline-flex;
+				flex-wrap: wrap;
+				justify-content: center;
+				gap: 0.5em;
+				color: rgb(var(--gray));
+				font-size: 0.85rem;
+				text-transform: uppercase;
+				letter-spacing: 0.6px;
+			}
+			.meta .sep {
+				opacity: 0.6;
 			}
 			.post-tags {
 				display: flex;
@@ -195,10 +211,22 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
 		<GtmNoscript />
 		<Header />
 		<div class="layout">
-			<article class="prose">
+			<article class="prose" id="main-content">
 				<div class="title">
-					<div class="date">
+					<div class="meta">
 						<FormattedDate date={date} />
+						{minutesRead && (
+							<>
+								<span class="sep">·</span>
+								<span>{minutesRead} min read</span>
+							</>
+						)}
+						{author && (
+							<>
+								<span class="sep">·</span>
+								<span>by {author}</span>
+							</>
+						)}
 					</div>
 					<h1>{title}</h1>
 					{displayTags.length > 0 && (

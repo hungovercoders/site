@@ -15,9 +15,10 @@ interface Props {
 	seriesLessons: CollectionEntry<'training'>[];
 	currentSlug: string;
 	headings: MarkdownHeading[];
+	minutesRead?: number;
 }
 
-const { title, description, series, seriesLessons, currentSlug, headings } = Astro.props;
+const { title, description, series, seriesLessons, currentSlug, headings, minutesRead } = Astro.props;
 
 function lessonSlug(entry: CollectionEntry<'training'>) {
 	return entry.id.split('/').at(-2)!;
@@ -188,25 +189,48 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
 			.lesson-nav {
 				display: flex;
 				justify-content: space-between;
-				margin-top: 3rem;
-				padding-top: 1.5rem;
+				margin-top: var(--space-7);
+				padding-top: var(--space-5);
 				border-top: 1px solid rgb(var(--gray-light));
-				gap: 1rem;
-			}
-			.lesson-nav a {
-				padding: 0.5rem 1rem;
-				border: 1px solid rgb(var(--gray-light));
-				border-radius: 6px;
-				text-decoration: none;
-				color: rgb(var(--gray-dark));
-				font-size: 0.9rem;
-			}
-			.lesson-nav a:hover {
-				border-color: rgb(var(--accent));
-				color: rgb(var(--accent));
+				gap: var(--space-4);
 			}
 			.lesson-nav .next {
 				margin-left: auto;
+			}
+			.lesson-eyebrow {
+				display: flex;
+				flex-wrap: wrap;
+				align-items: center;
+				gap: 0.5em;
+				margin: 0 0 0.75rem;
+				color: rgb(var(--gray));
+				font-size: 0.8rem;
+				text-transform: uppercase;
+				letter-spacing: 0.6px;
+			}
+			.lesson-eyebrow a {
+				color: rgb(var(--gray));
+				text-decoration: none;
+			}
+			.lesson-eyebrow a:hover {
+				color: var(--accent);
+			}
+			.lesson-eyebrow .sep {
+				opacity: 0.5;
+			}
+			.lesson-eyebrow .crumb-current {
+				color: rgb(var(--gray-dark));
+			}
+			.lesson-meta {
+				margin: 0.25rem 0 1rem;
+				color: rgb(var(--gray));
+				font-size: 0.8rem;
+				text-transform: uppercase;
+				letter-spacing: 0.6px;
+			}
+			.lesson-meta .sep {
+				opacity: 0.5;
+				margin: 0 0.4em;
 			}
 			@media (max-width: 1100px) {
 				.toc {
@@ -253,8 +277,26 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
 					}
 				</ol>
 			</nav>
-			<article class="prose">
+			<article class="prose" id="main-content">
+				<nav class="lesson-eyebrow" aria-label="Breadcrumb">
+					<a href="/">Home</a>
+					<span class="sep">›</span>
+					<a href="/training/">Training</a>
+					<span class="sep">›</span>
+					<a href={`/training/${series}/`}>{series}</a>
+					<span class="sep">›</span>
+					<span class="crumb-current">{title}</span>
+				</nav>
 				<h1>{title}</h1>
+				<p class="lesson-meta">
+					Lesson {currentIndex + 1} of {seriesLessons.length}
+					{minutesRead && (
+						<>
+							<span class="sep">·</span>
+							<span>{minutesRead} min read</span>
+						</>
+					)}
+				</p>
 				<hr />
 				{
 					tocHeadings.length > 0 && (
@@ -276,14 +318,14 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
 				<nav class="lesson-nav">
 					{
 						prev && (
-							<a href={`/training/${prev.data.series}/${lessonSlug(prev)}/`} class="prev">
+							<a href={`/training/${prev.data.series}/${lessonSlug(prev)}/`} class="btn prev">
 								← {prev.data.title}
 							</a>
 						)
 					}
 					{
 						next && (
-							<a href={`/training/${next.data.series}/${lessonSlug(next)}/`} class="next">
+							<a href={`/training/${next.data.series}/${lessonSlug(next)}/`} class="btn next">
 								{next.data.title} →
 							</a>
 						)

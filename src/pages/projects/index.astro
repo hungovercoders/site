@@ -86,7 +86,7 @@ const hostFromUrl = (url: string) => {
 			.card {
 				display: block;
 				padding: 1.5rem;
-				background: white;
+				background: rgb(var(--surface));
 				border: 1px solid rgb(var(--gray-light));
 				border-radius: 12px;
 				text-decoration: none;
@@ -192,7 +192,7 @@ const hostFromUrl = (url: string) => {
 	<body>
 		<GtmNoscript />
 		<Header />
-		<main>
+		<main id="main-content">
 			<header class="page-header">
 				<h1>Projects</h1>
 				<p>Apps and tools I've built alongside the writing — live, in progress, and archived.</p>

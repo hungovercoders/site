@@ -9,18 +9,26 @@
   #search {
     width: 220px;
     position: relative;
+    --pagefind-ui-primary: var(--accent);
+    --pagefind-ui-text: rgb(var(--gray-dark));
+    --pagefind-ui-background: rgb(var(--surface));
+    --pagefind-ui-border: rgb(var(--gray-light));
+    --pagefind-ui-tag: rgb(var(--gray-light));
   }
   #search .pagefind-ui__drawer {
     position: absolute !important;
     top: 100%;
     right: 0;
     z-index: 100;
-    background: white;
-    border: 1px solid #eee;
+    background: rgb(var(--surface));
+    border: 1px solid rgb(var(--gray-light));
     border-radius: 4px;
     width: 400px;
     max-width: 90vw;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  [data-theme='dark'] #search .pagefind-ui__result-title a {
+    color: rgb(var(--black));
   }
   @media (max-width: 720px) {
     #search {
