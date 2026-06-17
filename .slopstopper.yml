@@ -72,7 +72,7 @@ urls:
 # Defaults to '/' for every check when unset.
 pages:
   smoke:         /,/about,/blog
-  accessibility: /,/about
+  accessibility: /,/about/
   seo:           /
   broken_links:  /
 
