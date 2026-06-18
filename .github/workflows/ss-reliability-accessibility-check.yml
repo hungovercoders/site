@@ -107,6 +107,28 @@ jobs:
             printf '%s' "$url"
           }
 
+          read_production_url() {
+            python - <<'PY'
+from pathlib import Path
+import re
+
+config_path = Path(".slopstopper.yml")
+if not config_path.exists():
+    raise SystemExit(0)
+
+config_text = config_path.read_text(encoding="utf-8")
+urls_block = re.search(r"(?ms)^urls:\s*\n(.*?)(?=^\S|\Z)", config_text)
+if not urls_block:
+    raise SystemExit(0)
+
+production_url = re.search(r"(?m)^\s*production:\s*(.+?)\s*$", urls_block.group(1))
+if not production_url:
+    raise SystemExit(0)
+
+print(production_url.group(1).strip().strip("\"'"))
+PY
+          }
+
           if [ "$EVENT_NAME" == "workflow_dispatch" ] && [ -n "$INPUT_URL" ]; then
             SAFE_URL="$(validate_url "$INPUT_URL")"
             echo "url=$SAFE_URL" >> "$GITHUB_OUTPUT"
@@ -116,7 +138,13 @@ jobs:
             echo "url=$SAFE_URL" >> "$GITHUB_OUTPUT"
             echo "use_local=false" >> "$GITHUB_OUTPUT"
           elif [ "$EVENT_NAME" == "schedule" ]; then
-            echo "url=https://hungovercoders.com" >> "$GITHUB_OUTPUT"
+            CONFIG_URL="$(read_production_url)"
+            if [ -z "$CONFIG_URL" ]; then
+              echo "Error: Configure urls.production in .slopstopper.yml for scheduled accessibility runs." >&2
+              exit 1
+            fi
+            SAFE_URL="$(validate_url "$CONFIG_URL")"
+            echo "url=$SAFE_URL" >> "$GITHUB_OUTPUT"
             echo "use_local=false" >> "$GITHUB_OUTPUT"
           else
             echo "url=http://localhost:8080" >> "$GITHUB_OUTPUT"
