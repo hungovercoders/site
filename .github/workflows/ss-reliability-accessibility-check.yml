@@ -110,22 +110,23 @@ jobs:
           read_production_url() {
             python - <<'PY'
 from pathlib import Path
-import re
+import sys
+import yaml
 
 config_path = Path(".slopstopper.yml")
 if not config_path.exists():
-    raise SystemExit(0)
+    print("Error: .slopstopper.yml is required for scheduled accessibility runs.", file=sys.stderr)
+    raise SystemExit(1)
 
-config_text = config_path.read_text(encoding="utf-8")
-urls_block = re.search(r"(?ms)^urls:\s*\n(.*?)(?=^\S|\Z)", config_text)
-if not urls_block:
-    raise SystemExit(0)
+with config_path.open(encoding="utf-8") as config_file:
+    config = yaml.safe_load(config_file) or {}
 
-production_url = re.search(r"(?m)^\s*production:\s*(.+?)\s*$", urls_block.group(1))
+production_url = config.get("urls", {}).get("production")
 if not production_url:
-    raise SystemExit(0)
+    print("Error: Configure urls.production in .slopstopper.yml for scheduled accessibility runs.", file=sys.stderr)
+    raise SystemExit(1)
 
-print(production_url.group(1).strip().strip("\"'"))
+print(str(production_url))
 PY
           }
 
@@ -139,10 +140,6 @@ PY
             echo "use_local=false" >> "$GITHUB_OUTPUT"
           elif [ "$EVENT_NAME" == "schedule" ]; then
             CONFIG_URL="$(read_production_url)"
-            if [ -z "$CONFIG_URL" ]; then
-              echo "Error: Configure urls.production in .slopstopper.yml for scheduled accessibility runs." >&2
-              exit 1
-            fi
             SAFE_URL="$(validate_url "$CONFIG_URL")"
             echo "url=$SAFE_URL" >> "$GITHUB_OUTPUT"
             echo "use_local=false" >> "$GITHUB_OUTPUT"
