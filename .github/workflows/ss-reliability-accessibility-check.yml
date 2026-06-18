@@ -115,7 +115,7 @@ import yaml
 
 config_path = Path(".slopstopper.yml")
 if not config_path.exists():
-    print("Error: .slopstopper.yml is required for scheduled accessibility runs.", file=sys.stderr)
+    print("Error: .slopstopper.yml is required in the repository root for scheduled accessibility runs.", file=sys.stderr)
     raise SystemExit(1)
 
 with config_path.open(encoding="utf-8") as config_file:
@@ -126,7 +126,7 @@ if not production_url:
     print("Error: Configure urls.production in .slopstopper.yml for scheduled accessibility runs.", file=sys.stderr)
     raise SystemExit(1)
 
-print(str(production_url))
+print(production_url)
 PY
           }
 
