@@ -1,0 +1,4 @@
+# Published blog/tutorial assets — downloadable demo files (example
+# docker-compose, sample configs), not the site's own source or infra.
+# SAST should scan the site code, not the example artefacts it ships.
+public/assets/
