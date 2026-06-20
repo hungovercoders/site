@@ -4,6 +4,14 @@ The public-facing site at [hungovercoders.com](https://www.hungovercoders.com). 
 
 [![Site](https://img.shields.io/website?url=https%3A%2F%2Fwww.hungovercoders.com&label=hungovercoders.com&up_message=up&down_message=down)](https://www.hungovercoders.com/)
 
+## Contents
+
+- [Deployment](#deployment)
+- [Project structure](#project-structure)
+- [Commands](#commands)
+- [Credit](#credit)
+- [Quality pipeline (add-on)](#quality-pipeline-add-on)
+
 ## Deployment
 
 Deployed via [Cloudflare Workers Builds](https://developers.cloudflare.com/workers/ci-cd/) — every push to `main` deploys, every PR gets a preview URL as a commit check, closing a PR retires the preview.
