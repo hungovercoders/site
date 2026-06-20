@@ -1,47 +1,41 @@
-# Astro Starter Kit: Blog
+# hungovercoders
 
-```sh
-npm create astro@latest -- --template blog
-```
+The public-facing site at [hungovercoders.com](https://www.hungovercoders.com). Astro + `@astrojs/cloudflare`, deployed to Cloudflare Workers via Workers Builds. Serves blog posts from `src/content/blog/` and training lessons sourced from sibling `learn.*` repos.
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+[![Site](https://img.shields.io/website?url=https%3A%2F%2Fwww.hungovercoders.com&label=hungovercoders.com&up_message=up&down_message=down)](https://www.hungovercoders.com/)
 
-Features:
+## Contents
 
-- ✅ Minimal styling (make it your own!)
-- ✅ 100/100 Lighthouse performance
-- ✅ SEO-friendly with canonical URLs and Open Graph data
-- ✅ Sitemap support
-- ✅ RSS Feed support
-- ✅ Markdown & MDX support
+- [Deployment](#deployment)
+- [Project structure](#project-structure)
+- [Commands](#commands)
+- [Credit](#credit)
+- [Quality pipeline (add-on)](#quality-pipeline-add-on)
 
-## 🚀 Project Structure
+## Deployment
 
-Inside of your Astro project, you'll see the following folders and files:
+Deployed via [Cloudflare Workers Builds](https://developers.cloudflare.com/workers/ci-cd/) — every push to `main` deploys, every PR gets a preview URL as a commit check, closing a PR retires the preview.
+
+## Project structure
 
 ```text
-├── public/
-├── src/
-│   ├── assets/
-│   ├── components/
-│   ├── content/
-│   ├── layouts/
-│   └── pages/
-├── astro.config.mjs
-├── README.md
-├── package.json
-└── tsconfig.json
+src/
+  components/        Astro components (BaseHead, Header, Footer, Search)
+  content/blog/      Blog posts — pattern: YYYY-MM-DD-slug.md
+  content/projects/  Live project entries (e.g. slopstopper)
+  layouts/           BlogPost.astro, TrainingLesson.astro
+  pages/             Routes (blog, training, about, projects)
+  styles/global.css
+public/              Static assets (favicons, share images per post)
+scripts/             fetch-training-repos.sh, generate-share-image.mjs, …
+training-repos/      Gitignored — populated at build by fetch-training-repos.sh
+.ss/                 Slopstopper analysis scripts + Playwright tests
+.github/workflows/   ss-*.yml (slopstopper) + repo-specific workflows
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+See [`docs/index.md`](./docs/index.md) for the full documentation map, [`AGENTS.md`](./AGENTS.md) for conventions and where-to-look pointers, and the [hungovercoders/learn.*](https://github.com/hungovercoders) sibling repos for training content sources.
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-The `src/content/` directory contains "collections" of related Markdown and MDX documents. Use `getCollection()` to retrieve posts from `src/content/blog/`, and type-check your frontmatter using an optional schema. See [Astro's Content Collections docs](https://docs.astro.build/en/guides/content-collections/) to learn more.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
+## Commands
 
 All commands are run from the root of the project, from a terminal:
 
@@ -49,15 +43,47 @@ All commands are run from the root of the project, from a terminal:
 | :------------------------ | :----------------------------------------------- |
 | `npm install`             | Installs dependencies                            |
 | `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Check out [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+| `npm run build`           | Build the production site to `./dist/`           |
+| `npm run preview`         | Preview your build locally before deploying      |
+| `npm run deploy`          | Build + deploy to Cloudflare Workers via wrangler |
+| `task --list`             | List all slopstopper checks (`task ss:*:*`)      |
+| `npm test`                | Run Playwright smoke + accessibility specs        |
 
 ## Credit
 
-This theme is based off of the lovely [Bear Blog](https://github.com/HermanMartinus/bearblog/).
+Started from the lovely [Bear Blog](https://github.com/HermanMartinus/bearblog/) theme.
+
+---
+
+## Quality pipeline (add-on)
+
+Quality gates are provided by [slopstopper](https://slopstopper.dev/) — a portable suite of GitHub Actions, layered on top of the site. They run on every PR; the site itself has no dependency on them.
+
+[![slopstopper](https://img.shields.io/badge/quality-slopstopper-2c7be5?style=flat-square)](https://slopstopper.dev/)
+
+### 🔒 Security
+[![SAST](https://github.com/hungovercoders/site/actions/workflows/ss-security-sast-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-security-sast-check.yml)
+[![DAST](https://github.com/hungovercoders/site/actions/workflows/ss-security-dast-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-security-dast-check.yml)
+[![Secrets](https://github.com/hungovercoders/site/actions/workflows/ss-security-secrets-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-security-secrets-check.yml)
+[![Dependency CVEs](https://github.com/hungovercoders/site/actions/workflows/ss-security-vulnerability-all-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-security-vulnerability-all-check.yml)
+[![Dependency Review](https://github.com/hungovercoders/site/actions/workflows/ss-security-vulnerability-new-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-security-vulnerability-new-check.yml)
+
+### 🧹 Hygiene
+[![Complexity](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-complexity-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-complexity-check.yml)
+[![Entry Files](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-entry-files-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-entry-files-check.yml)
+[![Docs Accuracy](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-docs-accuracy-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-docs-accuracy-check.yml)
+[![Docs Size](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-docs-size-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-docs-size-check.yml)
+[![Docs Structure](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-docs-structure-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-docs-structure-check.yml)
+[![Auto Label PRs](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-auto-label-pr.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-auto-label-pr.yml)
+[![CSP Exceptions](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-csp-exceptions-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-csp-exceptions-check.yml)
+
+### ✅ Reliability
+[![Smoke Tests](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-smoke-tests.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-smoke-tests.yml)
+[![Accessibility](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-accessibility-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-accessibility-check.yml)
+[![Core Web Vitals](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-core-web-vitals.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-core-web-vitals.yml)
+[![SEO Metatags](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-seo-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-seo-check.yml)
+[![Broken Links](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-broken-links-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-broken-links-check.yml)
+
+### 🤖 Operational
+[![Doc Auto-Updater](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-doc-updater.lock.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-doc-updater.lock.yml)
+[![Failure Alerts](https://github.com/hungovercoders/site/actions/workflows/ss-workflow-failure-issue.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-workflow-failure-issue.yml)
