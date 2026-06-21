@@ -165,12 +165,12 @@ While I wouldn't usually use github actions for this type of reliability work, i
 
 ## Would I Pour Another One
 
-Yes. For me its really useful to get these quality gates in place to catch regressions before they become long-term technical debt. It also gives me at least some peace of mind that I am attempting to consider security and reliability as part of the development process - which is just too darn fun at the moment with AI to keep remembering the important stuff.
+Yes. For me its really useful to get these quality gates in place to catch regressions before they become long-term technical debt. It also gives me at least some peace of mind that I am attempting to consider security and reliability as part of the development process - which is just too darn fun at the moment with AI to have to keep remembering the important stuff.
 
 If your repo is a monorepo with five sub-apps, the current shape assumes one set of pages to test, one set of URLs, one Cloudflare deployment. You can make it work but you're going to fight the defaults. Single-app repos are the sweet spot, and that's most of mine.
 
 ## What next?
 
-I definitely want to keep working on slopstopper, even if the install is a bit niche, I like to keep it as a reference point for what expectations we should have and what tools there are out there to help us meet those expectations. I'll definitely roll it out to the rest of my sites for peace of mind and try to think of even simpler ways to gain confidence in our AI accelerated workflows. Going to production definitely changes your perspective and what is important and hopefully slopstopper brings them to the surface quicker.
+I definitely want to keep working on slopstopper, even if the install is a bit niche, I like to keep it as a reference point for what expectations I should have and what tools there are out there to help me meet those expectations. I'll definitely roll it out to the rest of my sites for peace of mind and try to think of even simpler ways to gain confidence in my AI accelerated workflows. Going to production definitely changes your perspective on what is important and hopefully slopstopper brings them to the surface quicker.
 
 Any ideas you may have please post them at [slopstopper.dev/feedback](https://slopstopper.dev/feedback) and we'll see if we can all save the world from slop!
