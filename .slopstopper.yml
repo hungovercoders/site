@@ -145,3 +145,4 @@ hygiene:
 # don't bring them back). Same semantics as manually deleting the file.
 workflows:
   disabled: []
+cli_version: '0.10.0'
