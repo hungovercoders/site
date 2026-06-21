@@ -63,7 +63,7 @@ That does two things. First, it pins the [`slopstopper-cli`](https://pypi.org/pr
 
 By the time it finishes, you've got a status block that names every file it touched and tells you which checks are active out of the box, which ones need config, and which ones are inert until you wire secrets in. No guessing what landed.
 
-![The install.sh status block at the end of the run, listing every file it seeded and the canonical task ss:<check> invocation](/assets/2026-06-21-slopstopper-cli-and-tooling/step-02-install-output.png)
+![The install.sh status block at the end of the run — which checks are active out of the box, which need config, and which stay inert](/assets/2026-06-21-slopstopper-cli-and-tooling/step-02-install-output.png)
 
 All the config that landed — Taskfile, twenty workflows, `.slopstopper.yml`, the security headers block, the ZAP allowlist, the devDeps in `package.json` — is exactly what it should be: visible, owned, easy to read, the bit _you_ tune. The check logic itself sits inside the CLI where you don't have to look at it. `.ss/` ends up as a near-empty marker directory (just `.workflows-installed` plus a gitignored `reports/`), and because the CLI version is pinned in `mise.toml`, picking up a new slopstopper release is a deliberate one-line bump — `install.sh --upgrade-cli` moves the pin; a plain re-run honours it and never surprises you. Every adopter gets the new behaviour without a single line moving in their tree, no copy-paste, no per-repo drift, no merge conflicts on tool internals when you pull from upstream.
 
@@ -147,7 +147,7 @@ The Actions tab on the repo tells the same story from a different angle — each
 
 And inside any single run, every step is one of: set up the mise toolchain (the pinned `slopstopper-cli` and `task` in one go), install Node, install deps, then `task ss:<check>`. The DAST run is the heaviest of the suite (OWASP ZAP in a Docker container, spinning up the bundled local server) and it still finishes green end-to-end:
 
-![A single workflow run on GitHub showing every step of the DAST job complete successfully](/assets/2026-06-21-slopstopper-cli-and-tooling/step-09-workflow-detail.png)
+![A single DAST workflow run on GitHub — the OWASP ZAP job green end-to-end](/assets/2026-06-21-slopstopper-cli-and-tooling/step-09-workflow-detail.png)
 
 Eighteen steps, eighteen greens, no surprises — because there were no surprises left for CI to surface.
 
