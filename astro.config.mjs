@@ -6,6 +6,8 @@ import { defineConfig, fontProviders } from 'astro/config';
 
 import cloudflare from '@astrojs/cloudflare';
 
+import rehypeExternalLinks from 'rehype-external-links';
+
 import { remarkReadingTime } from './scripts/remark-reading-time.mjs';
 
 // https://astro.build/config
@@ -15,6 +17,9 @@ export default defineConfig({
 
   markdown: {
     remarkPlugins: [remarkReadingTime],
+    rehypePlugins: [
+      [rehypeExternalLinks, { target: '_blank', rel: ['noopener', 'noreferrer'] }],
+    ],
     shikiConfig: {
       themes: { light: 'github-light', dark: 'github-dark' },
     },
