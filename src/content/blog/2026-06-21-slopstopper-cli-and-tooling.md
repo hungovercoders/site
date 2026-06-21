@@ -47,7 +47,7 @@ I am a big fan of PR branch previews which give me further confidence before mer
 
 The thing worth leading on is the invocation surface is via [taskfile](https://taskfile.dev/): **`task ss:<check>` is the only one there is**. Local dev, GitHub Actions, you running it on your laptop with a dry mouth and an overwhelming sense of guilt on a Sunday — same command, same output shape, one mental model. There's no separate CLI to learn for CI because the workflows themselves call `task` exactly the way you do.
 
-It sounds small. It isn't. Its extremely important in the shift-left mentality of the world that you can recreate the CI pipeline checks locally identically so you can have confidence you have caught everything before the remote feedback loop begins. Using a consistent task runner as the interface for humans, agents and CI is a massive design victory to enable this.
+It sounds small. It isn't. Its extremely important in the shift-left mentality of the world that you can recreate the CI pipeline checks locally identically so you can have confidence you have caught everything before the remote feedback loop begins. Using a consistent task runner as the interface for humans, agents and CI is a massive design victory to enable this. And because [mise](https://mise.jdx.dev/) pins the exact `slopstopper-cli` version in the repo, it isn't just the same command everywhere — it's the same version everywhere, so a check can't pass locally and fail in CI because the runner happened to grab a newer build.
 
 ## Downing the Slopstopper Install
 
@@ -57,15 +57,15 @@ The install is one curl — or one [Claude Code skill](#driving-it-with-a-skill)
 curl -fsSL https://raw.githubusercontent.com/hungovercoders/slopstopper/main/install.sh | bash
 ```
 
-That does two things. First, it `pipx install`s the [`slopstopper-cli`](https://pypi.org/project/slopstopper-cli/) Python wheel from PyPI — the CLI that carries every check, the Playwright suite, and the bundled local server, and the one your workflows shell out to from here on. Second, it seeds your repo with the thin layer that lets your project plug into the CLI: `Taskfile.ss.yml` (the canonical adopter interface — every check is a task here), twenty `ss-*.yml` workflows under `.github/workflows/`, devDeps for Playwright + Lighthouse CI + axe-core + markdownlint merged into `package.json`, and a `.slopstopper.yml` for you to fill in with your URLs, your pages, and where your security headers live.
+That does two things. First, it pins the [`slopstopper-cli`](https://pypi.org/project/slopstopper-cli/) Python wheel — the CLI that carries every check, the Playwright suite, and the bundled local server — in a new `mise.toml` and installs it via [mise](https://mise.jdx.dev/), so the version your laptop runs is the exact version CI runs. Second, it seeds your repo with the thin layer that lets your project plug into the CLI: `Taskfile.ss.yml` (the canonical adopter interface — every check is a task here), `mise.toml` (the toolchain pin for `slopstopper-cli` and `task`), twenty `ss-*.yml` workflows under `.github/workflows/`, devDeps for Playwright + Lighthouse CI + axe-core + markdownlint merged into `package.json`, and a `.slopstopper.yml` for you to fill in with your URLs, your pages, and where your security headers live.
 
-![The install.sh banner at the start of the run — pipx-installing slopstopper-cli from PyPI and reporting the source + target paths](/assets/2026-06-21-slopstopper-cli-and-tooling/step-01-preflight.png)
+![The install.sh banner at the start of the run — pinning and installing slopstopper-cli via mise and reporting the source + target paths](/assets/2026-06-21-slopstopper-cli-and-tooling/step-01-preflight.png)
 
 By the time it finishes, you've got a status block that names every file it touched and tells you which checks are active out of the box, which ones need config, and which ones are inert until you wire secrets in. No guessing what landed.
 
 ![The install.sh status block at the end of the run, listing every file it seeded and the canonical task ss:<check> invocation](/assets/2026-06-21-slopstopper-cli-and-tooling/step-02-install-output.png)
 
-All the config that landed — Taskfile, twenty workflows, `.slopstopper.yml`, the security headers block, the ZAP allowlist, the devDeps in `package.json` — is exactly what it should be: visible, owned, easy to read, the bit _you_ tune. The check logic itself sits inside the CLI where you don't have to look at it. `.ss/` ends up as a near-empty marker directory (just `.workflows-installed` plus a gitignored `reports/`), and a new slopstopper release is just `pipx upgrade slopstopper-cli` — every adopter gets the new behaviour without a single line moving in their tree, no copy-paste, no per-repo drift, no merge conflicts on tool internals when you pull from upstream.
+All the config that landed — Taskfile, twenty workflows, `.slopstopper.yml`, the security headers block, the ZAP allowlist, the devDeps in `package.json` — is exactly what it should be: visible, owned, easy to read, the bit _you_ tune. The check logic itself sits inside the CLI where you don't have to look at it. `.ss/` ends up as a near-empty marker directory (just `.workflows-installed` plus a gitignored `reports/`), and because the CLI version is pinned in `mise.toml`, picking up a new slopstopper release is a deliberate one-line bump — `install.sh --upgrade-cli` moves the pin; a plain re-run honours it and never surprises you. Every adopter gets the new behaviour without a single line moving in their tree, no copy-paste, no per-repo drift, no merge conflicts on tool internals when you pull from upstream.
 
 After the install, configure `.slopstopper.yml` (URLs, page lists, headers source path) and push the Node version pin into a GitHub repo variable:
 
@@ -145,9 +145,9 @@ The Actions tab on the repo tells the same story from a different angle — each
 
 ![GitHub Actions tab showing every slopstopper workflow with a successful run on the branch](/assets/2026-06-21-slopstopper-cli-and-tooling/step-08-pr-actions.png)
 
-And inside any single run, every step is one of: install Task, install slopstopper-cli, install Node, install deps, then `task ss:<check>`. The DAST run is the heaviest of the suite (OWASP ZAP in a Docker container, spinning up the bundled local server, eighteen steps end-to-end) and it still finishes green:
+And inside any single run, every step is one of: set up the mise toolchain (the pinned `slopstopper-cli` and `task` in one go), install Node, install deps, then `task ss:<check>`. The DAST run is the heaviest of the suite (OWASP ZAP in a Docker container, spinning up the bundled local server) and it still finishes green end-to-end:
 
-![A single workflow run on GitHub showing all eighteen steps of the DAST job complete successfully](/assets/2026-06-21-slopstopper-cli-and-tooling/step-09-workflow-detail.png)
+![A single workflow run on GitHub showing every step of the DAST job complete successfully](/assets/2026-06-21-slopstopper-cli-and-tooling/step-09-workflow-detail.png)
 
 Eighteen steps, eighteen greens, no surprises — because there were no surprises left for CI to surface.
 
