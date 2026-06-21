@@ -1,16 +1,15 @@
 ---
-title: Slopstopper on Tap
-date: 2026-06-15
+title: Stopping my AI Slop with Slopstopper CLI and Tooling
+date: 2026-06-21
 author: dataGriff
-description: Installing slopstopper on hungovercoders.com — one task surface, twenty checks, and the honest truth about what bit on a real Astro site
+description: Installing slopstopper on hungovercoders.com — one command surface, twenty checks, and the honest truth about what bit on a real Astro site
 tags:
-- Slopstopper
-- Astro
-- Cloudflare
-- Quality Gates
-- Taskfile
+  - Slopstopper
+  - Astro
+  - Cloudflare
+  - Quality Gates
 image:
-  path: /assets/2026-06-15-slopstopper-on-tap/link.png
+  path: /assets/2026-06-21-slopstopper-cli-and-tooling/link.png
 ---
 
 I built [slopstopper](https://slopstopper.dev) because I was sick of bolting half-remembered quality gates onto every new repo and watching them drift — the linter you turned off three months ago, the workflow nobody ever pinned to the right Node version, the SEO check copied from somewhere and never tuned. One portable suite of checks I can drop into any repo, that runs the same `task ss:<check>` in CI as I run locally, and stops the slop at source before it ever ends up in a PR.
@@ -25,12 +24,12 @@ Slopstopper is a Python CLI — [`slopstopper-cli`](https://pypi.org/project/slo
 
 I built it because I kept forgetting things on new projects. The accessibility check I meant to add. The SEO meta-tags I'd promised myself I'd audit. The OWASP ZAP scan I kept rationalising as a phase-two job. The Lighthouse CI run that never made it past Slack. The Map Pattern for `docs/` that worked beautifully on one repo and never made it to the next. Four loops, one set of gates, one task surface — codify them once and stop having to remember.
 
-| Loop | What it does | Tools under the hood |
-| --- | --- | --- |
-| 🔒 **Security** | SAST, DAST, secrets, dependency CVEs, dependency review | Semgrep, OWASP ZAP, Gitleaks, Trivy |
-| 🧹 **Hygiene** | Complexity caps, doc structure / accuracy / size, entry-file budget, CSP drift, auto-label PRs | Lizard, custom Python, actions/labeler |
-| ✅ **Reliability** | Smoke, accessibility (WCAG 2.1 AA), Core Web Vitals, SEO + OpenGraph, broken links | Playwright, axe-core, Lighthouse CI |
-| 🤖 **Operations** | Failed workflows auto-raise issues; an agentic doc updater opens weekly sync PRs | GitHub Actions, gh-aw |
+| Loop               | What it does                                                                                   | Tools under the hood                   |
+| ------------------ | ---------------------------------------------------------------------------------------------- | -------------------------------------- |
+| 🔒 **Security**    | SAST, DAST, secrets, dependency CVEs, dependency review                                        | Semgrep, OWASP ZAP, Gitleaks, Trivy    |
+| 🧹 **Hygiene**     | Complexity caps, doc structure / accuracy / size, entry-file budget, CSP drift, auto-label PRs | Lizard, custom Python, actions/labeler |
+| ✅ **Reliability** | Smoke, accessibility (WCAG 2.1 AA), Core Web Vitals, SEO + OpenGraph, broken links             | Playwright, axe-core, Lighthouse CI    |
+| 🤖 **Operations**  | Failed workflows auto-raise issues; an agentic doc updater opens weekly sync PRs               | GitHub Actions, gh-aw                  |
 
 Deployment sits outside slopstopper deliberately — Cloudflare's Git integration handles preview-per-PR and prod-on-merge with no GitHub Actions involvement and no secrets dance. Four loops in the suite, one platform underneath them.
 
@@ -50,13 +49,13 @@ curl -fsSL https://raw.githubusercontent.com/hungovercoders/slopstopper/main/ins
 
 That does two things. First, it `pipx install`s the [`slopstopper-cli`](https://pypi.org/project/slopstopper-cli/) Python wheel from PyPI — the CLI that carries every check, the Playwright suite, and the bundled local server, and the one your workflows shell out to from here on. Second, it seeds your repo with the thin layer that lets your project plug into the CLI: `Taskfile.ss.yml` (the canonical adopter interface — every check is a task here), twenty `ss-*.yml` workflows under `.github/workflows/`, devDeps for Playwright + Lighthouse CI + axe-core + markdownlint merged into `package.json`, and a `.slopstopper.yml` for you to fill in with your URLs, your pages, and where your security headers live.
 
-![The install.sh banner at the start of the run — pipx-installing slopstopper-cli from PyPI and reporting the source + target paths](/assets/2026-06-15-slopstopper-on-tap/step-01-preflight.png)
+![The install.sh banner at the start of the run — pipx-installing slopstopper-cli from PyPI and reporting the source + target paths](/assets/2026-06-21-slopstopper-cli-and-tooling/step-01-preflight.png)
 
 By the time it finishes, you've got a status block that names every file it touched and tells you which checks are active out of the box, which ones need config, and which ones are inert until you wire secrets in. No guessing what landed.
 
-![The install.sh status block at the end of the run, listing every file it seeded and the canonical task ss:&lt;check&gt; invocation](/assets/2026-06-15-slopstopper-on-tap/step-02-install-output.png)
+![The install.sh status block at the end of the run, listing every file it seeded and the canonical task ss:<check> invocation](/assets/2026-06-21-slopstopper-cli-and-tooling/step-02-install-output.png)
 
-All the config that landed — Taskfile, twenty workflows, `.slopstopper.yml`, the security headers block, the ZAP allowlist, the devDeps in `package.json` — is exactly what it should be: visible, owned, easy to read, the bit *you* tune. The check logic itself sits inside the CLI where you don't have to look at it. `.ss/` ends up as a near-empty marker directory (just `.workflows-installed` plus a gitignored `reports/`), and a new slopstopper release is just `pipx upgrade slopstopper-cli` — every adopter gets the new behaviour without a single line moving in their tree, no copy-paste, no per-repo drift, no merge conflicts on tool internals when you pull from upstream.
+All the config that landed — Taskfile, twenty workflows, `.slopstopper.yml`, the security headers block, the ZAP allowlist, the devDeps in `package.json` — is exactly what it should be: visible, owned, easy to read, the bit _you_ tune. The check logic itself sits inside the CLI where you don't have to look at it. `.ss/` ends up as a near-empty marker directory (just `.workflows-installed` plus a gitignored `reports/`), and a new slopstopper release is just `pipx upgrade slopstopper-cli` — every adopter gets the new behaviour without a single line moving in their tree, no copy-paste, no per-repo drift, no merge conflicts on tool internals when you pull from upstream.
 
 After the install, configure `.slopstopper.yml` (URLs, page lists, headers source path) and push the Node version pin into a GitHub repo variable:
 
@@ -66,7 +65,7 @@ gh variable set SLOPSTOPPER_NODE_VERSION --body 22
 
 A quick `slopstopper doctor` confirms every external tool the suite needs is on PATH — Node, Task, Docker for OWASP ZAP, Python for the Trivy + Lizard backbone. Anything missing is named, with the command to fix it. Run it once after install; you shouldn't need to run it again unless you change your dev box.
 
-![slopstopper doctor showing every required tool found and reachable](/assets/2026-06-15-slopstopper-on-tap/step-04-doctor.png)
+![slopstopper doctor showing every required tool found and reachable](/assets/2026-06-21-slopstopper-cli-and-tooling/step-04-doctor.png)
 
 Then you're done seeding. From here on it's the local loop.
 
@@ -89,7 +88,7 @@ task ss:security:sast                # Semgrep
 task ss:security:vulnerability:all   # Trivy
 ```
 
-![task ss:hygiene:test returning all six hygiene checks green](/assets/2026-06-15-slopstopper-on-tap/step-05-pass-a-green.png)
+![task ss:hygiene:test returning all six hygiene checks green](/assets/2026-06-21-slopstopper-cli-and-tooling/step-05-pass-a-green.png)
 
 **Pass B — dynamic.** Built site, server on `:8080`, headers honoured by the same parser the platform uses:
 
@@ -104,7 +103,7 @@ task ss:reliability:broken-links -- http://localhost:8080
 task ss:security:dast -- http://localhost:8080                            # OWASP ZAP, heaviest, needs Docker
 ```
 
-![task ss:reliability:smoke green against localhost:8080 in 1.1s per page](/assets/2026-06-15-slopstopper-on-tap/step-06-pass-b-green.png)
+![task ss:reliability:smoke green against localhost:8080 in 1.1s per page](/assets/2026-06-21-slopstopper-cli-and-tooling/step-06-pass-b-green.png)
 
 The bundled `slopstopper serve` is the bit that quietly does a lot of work — it reads your `public/_headers` (Cloudflare's text format) on the fly, so the headers ZAP and the SEO check see are the same ones Cloudflare will eventually serve. No more "works locally, fails CI because the headers file was somewhere else."
 
@@ -119,32 +118,32 @@ Honest moment: a real site has shape, and shape catches on edges. Six things bit
 5. **`BaseHead.astro` used `property="twitter:card"` everywhere instead of `name="twitter:card"`** — Twitter accepts either but the SEO check is strict on the canonical form, and the strict form is right. Five-line replace; rebuilt; green.
 6. **The CSP needed a frame-src for `googletagmanager.com`** because GTM loads its preview frame on a separate origin. Tuned the existing `public/_headers` baseline; documented the script-src and style-src `'unsafe-inline'` relaxations in `docs/security/CSP_EXCEPTIONS.md` so the drift check stays happy.
 
-Note the shape: every fix lives in *my* repo. None of them required editing slopstopper. That's the right divide — the tool's opinions are the tool's; the site's quirks are the site's; the drift check between them is where the two negotiate. Three of the six (esbuild, the twitter meta, the CSP frame-src) are things I'd want to know about regardless of whether I was installing a quality suite. Slopstopper just surfaced them.
+Note the shape: every fix lives in _my_ repo. None of them required editing slopstopper. That's the right divide — the tool's opinions are the tool's; the site's quirks are the site's; the drift check between them is where the two negotiate. Three of the six (esbuild, the twitter meta, the CSP frame-src) are things I'd want to know about regardless of whether I was installing a quality suite. Slopstopper just surfaced them.
 
 ## Eighteen on Tap
 
 Pushed the branch. Twenty workflows ship; the two operational ones (the failure auto-reporter and the agentic doc updater) only fire on failure or schedule, so a clean PR shows eighteen — and all eighteen went green on the first push.
 
-![GitHub PR checks page showing all eighteen slopstopper workflows passing on the first push](/assets/2026-06-15-slopstopper-on-tap/step-07-pr-checks.png)
+![GitHub PR checks page showing all eighteen slopstopper workflows passing on the first push](/assets/2026-06-21-slopstopper-cli-and-tooling/step-07-pr-checks.png)
 
 The reason the first push went green is that local Pass A and Pass B are the same `task ss:*` invocations CI runs. There's no second-syntax surprise. Fix it locally, push, watch it confirm.
 
 The Actions tab on the repo tells the same story from a different angle — each workflow with its own run, all of them passing on this branch.
 
-![GitHub Actions tab showing every slopstopper workflow with a successful run on the branch](/assets/2026-06-15-slopstopper-on-tap/step-08-pr-actions.png)
+![GitHub Actions tab showing every slopstopper workflow with a successful run on the branch](/assets/2026-06-21-slopstopper-cli-and-tooling/step-08-pr-actions.png)
 
 And inside any single run, every step is one of: install Task, install slopstopper-cli, install Node, install deps, then `task ss:<check>`. The DAST run is the heaviest of the suite (OWASP ZAP in a Docker container, spinning up the bundled local server, eighteen steps end-to-end) and it still finishes green:
 
-![A single workflow run on GitHub showing all eighteen steps of the DAST job complete successfully](/assets/2026-06-15-slopstopper-on-tap/step-09-workflow-detail.png)
+![A single workflow run on GitHub showing all eighteen steps of the DAST job complete successfully](/assets/2026-06-21-slopstopper-cli-and-tooling/step-09-workflow-detail.png)
 
 Eighteen steps, eighteen greens, no surprises — because there were no surprises left for CI to surface.
 
 ## Would I Pour Another One
 
-Yes. Tiny adopter footprint (`.ss/` is a near-empty marker), eighteen gates from a single curl, and a clean separation between *what the tool does* and *what your repo carries* — exactly the right divide for slopping it onto more repos and not minding that they all stay in lockstep with the upstream.
+Yes. Tiny adopter footprint (`.ss/` is a near-empty marker), eighteen gates from a single curl, and a clean separation between _what the tool does_ and _what your repo carries_ — exactly the right divide for slopping it onto more repos and not minding that they all stay in lockstep with the upstream.
 
 One short caveat: if your repo is a monorepo with five sub-apps, the current shape assumes one set of pages to test, one set of URLs, one Cloudflare deployment. You can make it work but you're going to fight the defaults. Single-app repos are the sweet spot, and that's most of mine.
 
-If you're staring at a repo where the quality gates have drifted and you can't remember which linter you turned off three months ago — `curl install.sh | bash` over the top of it and let the pre-flight tell you what'll bite. The six findings under *What Bit on the Way* are what one looked like for me. Yours will be different, but it'll be the same shape: things your repo already had, that you'll be glad to find out about.
+If you're staring at a repo where the quality gates have drifted and you can't remember which linter you turned off three months ago — `curl install.sh | bash` over the top of it and let the pre-flight tell you what'll bite. The six findings under _What Bit on the Way_ are what one looked like for me. Yours will be different, but it'll be the same shape: things your repo already had, that you'll be glad to find out about.
 
 Cheers, fellow hungovercoder. Pour one for the gate that catches the regression you didn't have to write a Slack thread about.
