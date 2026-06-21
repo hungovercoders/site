@@ -173,4 +173,4 @@ If your repo is a monorepo with five sub-apps, the current shape assumes one set
 
 I definitely want to keep working on slopstopper, even if the install is a bit niche, I like to keep it as a reference point for what expectations I should have and what tools there are out there to help me meet those expectations. I'll definitely roll it out to the rest of my sites for peace of mind and try to think of even simpler ways to gain confidence in my AI accelerated workflows. Going to production definitely changes your perspective on what is important and hopefully slopstopper brings them to the surface quicker.
 
-Any ideas you may have please post them at [slopstopper.dev/feedback](https://slopstopper.dev/feedback) and we’ll see if we can all save the world from slop!
+Any ideas you may have please post them at [slopstopper.dev/feedback](https://slopstopper.dev/feedback) and we'll see if we can all save the world from slop!
