@@ -1,0 +1,3 @@
+[tools]
+"pipx:slopstopper-cli" = "0.11.0"
+task = "3"
