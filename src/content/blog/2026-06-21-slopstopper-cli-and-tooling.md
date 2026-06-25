@@ -2,7 +2,7 @@
 title: Stopping my AI Slop with Slopstopper CLI and Tooling
 date: 2026-06-21
 author: dataGriff
-description: Installing slopstopper on hungovercoders.com — one command surface, twenty checks, and the honest truth about what bit on a real Astro site
+description: Installing slopstopper on hungovercoders.com, one command surface, twenty checks, and what I found on a real Astro site
 tags:
   - Slopstopper
   - Astro
@@ -22,10 +22,10 @@ This post is a brief intro to what slopstopper is, how I installed it on hungove
 
 ![Slopstopper](/assets/2026-06-21-slopstopper-cli-and-tooling/slopstopper.png)
 
-Slopstopper is a Python CLI — [`slopstopper-cli`](https://pypi.org/project/slopstopper-cli/) on PyPI — backed by a check suite and twenty GitHub Actions workflows that all defer to `task ss:<check>` once installed. I lean on taskfile as part of the install as I want to ensure the local checks are _exactly_ the same commands that are run in CI.
+Slopstopper is a Python CLI ([`slopstopper-cli`](https://pypi.org/project/slopstopper-cli/) on PyPI) backed by a check suite and twenty GitHub Actions workflows that all defer to `task ss:<check>` once installed. I lean on taskfile as part of the install as I want to ensure the local checks are _exactly_ the same commands that are run in CI.
 It's dogfooded at the site [slopstopper.dev](https://slopstopper.dev), where every check in the suite runs against the slopstopper site itself; if a gate doesn't hold up on the tool's own marketing site, it doesn't ship to adopters. Same wheel, same workflows, same Task interface.
 
-I built it because I kept forgetting things on new projects. The accessibility check I meant to add. The SEO meta-tags I'd promised myself I'd audit. The OWASP ZAP scan I kept rationalising as a phase-two job. The Lighthouse CI run that never made it past an overheard conversation. The Map Pattern for `docs/` that worked beautifully on one repo and never made it to the next. Four loops, one set of gates, one task surface — codify them once and stop having to remember.
+I built it because I kept forgetting things on new projects. The accessibility check I meant to add. The SEO meta-tags I'd promised myself I'd audit. The OWASP ZAP scan I kept rationalising as a phase-two job. The Lighthouse CI run that never made it past an overheard conversation. The Map Pattern for `docs/` that worked beautifully on one repo and never made it to the next. Four loops, one set of gates, one task surface: codify them once and stop having to remember.
 
 | Loop               | What it does                                                                                   | Tools under the hood                   |
 | ------------------ | ---------------------------------------------------------------------------------------------- | -------------------------------------- |
@@ -45,27 +45,27 @@ I am a big fan of PR branch previews which give me further confidence before mer
 
 ## Calling Time on Command Divergence
 
-The thing worth leading on is the invocation surface is via [taskfile](https://taskfile.dev/): **`task ss:<check>` is the only one there is**. Local dev, GitHub Actions, you running it on your laptop with a dry mouth and an overwhelming sense of guilt on a Sunday — same command, same output shape, one mental model. There's no separate CLI to learn for CI because the workflows themselves call `task` exactly the way you do.
+The thing worth leading on is the invocation surface is via [taskfile](https://taskfile.dev/): **`task ss:<check>` is the only one there is**. Local dev, GitHub Actions, you running it on your laptop with a dry mouth and an overwhelming sense of guilt on a Sunday... same command, same output shape, one mental model. There's no separate CLI to learn for CI because the workflows themselves call `task` exactly the way you do.
 
-It sounds small. It isn't. Its extremely important in the shift-left mentality of the world that you can recreate the CI pipeline checks locally identically so you can have confidence you have caught everything before the remote feedback loop begins. Using a consistent task runner as the interface for humans, agents and CI is a massive design victory to enable this. And because [mise](https://mise.jdx.dev/) pins the exact `slopstopper-cli` version in the repo, it isn't just the same command everywhere — it's the same version everywhere, so a check can't pass locally and fail in CI because the runner happened to grab a newer build.
+This might sound like a small thing but it's extremely important. Being able to recreate the CI pipeline checks locally means you can have confidence you have caught everything before the remote feedback loop begins. Using a consistent task runner as the interface for humans, agents and CI is a massive design victory to enable this. And because [mise](https://mise.jdx.dev/) pins the exact `slopstopper-cli` version in the repo, it isn't just the same command everywhere, it's the same version everywhere, so a check can't pass locally and fail in CI because the runner happened to grab a newer build.
 
 ## Downing the Slopstopper Install
 
-The install is one curl — or one [Claude Code skill](#driving-it-with-a-skill) that drives it, if you'd rather walk through the pre-flight questions first. The curl is what ends up running either way:
+The install is one curl, or one [Claude Code skill](#driving-it-with-a-skill) that drives it if you'd rather walk through the pre-flight questions first. The curl is what ends up running either way:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/hungovercoders/slopstopper/main/install.sh | bash
 ```
 
-That does two things. First, it pins the [`slopstopper-cli`](https://pypi.org/project/slopstopper-cli/) Python wheel — the CLI that carries every check, the Playwright suite, and the bundled local server — in a new `mise.toml` and installs it via [mise](https://mise.jdx.dev/), so the version your laptop runs is the exact version CI runs. Second, it seeds your repo with the thin layer that lets your project plug into the CLI: `Taskfile.ss.yml` (the canonical adopter interface — every check is a task here), `mise.toml` (the toolchain pin for `slopstopper-cli` and `task`), twenty `ss-*.yml` workflows under `.github/workflows/`, devDeps for Playwright + Lighthouse CI + axe-core + markdownlint merged into `package.json`, and a `.slopstopper.yml` for you to fill in with your URLs, your pages, and where your security headers live.
+That does two things. First, it pins the [`slopstopper-cli`](https://pypi.org/project/slopstopper-cli/) Python wheel (the CLI that carries every check, the Playwright suite, and the bundled local server) in a new `mise.toml` and installs it via [mise](https://mise.jdx.dev/), so the version your laptop runs is the exact version CI runs. Second, it seeds your repo with the thin layer that lets your project plug into the CLI: `Taskfile.ss.yml` (the canonical adopter interface, every check is a task here), `mise.toml` (the toolchain pin for `slopstopper-cli` and `task`), twenty `ss-*.yml` workflows under `.github/workflows/`, devDeps for Playwright + Lighthouse CI + axe-core + markdownlint merged into `package.json`, and a `.slopstopper.yml` for you to fill in with your URLs, your pages, and where your security headers live.
 
-![The install.sh banner at the start of the run — pinning and installing slopstopper-cli via mise and reporting the source + target paths](/assets/2026-06-21-slopstopper-cli-and-tooling/step-01-preflight.png)
+![The install.sh banner at the start of the run, pinning and installing slopstopper-cli via mise and reporting the source + target paths](/assets/2026-06-21-slopstopper-cli-and-tooling/step-01-preflight.png)
 
-By the time it finishes, you've got a status block that names every file it touched and tells you which checks are active out of the box, which ones need config, and which ones are inert until you wire secrets in. No guessing what landed.
+By the time it finishes, you've got a status block that names every file it touched and tells you which checks are active out of the box, which ones need config, and which ones are inert until you wire secrets in. No surprises about what landed.
 
-![The install.sh status block at the end of the run — which checks are active out of the box, which need config, and which stay inert](/assets/2026-06-21-slopstopper-cli-and-tooling/step-02-install-output.png)
+![The install.sh status block at the end of the run showing which checks are active out of the box, which need config, and which stay inert](/assets/2026-06-21-slopstopper-cli-and-tooling/step-02-install-output.png)
 
-All the config that landed — Taskfile, twenty workflows, `.slopstopper.yml`, the security headers block, the ZAP allowlist, the devDeps in `package.json` — is exactly what it should be: visible, owned, easy to read, the bit _you_ tune. The check logic itself sits inside the CLI where you don't have to look at it. `.ss/` ends up as a near-empty marker directory (just `.workflows-installed` plus a gitignored `reports/`), and because the CLI version is pinned in `mise.toml`, picking up a new slopstopper release is a deliberate one-line bump — `install.sh --upgrade-cli` moves the pin; a plain re-run honours it and never surprises you. Every adopter gets the new behaviour without a single line moving in their tree, no copy-paste, no per-repo drift, no merge conflicts on tool internals when you pull from upstream.
+All the config that landed (Taskfile, twenty workflows, `.slopstopper.yml`, the security headers block, the ZAP allowlist, the devDeps in `package.json`) is exactly what it should be: visible, owned, easy to read, and yours to tune. The check logic itself sits inside the CLI where you don't have to look at it. `.ss/` ends up as a near-empty marker directory (just `.workflows-installed` plus a gitignored `reports/`), and because the CLI version is pinned in `mise.toml`, picking up a new slopstopper release is a deliberate one-line bump: `install.sh --upgrade-cli` moves the pin; a plain re-run honours it and never surprises you. Every adopter gets the new behaviour without a single line moving in their tree, no copy-paste, no per-repo drift, no merge conflicts on tool internals when you pull from upstream.
 
 After the install, configure `.slopstopper.yml` (URLs, page lists, headers source path) and push the Node version pin into a GitHub repo variable:
 
@@ -73,7 +73,7 @@ After the install, configure `.slopstopper.yml` (URLs, page lists, headers sourc
 gh variable set SLOPSTOPPER_NODE_VERSION --body 22
 ```
 
-A quick `slopstopper doctor` confirms every external tool the suite needs is on PATH — Node, Task, Docker for OWASP ZAP, Python for the Trivy + Lizard backbone. Anything missing is named, with the command to fix it. Run it once after install; you shouldn't need to run it again unless you change your dev box.
+A quick `slopstopper doctor` confirms every external tool the suite needs is on PATH: Node, Task, Docker for OWASP ZAP, Python for the Trivy + Lizard backbone. Anything missing is named, with the command to fix it. Run it once after install; you shouldn't need to run it again unless you change your dev box.
 
 ![slopstopper doctor showing every required tool found and reachable](/assets/2026-06-21-slopstopper-cli-and-tooling/step-04-doctor.png)
 
@@ -81,15 +81,15 @@ Then you're done seeding. From here on it's the local loop.
 
 ## Driving It With a Skill
 
-The install is one curl. The hard bit is having the right answers ready: where your build writes to, what Node version you need, whether your headers live in `public/_headers` or `worker/headers.json`, whether you ship a site-wide `/og-image.png` or per-post share images. I also built a [Claude Code](https://claude.com/claude-code) skill — `slopstopper-install` — that asks those twelve questions for you, reads the answers straight out of your repo where it can, then drives the installer, configures `.slopstopper.yml`, sets up the `docs/` Map Pattern, and runs the local Pass A and Pass B until they're both green. By the time CI runs on the PR, it's a confirmation pass, not a discovery pass.
+The install is one curl. The hard bit is having the right answers ready: where your build writes to, what Node version you need, whether your headers live in `public/_headers` or `worker/headers.json`, whether you ship a site-wide `/og-image.png` or per-post share images. I also built a [Claude Code](https://claude.com/claude-code) skill called `slopstopper-install` that asks those twelve questions for you, reads the answers straight out of your repo where it can, then drives the installer, configures `.slopstopper.yml`, sets up the `docs/` Map Pattern, and runs the local Pass A and Pass B until they're both green. By the time CI runs on the PR, it's a confirmation pass rather than a discovery pass.
 
-I drove that skill for this install. It read [`AGENTS.md`](https://github.com/hungovercoders/site/blob/main/AGENTS.md) for the deploy model and the per-post share-image convention, predicted three gotchas based on what it found, then walked through the install accordingly. Both skills — `slopstopper-install` and `slopstopper-triage` — live in the [slopstopper repo](https://github.com/hungovercoders/slopstopper); installation is documented at [slopstopper.dev](https://slopstopper.dev). Treat the skill as the pre-flight half of a serious adoption; the curl is just the bit where files land.
+I drove that skill for this install. It read [`AGENTS.md`](https://github.com/hungovercoders/site/blob/main/AGENTS.md) for the deploy model and the per-post share-image convention, predicted three gotchas based on what it found, then walked through the install accordingly. Both skills, `slopstopper-install` and `slopstopper-triage`, live in the [slopstopper repo](https://github.com/hungovercoders/slopstopper); installation is documented at [slopstopper.dev](https://slopstopper.dev). Treat the skill as the pre-flight half of a serious adoption; the curl is just the bit where files land.
 
 ## Last Orders Before the Push
 
 The spine of a good install is two passes you run before opening the PR. Local dev catches every problem CI would catch, only faster, because there's no five-minute round trip while a runner spins up to tell you you've got the wrong indentation.
 
-**Pass A — static.** No URL, no built site, runs in a few seconds:
+**Pass A (static).** No URL, no built site, runs in a few seconds:
 
 ```bash
 task ss:hygiene:test                 # aggregate: docs-* + entry-files + csp-exceptions + complexity
@@ -100,7 +100,7 @@ task ss:security:vulnerability:all   # Trivy
 
 ![task ss:hygiene:test returning all six hygiene checks green](/assets/2026-06-21-slopstopper-cli-and-tooling/step-05-pass-a-green.png)
 
-**Pass B — dynamic.** Built site, server on `:8080`, headers honoured by the same parser the platform uses:
+**Pass B (dynamic).** Built site, server on `:8080`, headers honoured by the same parser the platform uses:
 
 ```bash
 npm run build
@@ -115,7 +115,7 @@ task ss:security:dast -- http://localhost:8080                            # OWAS
 
 ![task ss:reliability:smoke green against localhost:8080 in 1.1s per page](/assets/2026-06-21-slopstopper-cli-and-tooling/step-06-pass-b-green.png)
 
-The bundled `slopstopper serve` is the bit that quietly does a lot of work — it reads your `public/_headers` (Cloudflare's text format) on the fly, so the headers ZAP and the SEO check see are the same ones Cloudflare will eventually serve. No more "works locally, fails CI because the headers file was somewhere else."
+The bundled `slopstopper serve` is the bit that quietly does a lot of work: it reads your `public/_headers` (Cloudflare's text format) on the fly, so the headers ZAP and the SEO check see are the same ones Cloudflare will eventually serve. No more "works locally, fails CI because the headers file was somewhere else."
 
 ## What we found on Hungovercoders
 
@@ -123,33 +123,33 @@ What did we find on hungovercoders? A revamped website in its infancy, surely no
 
 Seven things bit during this install. None of them were slopstopper bugs; all of them are the kind of thing every first-time install on a non-trivial site will surface. Worth naming them so you know what to expect.
 
-1. **Two HIGH esbuild CVEs** sitting in the dev toolchain via transitive deps from Astro / Wrangler / Vite. Dependency vulnerability scan exited non-zero and refused to let me push. Fixed by pinning `esbuild: ">=0.28.1"` in `package.json` overrides — the patched version was already out, the tree just hadn't pulled it.
+1. **Two HIGH esbuild CVEs** sitting in the dev toolchain via transitive deps from Astro / Wrangler / Vite. Dependency vulnerability scan exited non-zero and refused to let me push. Fixed by pinning `esbuild: ">=0.28.1"` in `package.json` overrides; the patched version was already out, the tree just hadn't pulled it.
 2. **A tutorial post tripped Gitleaks** on the documented Cosmos DB Emulator default account key. Microsoft publishes that key as a fixed value for local development. Allowlisted the file path in `.gitleaks.toml` with a comment that explains why future-me won't second-guess it.
 3. **Five tutorial posts tripped ZAP's source-code-disclosure-SQL rule** because they include `SELECT` statements in `<pre><code>` blocks. ZAP's heuristic can't tell the difference between leaking SQL and teaching it. Added rule `10099` to `.zap/rules.tsv` with a `# why` line.
 4. **GTM tripped ZAP's SRI rule** (90003) because the Google-served script doesn't ship a stable integrity hash. There's no version of that I can fix at the application layer; allowlisted with a `# why`.
-5. **`BaseHead.astro` used `property="twitter:card"` everywhere instead of `name="twitter:card"`** — Twitter accepts either but the SEO check is strict on the canonical form, and the strict form is right. Five-line replace; rebuilt; green.
+5. **`BaseHead.astro` used `property="twitter:card"` everywhere instead of `name="twitter:card"`.** Twitter accepts either but the SEO check is strict on the canonical form, and the strict form is right. Five-line replace; rebuilt; green.
 6. **The CSP needed a frame-src for `googletagmanager.com`** because GTM loads its preview frame on a separate origin. Tuned the existing `public/_headers` baseline; documented the script-src and style-src `'unsafe-inline'` relaxations in `docs/security/CSP_EXCEPTIONS.md` so the drift check stays happy.
 7. **No documentation pattern.** Slopstopper enforces a consistent documentation pattern where AGENTS, CLAUDE and README become thin pointers to a docs/index.md file. The skill we invoked to install slopstopper forced this pattern and ensured this index map pattern was used. This means less tokens are used during agent invocations because the index helps agents read only the files they need.
 
-Note the shape: every fix lives in _my_ repo. None of them required editing slopstopper. That's the right divide — the tool's opinions are the tool's; the site's quirks are the site's; the drift check between them is where the two negotiate. Three of the seven (esbuild, the twitter meta, the CSP frame-src) are things I'd want to know about regardless of whether I was installing a quality suite. Slopstopper just surfaced them.
+Note the shape: every fix lives in _my_ repo. None of them required editing slopstopper. The tool handles its own opinions and the site handles its quirks, and the drift check between them is where the two negotiate. Three of the seven (esbuild, the twitter meta, the CSP frame-src) are things I'd want to know about regardless of whether I was installing a quality suite. Slopstopper just surfaced them.
 
 ## Eighteen Checks on Tap
 
-I then pushed the branch once the installation was complete and all of the fixes were in place. Twenty workflows ship; the two operational ones (the failure auto-reporter and the agentic doc updater) only fire on failure or schedule, so a clean PR shows eighteen — and all eighteen went green on the first push.
+I then pushed the branch once the installation was complete and all of the fixes were in place. Twenty workflows ship; the two operational ones (the failure auto-reporter and the agentic doc updater) only fire on failure or schedule, so a clean PR shows eighteen, and all eighteen went green on the first push.
 
 ![GitHub PR checks page showing all eighteen slopstopper workflows passing on the first push](/assets/2026-06-21-slopstopper-cli-and-tooling/step-07-pr-checks.png)
 
 The reason the first push went green is that local Pass A and Pass B are the same `task ss:*` invocations CI runs. There's no second-syntax surprise. Fix it locally, push, watch it confirm.
 
-The Actions tab on the repo tells the same story from a different angle — each workflow with its own run, all of them passing on this branch.
+The Actions tab on the repo tells the same story from a different angle, each workflow with its own run, all of them passing on this branch.
 
 ![GitHub Actions tab showing every slopstopper workflow with a successful run on the branch](/assets/2026-06-21-slopstopper-cli-and-tooling/step-08-pr-actions.png)
 
 And inside any single run, every step is one of: set up the mise toolchain (the pinned `slopstopper-cli` and `task` in one go), install Node, install deps, then `task ss:<check>`. The DAST run is the heaviest of the suite (OWASP ZAP in a Docker container, spinning up the bundled local server) and it still finishes green end-to-end:
 
-![A single DAST workflow run on GitHub — the OWASP ZAP job green end-to-end](/assets/2026-06-21-slopstopper-cli-and-tooling/step-09-workflow-detail.png)
+![A single DAST workflow run on GitHub, the OWASP ZAP job green end-to-end](/assets/2026-06-21-slopstopper-cli-and-tooling/step-09-workflow-detail.png)
 
-Eighteen steps, eighteen greens, no surprises — because there were no surprises left for CI to surface.
+All checks went green first time round because there were no surprises left for CI to surface.
 
 ## What happens if there is drift or a live issue?
 
