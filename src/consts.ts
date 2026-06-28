@@ -3,7 +3,6 @@
 
 export const SITE_TITLE = 'hungovercoders';
 export const SITE_DESCRIPTION = 'Folk tales of working in tech from the South Wales valleys. Built with the AI on the team and the dog on the sofa. Honest walkthroughs, strong opinions a model couldn\'t form, and the occasional Sunday-morning hangover.';
-export const GTM_ID = 'GTM-5RJBJWL';
 
 // Giscus (GitHub Discussions-backed comments). Fill in these four values to
 // switch on commenting; leave any blank and the Giscus block won't render.

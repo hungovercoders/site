@@ -8,7 +8,7 @@ All headers are set via Cloudflare's `_headers` file convention at [`public/_hea
 
 Site-wide defaults under `/*`:
 
-- `Content-Security-Policy` — default-src `'self'` with explicit allowances for the Google Tag Manager origins (script + connect + frame + img). `'unsafe-inline'` is kept for `script-src` (GTM bootstrap is an inline script) and `style-src` (Astro injects scoped `<style>` blocks inline). These two relaxations are documented in [`CSP_EXCEPTIONS.md`](./CSP_EXCEPTIONS.md).
+- `Content-Security-Policy` — `default-src 'self'` with no third-party origins (no analytics, tag manager, or tracking). `'unsafe-inline'` is kept for `script-src` (Astro emits the theme/TOC/code-copy scripts inline) and `style-src` (Astro injects scoped `<style>` blocks inline). These two structural relaxations are documented in [`CSP_EXCEPTIONS.md`](./CSP_EXCEPTIONS.md).
 - `X-Frame-Options: DENY` + CSP `frame-ancestors 'none'`
 - `X-Content-Type-Options: nosniff`
 - `Cross-Origin-Opener-Policy: same-origin`
@@ -24,7 +24,7 @@ The DAST workflow at `.github/workflows/ss-security-dast-check.yml` runs OWASP Z
 
 Two classes of finding are accepted by design and silenced via the consumer-side ZAP rule allowlist at [`.zap/rules.tsv`](../../.zap/rules.tsv):
 
-- **Sub Resource Integrity Attribute Missing (rule 90003)** — ZAP flags the cross-domain GTM script (loaded dynamically by the inline bootstrap) for missing `integrity=`. GTM's script content changes per container update, so a stable SRI hash isn't viable. Same applies to a couple of older blog posts that embed third-party scripts.
+- **Sub Resource Integrity Attribute Missing (rule 90003)** — ZAP flags cross-domain scripts for missing `integrity=`. This applies to a couple of older blog posts that embed third-party scripts; the site chrome itself loads no third-party scripts.
 - **Source Code Disclosure - SQL (rule 10099)** — false positive on tutorial blog posts that contain SQL code blocks (e.g. Databricks exam prep, Cosmos emulator). ZAP's heuristic matches the SQL syntax and flags the page as if the application were leaking source code.
 
 Both rule entries in `.zap/rules.tsv` carry a `# why` comment so the exception is documented at the point of suppression.

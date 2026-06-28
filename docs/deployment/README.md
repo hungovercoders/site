@@ -40,6 +40,6 @@ npm run preview        # Build + wrangler dev — closer to prod
 npm run deploy         # Build + wrangler deploy (you rarely need this; CFB handles it)
 ```
 
-## Cookie consent
+## Analytics and cookies
 
-Google Tag Manager (`GTM-5RJBJWL`, configured in `src/consts.ts`) is loaded on every page via `BaseHead.astro`. Consent is served as a klaro tag *inside* the GTM container — loading GTM is what triggers the banner. Don't add a cookie consent library to the site code; it would double up.
+There are none. The site loads no analytics, no tag manager, and no third-party scripts, and sets no cookies — so there is no cookie-consent banner to maintain. If a privacy-friendly traffic measure is added later, prefer a cookieless one (no consent banner needed) and document it in [`docs/security/CSP_EXCEPTIONS.md`](../security/CSP_EXCEPTIONS.md) and the [`/privacy`](../../src/pages/privacy.astro) page.

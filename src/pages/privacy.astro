@@ -1,0 +1,63 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const title = 'Privacy';
+const description =
+	'What hungovercoders collects about you — currently nothing: no cookies, no analytics, no tracking';
+---
+
+<html lang="en">
+	<head>
+		<BaseHead title={title} description={description} />
+	</head>
+	<body>
+		<Header />
+		<main id="main-content" class="prose">
+			<h1>Privacy</h1>
+
+			<p>
+				Short version: this site collects <strong>no</strong> information about you. There are no
+				analytics, no tracking, and no advertising.
+			</p>
+
+			<h2>Cookies</h2>
+			<p>
+				hungovercoders sets no cookies and stores nothing on your device. Because of that there is no
+				cookie banner — there is nothing to consent to.
+			</p>
+
+			<h2>Analytics and tracking</h2>
+			<p>
+				There is currently no analytics or tracking of any kind on this site. No personal data is
+				collected, processed, or shared with anyone.
+			</p>
+
+			<h2>If this changes</h2>
+			<p>
+				If a privacy-friendly way to measure traffic is added in future, this page will be updated
+				first — describing exactly what is collected, why, the legal basis, and how to opt out. Any
+				such tooling will be chosen to avoid collecting personal data wherever possible.
+			</p>
+
+			<p>Questions? Get in touch via the <a href="/about">About</a> page.</p>
+		</main>
+		<Footer />
+	</body>
+</html>
+
+<style>
+	.prose {
+		max-width: 720px;
+		margin: 3rem auto;
+		padding: 0 1rem;
+		color: rgb(var(--gray-dark));
+	}
+	.prose h1 {
+		margin-bottom: 0.5em;
+	}
+	.prose h2 {
+		margin-top: 1.5em;
+	}
+</style>

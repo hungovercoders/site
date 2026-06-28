@@ -4,7 +4,6 @@ import type { MarkdownHeading } from 'astro';
 import BaseHead from '../components/BaseHead.astro';
 import CodeCopyButtons from '../components/CodeCopyButtons.astro';
 import Footer from '../components/Footer.astro';
-import GtmNoscript from '../components/GtmNoscript.astro';
 import Header from '../components/Header.astro';
 
 interface Props {
@@ -257,7 +256,6 @@ const tocHeadings = headings.filter((h) => h.depth === 2);
 		</style>
 	</head>
 	<body>
-		<GtmNoscript />
 		<Header />
 		<div class="layout">
 			<nav class="sidebar">
