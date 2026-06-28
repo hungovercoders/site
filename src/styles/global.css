@@ -291,3 +291,38 @@ hr {
 	/* added line to stop words getting smushed together (as they go onto separate lines and some screen readers do not understand line feeds as a space */
 	white-space: nowrap;
 }
+
+/*
+  Klaro cookie-consent modal — force WCAG 2.1 AA contrast on its muted
+  service-description text and notice links. The modal is injected at runtime
+  by the GTM Custom HTML tag, which loads only klaro.js (no klaro.css), so the
+  modal renders with Klaro's built-in dark (#333) styling and its default greys
+  fail axe-core `color-contrast`. Against that dark background the fix is light
+  text/links (hardcoded, not the theme --black/--accent tokens which would
+  invert with the site's dark mode). !important beats Klaro's injected styles.
+  The class names are Klaro-specific and only ever appear inside its modal.
+ */
+.cm-list-description,
+.cm-list-description span,
+.purposes {
+	color: #f3f5fa !important;
+}
+/* Links in the modal (privacy policy, "powered by") sit on the dark bg.
+   Underline them so in-text links are distinguished without relying on colour
+   alone (axe `link-in-text-block`). */
+#klaro a {
+	color: #9ec5ff !important;
+	text-decoration: underline !important;
+}
+/* Accept buttons ship white text on a medium blue/green that fails AA;
+   darken the backgrounds (preserving the blue/green hues) so #fff clears 4.5:1.
+   The decline button (#555) already passes. */
+#klaro .cm-btn {
+	color: #ffffff !important;
+}
+#klaro .cm-btn-info {
+	background-color: #0a4a73 !important;
+}
+#klaro .cm-btn-accept-all {
+	background-color: #0f5132 !important;
+}
