@@ -293,36 +293,98 @@ hr {
 }
 
 /*
-  Klaro cookie-consent modal — force WCAG 2.1 AA contrast on its muted
-  service-description text and notice links. The modal is injected at runtime
-  by the GTM Custom HTML tag, which loads only klaro.js (no klaro.css), so the
-  modal renders with Klaro's built-in dark (#333) styling and its default greys
-  fail axe-core `color-contrast`. Against that dark background the fix is light
-  text/links (hardcoded, not the theme --black/--accent tokens which would
-  invert with the site's dark mode). !important beats Klaro's injected styles.
-  The class names are Klaro-specific and only ever appear inside its modal.
+  Klaro cookie-consent modal — branded theme.
+
+  The GTM Custom HTML tag loads only klaro.js (no klaro.css), so the modal
+  would otherwise render in Klaro's bare dark fallback. We restyle it from the
+  site's design tokens. Because #klaro lives in document.body, --surface/--black/
+  --accent etc. cascade in, so the modal automatically tracks the site's
+  light/dark mode and the token pairs keep WCAG AA contrast in both. !important
+  beats Klaro's injected styles; selectors are scoped under #klaro and use
+  Klaro-only class names. Exception: the primary "Accept all" button uses a
+  FIXED brand blue + white, because --accent inverts to a light tint in dark
+  mode and would break white-on-light on the button itself.
  */
-.cm-list-description,
-.cm-list-description span,
-.purposes {
-	color: #f3f5fa !important;
+#klaro .cm-bg {
+	background: rgba(15, 18, 25, 0.6) !important;
 }
-/* Links in the modal (privacy policy, "powered by") sit on the dark bg.
-   Underline them so in-text links are distinguished without relying on colour
-   alone (axe `link-in-text-block`). */
+#klaro .cm-modal {
+	background: rgb(var(--surface)) !important;
+	color: rgb(var(--gray-dark)) !important;
+	border: 1px solid rgb(var(--gray-light)) !important;
+	border-radius: 12px !important;
+	box-shadow: var(--box-shadow) !important;
+	font-family: var(--font-body) !important;
+}
+#klaro .cm-header {
+	border-bottom: 1px solid rgb(var(--gray-light)) !important;
+}
+#klaro .cm-header h1.title {
+	font-family: var(--font-display) !important;
+	color: rgb(var(--black)) !important;
+	text-decoration: none !important;
+	border-bottom: 0 !important;
+}
+#klaro .cm-header p,
+#klaro .cm-header p span {
+	color: rgb(var(--gray-dark)) !important;
+}
+#klaro .cm-list-title {
+	color: rgb(var(--black)) !important;
+	font-weight: 700 !important;
+}
+#klaro .cm-list-description,
+#klaro .cm-list-description span,
+#klaro .purposes {
+	color: rgb(var(--gray-dark)) !important;
+}
+/* Links (privacy policy, "powered by") — accent + underline so in-text links
+   are distinguished without relying on colour alone (axe link-in-text-block). */
 #klaro a {
-	color: #9ec5ff !important;
+	color: var(--accent) !important;
 	text-decoration: underline !important;
 }
-/* Accept buttons ship white text on a medium blue/green that fails AA;
-   darken the backgrounds (preserving the blue/green hues) so #fff clears 4.5:1.
-   The decline button (#555) already passes. */
-#klaro .cm-btn {
-	color: #ffffff !important;
+/* Toggle switches: grey track when off, brand accent when on. Klaro keeps the
+   `.active` class on every slider (it means "interactive", not "on"), so the
+   on-state is driven off the checkbox `:checked`, which is what moves the knob. */
+#klaro .slider {
+	background-color: rgb(var(--gray)) !important;
 }
-#klaro .cm-btn-info {
-	background-color: #0a4a73 !important;
+#klaro .cm-list-input:checked + .cm-list-label .slider {
+	background-color: var(--accent) !important;
+}
+#klaro .slider::before,
+#klaro .slider.round::before {
+	background-color: #ffffff !important;
+}
+/* Buttons. Primary = solid brand blue (fixed) + white. Secondary/decline =
+   ghost with theme-aware text that stays contrasty on the modal surface. */
+#klaro .cm-btn {
+	border-radius: 6px !important;
+	font-weight: 600 !important;
 }
 #klaro .cm-btn-accept-all {
-	background-color: #0f5132 !important;
+	background-color: #2337ff !important;
+	color: #ffffff !important;
+	border: 1px solid #2337ff !important;
+}
+#klaro .cm-btn-info,
+#klaro .cm-btn-decline {
+	background-color: transparent !important;
+	border: 1px solid rgb(var(--gray-light)) !important;
+}
+#klaro .cm-btn-info {
+	color: var(--accent) !important;
+}
+#klaro .cm-btn-decline {
+	color: rgb(var(--gray-dark)) !important;
+}
+@media (max-width: 720px) {
+	#klaro .cm-modal {
+		width: calc(100% - 2rem) !important;
+		max-width: calc(100% - 2rem) !important;
+	}
+	#klaro .cm-footer-buttons {
+		flex-wrap: wrap !important;
+	}
 }
