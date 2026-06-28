@@ -7,20 +7,20 @@ How the site is put together.
 - **[Astro](https://astro.build)** with `@astrojs/cloudflare` adapter — pages, layouts, content collections, build pipeline.
 - **Cloudflare Workers** — runs the built site. The Worker is named `site` and is custom-bound to `hungovercoders.com` + `www.hungovercoders.com`.
 - **[Pagefind](https://pagefind.app)** — static search index, generated at build time into `dist/client/pagefind/`.
-- **Google Tag Manager** — analytics + cookie consent (klaro is configured inside the GTM container, not in the site code).
+- **No analytics or tracking** — the site loads no third-party scripts, sets no cookies, and has no tag manager. A privacy-friendly traffic measure may be added later (see [`docs/security/README.md`](../security/README.md)).
 
 ## Repo layout
 
 ```
 src/
-  components/        BaseHead, Header, Footer, Search, GtmNoscript
+  components/        BaseHead, Header, Footer, Search
   content/blog/      Blog posts (YYYY-MM-DD-slug.md)
   content/projects/  Live project entries
   content.config.ts  Astro content-collection schemas
   layouts/           BlogPost.astro, TrainingLesson.astro
   pages/             Routes — index, about, blog/[...slug], training/[series]/[lesson], projects
   styles/global.css
-  consts.ts          SITE_TITLE, GTM_ID
+  consts.ts          SITE_TITLE, SITE_DESCRIPTION, GISCUS_*
 public/              Static assets (favicons, share images per post)
 scripts/             fetch-training-repos.sh, link-local-repos.sh, generate-share-image.mjs
 training-repos/      Gitignored — populated at build by fetch-training-repos.sh

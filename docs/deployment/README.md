@@ -18,7 +18,7 @@ Every push to `main` deploys. Every PR gets a preview URL as a commit check. Clo
 
 DNS is hosted at **Namecheap** (nameservers `dns1/2.registrar-servers.com`) with A records pointing at Cloudflare anycast IPs. DNS record changes happen at Namecheap, not in the Cloudflare dashboard.
 
-The apex `hungovercoders.com` 301s to `www.hungovercoders.com`. The redirect is handled by a small separate worker defined in `redirects/wrangler.jsonc` — run `npm run redirects:deploy` to update it.
+The apex `hungovercoders.com` is the canonical host and is served directly (200) by the `site` worker. `www.hungovercoders.com` is also custom-bound to the same worker and currently serves directly too, but it is **not** canonical — `astro.config.mjs` (`site: 'https://hungovercoders.com'`), every page's `<link rel="canonical">`, the sitemap, `og:url`, and RSS all point at the apex. There is no apex↔www redirect today (collapsing `www → apex` with a 301 is a tracked follow-up). The separate worker defined in `redirects/wrangler.jsonc` only handles `blog.hungovercoders.com/*` — run `npm run redirects:deploy` to update it.
 
 ## The `dist/client` gotcha
 
@@ -40,6 +40,6 @@ npm run preview        # Build + wrangler dev — closer to prod
 npm run deploy         # Build + wrangler deploy (you rarely need this; CFB handles it)
 ```
 
-## Cookie consent
+## Analytics and cookies
 
-Google Tag Manager (`GTM-5RJBJWL`, configured in `src/consts.ts`) is loaded on every page via `BaseHead.astro`. Consent is served as a klaro tag *inside* the GTM container — loading GTM is what triggers the banner. Don't add a cookie consent library to the site code; it would double up.
+There are none. The site loads no analytics, no tag manager, and no third-party scripts, and sets no cookies — so there is no cookie-consent banner to maintain. If a privacy-friendly traffic measure is added later, prefer a cookieless one (no consent banner needed) and document it in [`docs/security/CSP_EXCEPTIONS.md`](../security/CSP_EXCEPTIONS.md) and the [`/privacy`](../../src/pages/privacy.astro) page.

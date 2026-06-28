@@ -6,7 +6,7 @@ Open standard for agents, AI assistants and automation tools working in this rep
 
 ## What this repo is
 
-The public-facing site at `hungovercoders.com` (apex 301s to `www.hungovercoders.com`). Built with Astro + `@astrojs/cloudflare`, deployed to Cloudflare Workers via Workers Builds. Serves blog posts from `src/content/blog/`, projects from `src/content/projects/`, and training lessons sourced from sibling `learn.*` repos at build time. Quality pipeline by [slopstopper](https://slopstopper.dev) — see [`docs/operations/README.md`](./docs/operations/README.md).
+The public-facing site at `hungovercoders.com`. The apex is the canonical host, served directly (`www.hungovercoders.com` also resolves but is not canonical — see [`docs/deployment/README.md`](./docs/deployment/README.md)). Built with Astro + `@astrojs/cloudflare`, deployed to Cloudflare Workers via Workers Builds. Serves blog posts from `src/content/blog/`, projects from `src/content/projects/`, and training lessons sourced from sibling `learn.*` repos at build time. Quality pipeline by [slopstopper](https://slopstopper.dev) — see [`docs/operations/README.md`](./docs/operations/README.md).
 
 ## Where to look for what
 

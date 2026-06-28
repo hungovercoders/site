@@ -3,7 +3,6 @@ import { getCollection } from 'astro:content';
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
-import GtmNoscript from '../components/GtmNoscript.astro';
 import Header from '../components/Header.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 import { excerpt } from '../utils/excerpt';
@@ -133,7 +132,6 @@ const latest = (await getCollection('blog'))
 		</style>
 	</head>
 	<body>
-		<GtmNoscript />
 		<Header />
 		<main id="main-content">
 			<section class="hero">

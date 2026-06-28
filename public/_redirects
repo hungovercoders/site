@@ -6,3 +6,7 @@
 # 2026-06-21 install walkthrough. 301 so any inbound link to the old slug
 # lands on the new post rather than 404.
 /blog/2026-06-09-slopstopper-first-pr-green-on-hungovercoders/  /blog/2026-06-21-slopstopper-cli-and-tooling/  301
+
+# The old static site served the privacy notice at /privacy.html; it now lives
+# at the clean /privacy route. 301 the historical URL rather than 404 it.
+/privacy.html  /privacy  301

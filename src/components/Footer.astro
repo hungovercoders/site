@@ -4,7 +4,7 @@ const today = new Date();
 
 <footer>
 	<p class="copyright">
-		&copy; {today.getFullYear()} hungovercoders &middot; folk tales of working in tech from the South Wales valleys
+		&copy; {today.getFullYear()} hungovercoders &middot; folk tales of working in tech from the South Wales valleys &middot; <a href="/privacy">Privacy</a>
 	</p>
 	<div class="social-links">
 		<a href="https://github.com/hungovercoders" target="_blank" rel="noopener">
@@ -35,6 +35,10 @@ const today = new Date();
 	.copyright {
 		margin: 0 0 1em;
 		font-size: 0.95em;
+	}
+	.copyright a {
+		color: rgb(var(--gray-dark));
+		text-decoration: underline;
 	}
 	.social-links {
 		display: flex;
