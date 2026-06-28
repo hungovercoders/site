@@ -7,7 +7,7 @@ How the site is put together.
 - **[Astro](https://astro.build)** with `@astrojs/cloudflare` adapter — pages, layouts, content collections, build pipeline.
 - **Cloudflare Workers** — runs the built site. The Worker is named `site` and is custom-bound to `hungovercoders.com` + `www.hungovercoders.com`.
 - **[Pagefind](https://pagefind.app)** — static search index, generated at build time into `dist/client/pagefind/`.
-- **No analytics or tracking** — the site loads no third-party scripts, sets no cookies, and has no tag manager. A privacy-friendly traffic measure may be added later (see [`docs/security/README.md`](../security/README.md)).
+- **Cloudflare Web Analytics** — a cookieless, privacy-first beacon (no cookies, no cross-site tracking, no tag manager). Wired in `src/components/BaseHead.astro`, gated on `CF_BEACON_TOKEN` in `src/consts.ts` (see [`docs/deployment/README.md`](../deployment/README.md) and [`docs/security/README.md`](../security/README.md)).
 
 ## Repo layout
 
