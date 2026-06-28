@@ -18,7 +18,7 @@ Every push to `main` deploys. Every PR gets a preview URL as a commit check. Clo
 
 DNS is hosted at **Namecheap** (nameservers `dns1/2.registrar-servers.com`) with A records pointing at Cloudflare anycast IPs. DNS record changes happen at Namecheap, not in the Cloudflare dashboard.
 
-The apex `hungovercoders.com` 301s to `www.hungovercoders.com`. The redirect is handled by a small separate worker defined in `redirects/wrangler.jsonc` — run `npm run redirects:deploy` to update it.
+The apex `hungovercoders.com` is the canonical host and is served directly (200) by the `site` worker. `www.hungovercoders.com` is also custom-bound to the same worker and currently serves directly too, but it is **not** canonical — `astro.config.mjs` (`site: 'https://hungovercoders.com'`), every page's `<link rel="canonical">`, the sitemap, `og:url`, and RSS all point at the apex. There is no apex↔www redirect today (collapsing `www → apex` with a 301 is a tracked follow-up). The separate worker defined in `redirects/wrangler.jsonc` only handles `blog.hungovercoders.com/*` — run `npm run redirects:deploy` to update it.
 
 ## The `dist/client` gotcha
 

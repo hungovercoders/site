@@ -1,8 +1,8 @@
 # hungovercoders
 
-The public-facing site at [hungovercoders.com](https://www.hungovercoders.com). Astro + `@astrojs/cloudflare`, deployed to Cloudflare Workers via Workers Builds. Serves blog posts from `src/content/blog/` and training lessons sourced from sibling `learn.*` repos.
+The public-facing site at [hungovercoders.com](https://hungovercoders.com). Astro + `@astrojs/cloudflare`, deployed to Cloudflare Workers via Workers Builds. Serves blog posts from `src/content/blog/` and training lessons sourced from sibling `learn.*` repos.
 
-[![Site](https://img.shields.io/website?url=https%3A%2F%2Fwww.hungovercoders.com&label=hungovercoders.com&up_message=up&down_message=down)](https://www.hungovercoders.com/)
+[![Site](https://img.shields.io/website?url=https%3A%2F%2Fhungovercoders.com&label=hungovercoders.com&up_message=up&down_message=down)](https://hungovercoders.com/)
 
 ## Contents
 
