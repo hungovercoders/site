@@ -6,3 +6,8 @@
 # 2026-06-21 install walkthrough. 301 so any inbound link to the old slug
 # lands on the new post rather than 404.
 /blog/2026-06-09-slopstopper-first-pr-green-on-hungovercoders/  /blog/2026-06-21-slopstopper-cli-and-tooling/  301
+
+# The cookie-consent modal (Klaro, configured in GTM) links to the historical
+# /privacy.html URL. The page now lives at the clean /privacy route, so 301 the
+# old path rather than 404 the consent link.
+/privacy.html  /privacy  301

@@ -1,0 +1,52 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import GtmNoscript from '../components/GtmNoscript.astro';
+
+const title = 'Privacy';
+const description =
+	'How hungovercoders handles analytics and marketing data, and what your cookie consent choices control';
+---
+
+<html lang="en">
+	<head>
+		<BaseHead title={title} description={description} />
+	</head>
+	<body>
+		<GtmNoscript />
+		<Header />
+		<main id="main-content" class="prose">
+			<h1>Privacy</h1>
+
+			<h2>Analytics</h2>
+			<p>
+				If you consent to analytics, the <a
+					href="https://support.google.com/analytics/answer/11593727?hl=en"
+					target="_blank"
+					rel="noopener noreferrer">default data for Google Analytics 4</a
+				> is collected for website performance monitoring and does not include personally identifiable
+				user data.
+			</p>
+
+			<h2>Marketing</h2>
+			<p>There is no user data currently collected for marketing purposes, regardless of consent.</p>
+		</main>
+		<Footer />
+	</body>
+</html>
+
+<style>
+	.prose {
+		max-width: 720px;
+		margin: 3rem auto;
+		padding: 0 1rem;
+		color: rgb(var(--gray-dark));
+	}
+	.prose h1 {
+		margin-bottom: 0.5em;
+	}
+	.prose h2 {
+		margin-top: 1.5em;
+	}
+</style>
