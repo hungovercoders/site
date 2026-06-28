@@ -4,7 +4,7 @@ This file is the **single source of truth** for every per-path Content-Security-
 
 ## Why this exists
 
-The site ships a tight CSP (`default-src 'self'`) for everything served from the Astro build, plus explicit allowances for the third parties we actually load (currently just Google Tag Manager). Where we can't avoid a CSP relaxation — either because the platform or framework forces inline scripts/styles, or because a specific page genuinely needs an extra origin — we document the relaxation here so the DAST gate can stop blocking on it.
+The site ships a tight CSP (`default-src 'self'`) for everything served from the Astro build, plus explicit allowances for the third parties we actually load (Google Tag Manager, and the Klaro cookie-consent banner that GTM injects). Where we can't avoid a CSP relaxation — either because the platform or framework forces inline scripts/styles, or because a specific page genuinely needs an extra origin — we document the relaxation here so the DAST gate can stop blocking on it.
 
 ## Baseline relaxations (site-wide CSP)
 
@@ -12,6 +12,7 @@ The site-wide CSP shipped from `public/_headers` includes two relaxations that Z
 
 - **`script-src 'unsafe-inline'`** — the Google Tag Manager bootstrap is an inline `<script>` injected via Astro's `define:vars` in [`src/components/BaseHead.astro`](../../src/components/BaseHead.astro). Switching to a nonce-based CSP would require Astro experimental CSP plus runtime nonce propagation on a statically-rendered site, which the adapter doesn't support cleanly today. Accepting the relaxation rather than removing GTM.
 - **`style-src 'unsafe-inline'`** — Astro's component-scoped `<style>` blocks are inlined into each HTML page at build time. Without `'unsafe-inline'` every page's own styling would fail to load. This is structural to how Astro renders scoped CSS.
+- **`script-src https://cdn.kiprotect.com`** — the Klaro cookie-consent banner (`klaro.js`) is loaded from this CDN by a GTM Custom HTML tag (see [`src/content/blog/2023-03-11-cookie-consent.md`](../../src/content/blog/2023-03-11-cookie-consent.md)). Klaro is `mustConsent: true` with `default: false`, so GA4's `analytics_storage` only becomes `granted` once a visitor accepts in the modal. Without this origin the browser blocks Klaro, the modal never renders, consent can never be granted, and GA4 stops collecting — exactly the regression this allowance fixes. This is the "GTM loads a new third party → add the origin to `script-src`" path the refresh policy below prescribes. Klaro injects its own CSS via an inline `<style>` element, covered by the existing `style-src 'unsafe-inline'`, so no `style-src` origin is required.
 
 **Why these are tolerable:**
 - The site is a static blog with no user-supplied input rendered into HTML. XSS via untrusted content isn't a vector here — every page is built from markdown the maintainer wrote, then served statically.
