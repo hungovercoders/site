@@ -19,18 +19,72 @@ const description =
 		<main id="main-content" class="prose">
 			<h1>Privacy</h1>
 
-			<h2>Analytics</h2>
 			<p>
-				If you consent to analytics, the <a
+				This page explains what data hungovercoders collects, why, and how you stay in control of it.
+				Nothing analytics- or marketing-related runs until you choose — see <a href="#your-choices"
+					>your choices</a
+				> below.
+			</p>
+
+			<h2>Who we are</h2>
+			<p>
+				hungovercoders (dataGriff) is the data controller for this site, <code
+					>hungovercoders.com</code
+				>. If you have a question about your data, get in touch via the <a href="/about">About</a> page
+				or the GitHub links in the footer.
+			</p>
+
+			<h2>Cookies and data we use</h2>
+			<p>
+				<strong>Analytics (only with your consent).</strong> If you consent to analytics we use Google
+				Analytics 4 (measurement ID <code>G-D95TZQ8QFT</code>), loaded through Google Tag Manager. It
+				sets <code>_ga</code> and <code>_ga_*</code> cookies and collects the <a
 					href="https://support.google.com/analytics/answer/11593727?hl=en"
 					target="_blank"
 					rel="noopener noreferrer">default data for Google Analytics 4</a
-				> is collected for website performance monitoring and does not include personally identifiable
-				user data.
+				> — approximate location, device and browser, and the pages you visit — for website performance
+				monitoring. It does not include personally identifiable data. GA4 retains this data for the
+				property's configured retention period, after which it is deleted.
+			</p>
+			<p>
+				<strong>Consent (strictly necessary).</strong> A <code>consent</code> cookie remembers your cookie
+				choices for 12 months so you aren't asked on every visit. It carries no analytics or marketing
+				data and is set regardless of your choices, because it only stores those choices.
+			</p>
+			<p>
+				<strong>Marketing.</strong> No user data is collected for marketing purposes, regardless of consent.
 			</p>
 
-			<h2>Marketing</h2>
-			<p>There is no user data currently collected for marketing purposes, regardless of consent.</p>
+			<h2>Legal basis</h2>
+			<p>
+				Analytics relies on your <strong>consent</strong> under UK GDPR and PECR. Until you accept,
+				analytics does not load and no analytics cookies are set. The strictly necessary consent cookie
+				relies on our legitimate interest in remembering your preference.
+			</p>
+
+			<h2>Sharing and international transfers</h2>
+			<p>
+				Google acts as our processor for Google Analytics. Your analytics data may be processed outside
+				the UK and EEA; Google provides safeguards for those transfers, described in the <a
+					href="https://policies.google.com/privacy"
+					target="_blank"
+					rel="noopener noreferrer">Google Privacy Policy</a
+				>. We do not sell your data or share it with anyone else.
+			</p>
+
+			<h2 id="your-choices">Your choices</h2>
+			<p>
+				You can change or withdraw your consent at any time — it's as easy as giving it. Use the button
+				below (also in the footer of every page) to reopen the cookie preferences, or clear this site's
+				cookies in your browser settings.
+			</p>
+			<p>
+				<button type="button" class="cookie-prefs">Manage cookie preferences</button>
+			</p>
+			<p>
+				Under UK GDPR you also have the right to access or request erasure of your personal data — get in
+				touch via the <a href="/about">About</a> page.
+			</p>
 		</main>
 		<Footer />
 	</body>
@@ -48,5 +102,14 @@ const description =
 	}
 	.prose h2 {
 		margin-top: 1.5em;
+	}
+	.cookie-prefs {
+		background: none;
+		border: 0;
+		padding: 0;
+		font: inherit;
+		color: var(--accent);
+		text-decoration: underline;
+		cursor: pointer;
 	}
 </style>

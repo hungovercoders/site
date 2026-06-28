@@ -4,7 +4,7 @@ const today = new Date();
 
 <footer>
 	<p class="copyright">
-		&copy; {today.getFullYear()} hungovercoders &middot; folk tales of working in tech from the South Wales valleys &middot; <a href="/privacy">Privacy</a>
+		&copy; {today.getFullYear()} hungovercoders &middot; folk tales of working in tech from the South Wales valleys &middot; <a href="/privacy">Privacy</a> &middot; <button type="button" class="cookie-prefs">Cookie preferences</button>
 	</p>
 	<div class="social-links">
 		<a href="https://github.com/hungovercoders" target="_blank" rel="noopener">
@@ -36,9 +36,17 @@ const today = new Date();
 		margin: 0 0 1em;
 		font-size: 0.95em;
 	}
-	.copyright a {
+	.copyright a,
+	.copyright .cookie-prefs {
 		color: rgb(var(--gray-dark));
 		text-decoration: underline;
+	}
+	.cookie-prefs {
+		background: none;
+		border: 0;
+		padding: 0;
+		font: inherit;
+		cursor: pointer;
 	}
 	.social-links {
 		display: flex;
@@ -53,3 +61,12 @@ const today = new Date();
 		color: rgb(var(--gray-dark));
 	}
 </style>
+
+<script>
+	// Reopen the Klaro consent modal so visitors can change or withdraw consent.
+	// Klaro is injected by GTM in production only, so window.klaro is absent in
+	// dev/preview — the optional chaining makes the button a no-op there.
+	document.querySelectorAll('.cookie-prefs').forEach((el) =>
+		el.addEventListener('click', () => (window as any).klaro?.show?.())
+	);
+</script>
