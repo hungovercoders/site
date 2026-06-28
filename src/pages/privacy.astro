@@ -5,7 +5,7 @@ import Footer from '../components/Footer.astro';
 
 const title = 'Privacy';
 const description =
-	'What hungovercoders collects about you — currently nothing: no cookies, no analytics, no tracking';
+	'What hungovercoders collects about you — cookieless, privacy-first traffic analytics and nothing more';
 ---
 
 <html lang="en">
@@ -18,8 +18,9 @@ const description =
 			<h1>Privacy</h1>
 
 			<p>
-				Short version: this site collects <strong>no</strong> information about you. There are no
-				analytics, no tracking, and no advertising.
+				Short version: this site uses privacy-first, cookieless analytics to count visits and see
+				which posts are read. There is <strong>no</strong> advertising, no cross-site tracking, and
+				nothing stored on your device.
 			</p>
 
 			<h2>Cookies</h2>
@@ -28,17 +29,37 @@ const description =
 				cookie banner — there is nothing to consent to.
 			</p>
 
-			<h2>Analytics and tracking</h2>
+			<h2>Analytics</h2>
 			<p>
-				There is currently no analytics or tracking of any kind on this site. No personal data is
-				collected, processed, or shared with anyone.
+				Traffic is measured with
+				<a href="https://www.cloudflare.com/web-analytics/" target="_blank" rel="noopener noreferrer">Cloudflare Web Analytics</a>,
+				a privacy-first tool that uses no cookies and no client-side storage. It records aggregate
+				metrics only — page views, the referring site, approximate country, and device or browser
+				type — so I can see how the site performs and which posts are useful.
+			</p>
+			<p>
+				Your IP address is used momentarily at Cloudflare's edge to derive your approximate country
+				and is <strong>not stored</strong>. There is no fingerprinting, no cross-site tracking, no
+				advertising, and no selling of data. The legal basis for this limited processing is
+				legitimate interest, and because nothing is stored on your device, no consent banner is
+				required. See
+				<a href="https://www.cloudflare.com/trust-hub/privacy/" target="_blank" rel="noopener noreferrer">Cloudflare's privacy commitments</a>
+				for how they handle the data on my behalf.
+			</p>
+			<p>
+				Cloudflare acts as my data processor for this, under its
+				<a href="https://www.cloudflare.com/cloudflare-customer-dpa/" target="_blank" rel="noopener noreferrer">Data Processing Addendum</a>;
+				any transfer of data outside the UK or EEA is covered by Standard Contractual Clauses and the
+				UK/EU–US Data Privacy Framework. You have the right to ask what is held about you and to
+				request its erasure — though, since no identifying data is stored, there is nothing tied to
+				you to retrieve. Questions go via the <a href="/about">About</a> page.
 			</p>
 
 			<h2>If this changes</h2>
 			<p>
-				If a privacy-friendly way to measure traffic is added in future, this page will be updated
-				first — describing exactly what is collected, why, the legal basis, and how to opt out. Any
-				such tooling will be chosen to avoid collecting personal data wherever possible.
+				If anything more than this is ever collected, this page will be updated first — describing
+				exactly what is collected, why, the legal basis, and how to opt out. Any such tooling will be
+				chosen to avoid collecting personal data wherever possible.
 			</p>
 
 			<p>Questions? Get in touch via the <a href="/about">About</a> page.</p>
