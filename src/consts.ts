@@ -2,11 +2,6 @@
 // You can import this data from anywhere in your site by using the `import` keyword.
 
 export const SITE_TITLE = 'hungovercoders';
-
-// Cloudflare Web Analytics beacon token (the value from the dashboard's
-// data-cf-beacon='{"token":"..."}' snippet). It is not a secret — it ships in
-// the page HTML. Leave blank to switch the cookieless beacon off entirely.
-export const CF_BEACON_TOKEN = '6a7288858b584e5cb2c9c358dc8f8bde';
 export const SITE_DESCRIPTION = 'Folk tales of working in tech from the South Wales valleys. Built with the AI on the team and the dog on the sofa. Honest walkthroughs, strong opinions a model couldn\'t form, and the occasional Sunday-morning hangover.';
 
 // Giscus (GitHub Discussions-backed comments). Fill in these four values to
