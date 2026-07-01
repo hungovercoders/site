@@ -8,7 +8,7 @@ All headers are set via Cloudflare's `_headers` file convention at [`public/_hea
 
 Site-wide defaults under `/*`:
 
-- `Content-Security-Policy` — `default-src 'self'` with no third-party origins (no analytics, tag manager, or tracking). `'unsafe-inline'` is kept for `script-src` (Astro emits the theme/TOC/code-copy scripts inline) and `style-src` (Astro injects scoped `<style>` blocks inline). These two structural relaxations are documented in [`CSP_EXCEPTIONS.md`](./CSP_EXCEPTIONS.md).
+- `Content-Security-Policy` — `default-src 'self'`. The only third-party origins are Cloudflare Web Analytics (`static.cloudflareinsights.com` in `script-src`, `cloudflareinsights.com` in `connect-src`) — a cookieless beacon, no other tracking. `'unsafe-inline'` is kept for `script-src` (Astro emits the theme/TOC/code-copy scripts inline) and `style-src` (Astro injects scoped `<style>` blocks inline). All of these relaxations are documented in [`CSP_EXCEPTIONS.md`](./CSP_EXCEPTIONS.md).
 - `X-Frame-Options: DENY` + CSP `frame-ancestors 'none'`
 - `X-Content-Type-Options: nosniff`
 - `Cross-Origin-Opener-Policy: same-origin`
