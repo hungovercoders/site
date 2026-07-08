@@ -41,7 +41,7 @@ Before running anything, learn enough about the target to predict where it'll bi
 
 2. **Does the target already have GitHub Actions workflows?** Slopstopper adds 21 new `ss-*.yml` workflows. They're all `ss-`-prefixed so they group in the Actions UI, but the user should know they're getting that many checks running on every PR.
 
-3. **What `engines.node` does the target need?** Slopstopper workflows read `${{ vars.SLOPSTOPPER_NODE_VERSION || '20' }}` for their `actions/setup-node` step. If the target needs Node 22+ (Astro 6, recent Next, SvelteKit kit), set `node_version:` in `.slopstopper.yml` AND run `gh variable set SLOPSTOPPER_NODE_VERSION --body 22` to push it into the repo variable that workflows read. One source of truth; survives `install.sh` re-runs.
+3. **What `engines.node` does the target need?** Node is pinned in `mise.toml` (`[tools] node`) — mise installs it locally and the workflows get the same version from that pin via `jdx/mise-action` (no `setup-node` step, no repo variable). `install.sh` seeds `node = "20"` on first install and leaves any existing node pin / `.node-version` / `.nvmrc` alone. If the target needs Node 22+ (Astro 6, recent Next, SvelteKit), run `mise use node@22`. One source of truth; survives `install.sh` re-runs.
 
 4. **What's the deploy model and serve story?** Reliability/DAST workflows can target either a deployed URL or a `server.js`-served local build on port 8080. If the target is anything other than a static site (Astro, Next, SvelteKit, a backend app) you'll need either a `server.js` shim or workflows pointed at a deployed environment. Pair this with the deploy model — Cloudflare Workers / Vercel / Netlify / GH Pages each call for a different answer.
 
@@ -92,7 +92,7 @@ sandbox. The piped form remains the canonical convenience command for humans:
 curl -fsSL https://raw.githubusercontent.com/hungovercoders/slopstopper/main/install.sh | bash
 ```
 
-The installer is idempotent. Re-running it pulls newer checks but respects deletions (tracked via `.ss/.workflows-installed`). It does **not** bump `slopstopper-cli`: the CLI is pinned per-repo in `mise.toml` (`[tools]` "pipx:slopstopper-cli"), and a plain re-run honours that pin via `mise use` (which installs exactly that version). A breaking upstream release therefore can't reach the repo until someone moves the pin with `install.sh --upgrade-cli` (latest) or `install.sh --cli-version X.Y.Z` (exact). An older install that pinned `cli_version` in `.slopstopper.yml` is migrated into `mise.toml` and the dead key stripped on the next run. All slopstopper files live under the `ss` namespace — your repo's existing files are not touched. If a pre-CLI install left a `.ss/scripts/` directory behind, the installer scrubs it on first run.
+The installer is idempotent. Re-running it pulls newer checks but respects deletions (tracked via `.ss/.workflows-installed`). It does **not** bump `slopstopper-cli`: the CLI is pinned per-repo in `mise.toml` (`[tools]` "pipx:slopstopper-cli"), and a plain re-run honours that pin via `mise use` (which installs exactly that version). A breaking upstream release therefore can't reach the repo until someone moves the pin with `install.sh --upgrade-cli` (latest) or `install.sh --cli-version X.Y.Z` (exact). An older install that pinned `cli_version` in `.slopstopper.yml` has the value migrated into `mise.toml` and the dead key stripped on the next run; a dead `node_version` key (never read — node lives in `mise.toml`) is likewise stripped. All slopstopper files live under the `ss` namespace — your repo's existing files are not touched. If a pre-CLI install left a `.ss/scripts/` directory behind, the installer scrubs it on first run.
 
 **`install.sh` also installs the SlopStopper Claude Code skills at project level** — `<target>/.claude/skills/slopstopper-{install,triage}/SKILL.md` — so every contributor that clones the repo picks them up automatically (Claude Code auto-discovers project-level skills). Commit the resulting files alongside the workflows. Pass `--no-skills` or set `SLOPSTOPPER_NO_SKILLS=1` to disable. To refresh just the skills later without re-running the whole installer, use `install-skill.sh` from inside the repo. If you've previously run an older version of `install-skill.sh` that wrote to `~/.claude/skills/slopstopper-*`, the installer warns you so you can clean up the user-level copies before they shadow the project-level ones.
 
@@ -104,12 +104,13 @@ Three categories of write, in order of "how much trust to extend on re-run":
 
 - `Taskfile.ss.yml`, `.ss/server.js`, `.ss/.workflows-installed`
 - Workflows under `.github/workflows/ss-*.yml` that are in `GENERIC_WORKFLOWS` and not listed in `.slopstopper.yml` `workflows.disabled`
-- `mise.toml` — the `"pipx:slopstopper-cli"` + `task` pins (written via `mise use`); `slopstopper-cli` itself is installed/activated by mise at the **pinned** version. A plain re-run never bumps it; `--upgrade-cli` / `--cli-version` do
+- `mise.toml` — the `"pipx:slopstopper-cli"` + `task` + `node` pins (written via `mise use`); `slopstopper-cli` itself is installed/activated by mise at the **pinned** version. A plain re-run never bumps the CLI; `node` is seeded (`= "20"`) only when the repo doesn't already declare one; `--upgrade-cli` / `--cli-version` move the CLI pin
 - `<repo>/.claude/skills/slopstopper-install/SKILL.md` and `<repo>/.claude/skills/slopstopper-triage/SKILL.md` (project level — opt out with `--no-skills`)
+- `.githooks/pre-push` — the pre-push hygiene gate (opt out with `--no-hooks`). The *file* is always refreshed; the `core.hooksPath` **wiring** is only set when safe (see next list — it's left alone if the adopter runs their own hook manager)
 
 **Seeded only if missing — adopter-owned, NEVER overwritten on re-run:**
 
-- `.slopstopper.yml` (config; once it exists `install.sh` never touches it — **except** stripping a legacy `cli_version` pin line, migrated into `mise.toml` once). The CLI pin now lives in `mise.toml`, which the installer writes on first install and rewrites only when you pass `--upgrade-cli` / `--cli-version`
+- `.slopstopper.yml` (config; once it exists `install.sh` never touches it — **except** stripping a legacy `cli_version` pin line (value migrated into `mise.toml` once) and a dead `node_version` key (just removed — node lives in `mise.toml`)). The CLI + node pins now live in `mise.toml`, which the installer writes on first install and rewrites only when you pass `--upgrade-cli` / `--cli-version`
 - `.github/labeler.yml`, `.zap/rules.tsv`, `.markdownlint.json`
 - Root `Taskfile.yml` — only if absent; otherwise install.sh prints the `includes:` block to paste in
 - `package.json` — only if absent (otherwise see below)
@@ -120,6 +121,7 @@ Three categories of write, in order of "how much trust to extend on re-run":
 - `package.json` devDeps merge: adds missing keys; existing keys are kept on version conflict (warning printed, not error).
 - `.gitignore`: appends a `# slopstopper begin` / `# slopstopper end` marker-bracketed block exactly once. Re-runs detect the marker and skip; adopter's existing lines are never edited.
 - `public/_headers` (only if `public/` exists): appends a commented-out security-headers baseline inside `# slopstopper security headers begin/end` markers. Same idempotent skip on re-run.
+- `core.hooksPath` (git config, not a file): set to `.githooks` **only** when the adopter has no custom `core.hooksPath` and no other hook manager (`.husky/`, `lefthook.yml`/`.yaml`, `.pre-commit-config.yaml`). If they already manage hooks, the installer drops `.githooks/pre-push` in but leaves their config alone and prints a one-line opt-in. `--no-hooks` / `SLOPSTOPPER_NO_HOOKS=1` skips the whole step.
 
 **Everything else is left alone** — source code, build outputs, custom workflows under `.github/workflows/` outside the `ss-*` namespace, generic configs (`.eslintrc`, `tsconfig.json`, etc.), and anything under `app/`, `src/`, `worker/`, etc.
 
@@ -138,6 +140,7 @@ Full two-step variants (all flags, optional explicit target dir):
 curl -fsSL https://raw.githubusercontent.com/hungovercoders/slopstopper/main/install.sh -o install.sh
 bash install.sh [TARGET_DIR]                   # default Task mode
 bash install.sh --no-task [TARGET_DIR]         # CLI-direct mode
+bash install.sh --no-hooks [TARGET_DIR]        # skip the pre-push hygiene hook
 ```
 
 ## Step 3 — What just landed
@@ -145,7 +148,7 @@ bash install.sh --no-task [TARGET_DIR]         # CLI-direct mode
 Sanity-check the install dropped what you expect:
 
 - `slopstopper-cli` — installed and activated by **mise**, **pinned in `mise.toml`** (`[tools]` "pipx:slopstopper-cli"). Confirm with `slopstopper --version` (must equal the pin; ensure mise is activated in your shell). Every check runs through this. First install records the latest published version as the pin; it never moves on a plain re-run.
-- `mise.toml` — the per-repo toolchain pin (`"pipx:slopstopper-cli"` + `task`). Both `install.sh` (local) and the `ss-*.yml` workflows (`jdx/mise-action`) read it, so local and CI run the same version. Commit it. Move the CLI pin deliberately with `install.sh --upgrade-cli` or `install.sh --cli-version X.Y.Z` (both wrap `mise use`). A legacy `cli_version` in `.slopstopper.yml` is migrated here and removed on the next run.
+- `mise.toml` — the per-repo toolchain pins (`"pipx:slopstopper-cli"` + `task` + `node`). Both `install.sh` (local) and the `ss-*.yml` workflows (`jdx/mise-action`) read it, so local and CI run the same versions — node included, with no separate `setup-node` step. Commit it. Move the CLI pin deliberately with `install.sh --upgrade-cli` or `install.sh --cli-version X.Y.Z` (both wrap `mise use`). A legacy `cli_version` in `.slopstopper.yml` is migrated here and removed on the next run; a dead `node_version` key is removed too.
 - `Taskfile.ss.yml` — thin `task ss:*` shims that each call `slopstopper run <category>:<check>` under the covers. Useful for adopters who already drive their dev loop with `task`.
 - `Taskfile.yml` — created if missing (otherwise: needs manual `includes:` block per Step 1.1).
 - `.ss/server.js` — tiny static-server shim for serving the built site on `:8080` during the local loop. The **only** file the installer seeds into `.ss/` for a fresh adopter — every other CLI-managed file (Playwright specs, Playwright config, lighthouserc dev + prod) lives inside the slopstopper-cli wheel and only lands in `.ss/` if you opt in by writing a same-named override there.
@@ -153,6 +156,7 @@ Sanity-check the install dropped what you expect:
 - `.github/workflows/ss-*.yml` — the curated installer set (~21 files). Each workflow body is now ~8 lines: install CLI, `slopstopper run …`, `slopstopper emit … --target pr-comment|issue`.
 - `package.json` — devDeps merged.
 - `.claude/skills/slopstopper-install/SKILL.md` + `.claude/skills/slopstopper-triage/SKILL.md` — the project-level Claude Code playbooks. Auto-discovered by Claude Code for any contributor working in this repo. Commit them.
+- `.githooks/pre-push` — the pre-push hygiene gate (runs `task ss:hygiene:test` before every push). Commit it. On a normal install the installer also sets `git config core.hooksPath .githooks`; confirm with `git config --get core.hooksPath`. If the adopter already runs husky/lefthook/pre-commit (or a custom hooksPath), the file lands but the wiring is skipped with an opt-in note (run `git config core.hooksPath .githooks`, or add `task ss:hygiene:test` to their own manager). Skipped entirely under `--no-hooks`.
 
 **What's NOT there any more** (if you're updating from a pre-CLI install): `.ss/scripts/` (every Python/bash script lives in `slopstopper-cli`); and `.ss/playwright.config.js`, `.ss/lighthouserc.json`, `.ss/lighthouserc.prod.json`, `.ss/tests/` (now bundled in the wheel — installer scrubs unmodified byte-equal copies on re-run, but leaves customized files alone since they'll override via the CLI's templates resolver).
 
@@ -193,8 +197,6 @@ The installer seeds a `.slopstopper.yml` config file at the repo root (if one do
 The seeded file is fully commented; the main knobs to fill in:
 
 ```yaml
-node_version: '22'              # match your package.json engines.node
-
 headers:
   source: public/_headers       # or worker/headers.json, or null to skip the check
   format: cloudflare-text       # or json, or auto
@@ -231,12 +233,12 @@ hygiene:
 
 Larger sites should also opt into `reliability.coverage.*` modes so accessibility/SEO/broken-links audit the whole sitemap on main and only changed pages on PRs — see [`.slopstopper.yml.example`](https://github.com/hungovercoders/slopstopper/blob/main/.slopstopper.yml.example) for the schema reference and resolution order.
 
-### Push the Node version to a GitHub repo variable
+### Set the Node version (if not 20)
 
-Workflows read `${{ vars.SLOPSTOPPER_NODE_VERSION || '20' }}` — set the variable from `.slopstopper.yml`:
+Node is pinned in `mise.toml` (`[tools] node`), which both mise locally and CI (via `jdx/mise-action`) read — no `setup-node` step or repo variable. `install.sh` seeds `node = "20"` only when the repo doesn't already declare one. To use a different version:
 
 ```bash
-gh variable set SLOPSTOPPER_NODE_VERSION --body "$(grep '^node_version:' .slopstopper.yml | cut -d\' -f2)"
+mise use node@22
 ```
 
 ### URLs: GitHub repo variables vs. hardcoded vs. inert
@@ -345,7 +347,7 @@ The command:
 
 **Skip this section on a first install.** It's relevant only when `.slopstopper.yml` and `.ss/.workflows-installed` both existed in Step 1 (mode-detection) — i.e. the installer just ran in-place over an existing slopstopper install.
 
-`install.sh` is idempotent but **not transactional** — every workflow YAML in `GENERIC_WORKFLOWS`, `Taskfile.ss.yml`, and `.ss/server.js` is rewritten wholesale on every run, and the CLI is reinstalled at the **pinned** version in `mise.toml` (a refresh never bumps it — see "Move the CLI pin" below). A refresh of an older install also migrates a legacy `cli_version` from `.slopstopper.yml` into `mise.toml` and strips the dead key. A few classes of customization get wiped and need re-applying; a few classes of upstream change need manual catch-up because the installer doesn't drag everything across. Walk this section before the local-verify loop in Step 7.
+`install.sh` is idempotent but **not transactional** — every workflow YAML in `GENERIC_WORKFLOWS`, `Taskfile.ss.yml`, and `.ss/server.js` is rewritten wholesale on every run, and the CLI is reinstalled at the **pinned** version in `mise.toml` (a refresh never bumps it — see "Move the CLI pin" below). A refresh of an older install also migrates a legacy `cli_version` from `.slopstopper.yml` into `mise.toml` and strips it, and strips a dead `node_version` key. A few classes of customization get wiped and need re-applying; a few classes of upstream change need manual catch-up because the installer doesn't drag everything across. Walk this section before the local-verify loop in Step 7.
 
 ### Diff installed workflows against upstream
 
@@ -361,18 +363,14 @@ Any line in the output is an `ss-*.yml` workflow that exists upstream but isn't 
 
 ### Re-apply customizations the installer wiped
 
-The installer refreshes `Taskfile.ss.yml`, the `.ss/` overlay, and the `ss-*.yml` workflows wholesale. Anything hand-edited in those files is gone — but `.slopstopper.yml` is **never** overwritten by the installer, so the bulk of customization (node version, headers source/format, URLs, pages, og-image path, disabled workflows, hygiene thresholds) survives every re-run.
+The installer refreshes `Taskfile.ss.yml`, the `.ss/` overlay, `.githooks/pre-push`, and the `ss-*.yml` workflows wholesale. Anything hand-edited in those files is gone — but `.slopstopper.yml` is **never** overwritten by the installer, so the bulk of customization (headers source/format, URLs, pages, og-image path, disabled workflows, hygiene thresholds) survives every re-run. The Node version lives in `mise.toml` and is seeded only when absent, so a bump you made there survives too.
 
 What still needs re-checking after a refresh:
 
 - **Anything hand-edited inside `ss-*.yml` workflow files** beyond what `.slopstopper.yml` covers. Common case: extra workflow-level `permissions:` for a custom integration, a non-standard schedule, or workflow-level env vars beyond the documented URL/PAGES set. Diff against upstream to find them. Push bespoke wording into the check's META in `slopstopper-cli` upstream rather than hand-editing the YAML locally — workflow edits don't survive `install.sh` re-runs.
 - **Anything hand-edited inside `.ss/tests/*.spec.ts`, `.ss/playwright.config.js`, or `.ss/lighthouserc.json`.** These used to be seeded by `install.sh` but now live inside the `slopstopper-cli` wheel. The installer's byte-equality scrub removes unmodified copies (so the wheel's version wins via the templates resolver); customized copies survive in `.ss/` and continue to override.
-- **GitHub repo variables.** If `.slopstopper.yml` `node_version` changed, re-sync the `SLOPSTOPPER_NODE_VERSION` repo variable. If URLs are mirrored as repo variables, push those too:
-
-  ```bash
-  NODE_VER=$(slopstopper config get node_version 20)
-  gh variable set SLOPSTOPPER_NODE_VERSION --body "$NODE_VER"
-  ```
+- **The Node version pin.** Lives in `mise.toml` (`[tools] node`), not `.slopstopper.yml`. `install.sh` seeds `node = "20"` only when none is declared, so a bump you made (`mise use node@22`) survives a refresh and there's nothing to re-sync — mise locally and CI via `jdx/mise-action` read the same pin. If you mirror URLs as repo variables, re-push those after editing `.slopstopper.yml`.
+- **The pre-push hook file** (`.githooks/pre-push`) is refreshed wholesale, so hand-edits to it are lost — it's slopstopper-owned. The `core.hooksPath` **wiring** is re-applied on every refresh **when safe** — i.e. when hooksPath is unset or already `.githooks` and no other hook manager is present. It won't override a hooksPath the adopter pointed elsewhere, or a husky/lefthook/pre-commit setup. Note the flip side: an adopter who simply *unset* hooksPath will have it re-wired on the next refresh (empty is indistinguishable from never-set) — to opt out durably, pass `--no-hooks` on refreshes or point hooksPath at their own dir.
 
 - **`.github/labeler.yml`** if upstream's labeler template added categories you want (the installer never overwrites your existing file, so new categories don't land automatically).
 
@@ -460,6 +458,8 @@ This is the spine of a good install. `task ss:<category>:<action>` is the canoni
 
 If the target was installed with `--no-task` (rare; opt-out for adopters who don't want Task in their CI), replace every `task ss:<X>` below with `slopstopper run <X>` — same code, same exit codes, same reports.
 
+The `task ss:hygiene:test` aggregate in Pass A is also what the installed **pre-push hook** runs automatically on every push (unless installed with `--no-hooks`), so once Pass A is green the hook won't block the push. It's a gate, not a substitute for this step: the hook only runs the static hygiene subset, so you still drive the security and Pass B server/browser checks to green here by hand.
+
 **Two passes, in order:**
 
 ### Pass A — Static checks (no URL, no build needed, runs in seconds)
@@ -499,6 +499,7 @@ task ss:reliability:smoke         -- http://localhost:8080
 task ss:reliability:accessibility -- http://localhost:8080
 task ss:reliability:cwv           -- http://localhost:8080
 task ss:reliability:seo           -- http://localhost:8080
+task ss:reliability:llms-txt      -- http://localhost:8080    # needs an app/llms.txt
 task ss:reliability:broken-links         -- http://localhost:8080
 task ss:security:dast             -- http://localhost:8080    # needs Docker for OWASP ZAP
 ```
@@ -555,6 +556,7 @@ Triggers that require revisiting this skill:
 - A new env var is introduced for a dynamic check → add to the URL-defaults list in Step 4 and to the Pass B example in Step 7.
 - A new `slopstopper` subcommand is added (e.g. `init`, `inspect`) → mention in the intro and surface in the relevant Step.
 - The installer's behaviour changes (new tracked-files mechanism, different deletion semantics, additional refresh targets, CLI install path change) → update the "Refresh-only" section's "what the installer wipes / leaves alone" lists.
+- The pre-push hook changes (which checks it runs, the `--no-hooks` flag, the `core.hooksPath` wiring guard, or the `.githooks/pre-push` path) → update Step 3's inventory, the "What `install.sh` writes" lists, Step 7's hook callout, and the Refresh-only hook bullet (and the gotcha row in `slopstopper-triage`).
 - A new hardcoded-on-reinstall surface emerges (another file the installer overwrites that users commonly hand-edit) → add to the "Re-apply customizations" subsection of the "Refresh-only" section.
 
 The companion to this is `AGENTS.md` in the slopstopper repo: its "When making changes" table flags the skill as a follow-on target whenever a change of the above kind ships. If you're updating slopstopper itself and that table isn't pointing readers back here, fix that first.

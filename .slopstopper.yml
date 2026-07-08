@@ -23,13 +23,6 @@
 #   - Anything platform-specific that's already a Cloudflare/Vercel/Netlify
 #     native config (e.g. wrangler.jsonc, vercel.json, netlify.toml)
 
-# ── Node version pin ─────────────────────────────────────────────────
-# Workflows use ${{ vars.SLOPSTOPPER_NODE_VERSION || '20' }} in their
-# setup-node steps. If your project needs Node 22+ (Astro 6, recent
-# Next, SvelteKit), bump this AND set the GitHub repo variable:
-#   gh variable set SLOPSTOPPER_NODE_VERSION --body "$(yq '.node_version' .slopstopper.yml)"
-# Or set it directly via the GitHub repo settings UI.
-node_version: '22'
 
 # ── Headers drift check adapter ──────────────────────────────────────
 # The hygiene:csp-exceptions check enforces that every per-path CSP
