@@ -17,5 +17,7 @@ ss-reliability-broken-links-check.yml
 ss-reliability-core-web-vitals.yml
 ss-reliability-seo-check.yml
 ss-reliability-llms-txt-check.yml
+ss-reliability-robots-txt-check.yml
+ss-reliability-sitemap-check.yml
 ss-hygiene-doc-updater.md
 ss-hygiene-doc-updater.lock.yml

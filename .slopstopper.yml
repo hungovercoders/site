@@ -132,6 +132,13 @@ hygiene:
 #       - 'tailwind.config.*'
 #       - 'package.json'
 
+# ── sitemap check ────────────────────────────────────────────────────
+# Astro's @astrojs/sitemap integration emits a sitemap index, not a flat
+# sitemap.xml — point the completeness check at the served path.
+reliability:
+  sitemap:
+    sitemap_path: /sitemap-index.xml
+
 # ── Workflows to skip on this repo ───────────────────────────────────
 # install.sh removes any workflow named here from .github/workflows/
 # (and remembers the deletion via .ss/.workflows-installed so re-runs

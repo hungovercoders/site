@@ -98,6 +98,65 @@ tasks:
     cmds:
       - slopstopper run reliability:llms-txt -- {{.CLI_ARGS}}
 
+  reliability:robots-txt:
+    desc: Audit robots.txt for discoverability + accidental de-indexing on a live URL
+    summary: |
+      Fetches /robots.txt and asserts it is present, reachable and does not
+      sabotage discoverability. The headline assertion is the de-index guard:
+      a blanket `Disallow: /` under `User-agent: *` removes the whole site
+      from search. The hard-fail bar is scoped to real damage (reachable,
+      non-empty, no blanket disallow, at least one `Sitemap:`); an `Llms:`
+      pointer and the text/plain content-type are advisory unless escalated
+      via config.
+
+      Configuration (environment variables; allow_disallow_all / require_llms
+      / check_links are also read from .slopstopper.yml's
+      `reliability.robots_txt`):
+        ROBOTS_TXT_TEST_URL  - base URL to audit (required)
+        ROBOTS_TXT_PATH      - path to the file (default: /robots.txt)
+
+      Flags:
+        --check-links         - HEAD-verify Sitemap:/Llms: targets resolve
+        --require-llms        - fail if the `Llms:` pointer is missing
+        --allow-disallow-all  - permit a blanket `Disallow: /` without failing
+
+      Usage:
+        task ss:reliability:robots-txt -- https://your-site.example.com
+        ROBOTS_TXT_TEST_URL=https://your-site.example.com task ss:reliability:robots-txt
+    cmds:
+      - slopstopper run reliability:robots-txt -- {{.CLI_ARGS}}
+
+  reliability:sitemap:
+    desc: Audit sitemap.xml completeness + drift by crawling a live URL
+    summary: |
+      Crawls the site from `/` and cross-checks the served sitemap.xml
+      against the pages it actually reaches. Where llms-txt / robots-txt
+      assert those files *exist*, this asserts sitemap.xml is *complete
+      and current*: a reachable page missing from the sitemap (hard-fail)
+      or a `<loc>` that 404s (hard-fail) is drift. llms.txt page gaps are
+      advisory. Both a flat `<urlset>` and a nested `<sitemapindex>` →
+      child sitemaps are supported; neither shape is flagged.
+
+      Configuration (environment variables; max_pages / ignore_paths /
+      allow_orphans / require_llms_complete / sitemap_path / llms_path are
+      also read from .slopstopper.yml's `reliability.sitemap`):
+        SITEMAP_TEST_URL  - base URL to audit (required)
+        SITEMAP_PATH      - path to the sitemap (default: /sitemap.xml)
+
+      Flags:
+        --path /sitemap.xml       - sitemap location
+        --llms-path /llms.txt     - llms.txt location for the cross-check
+        --max-pages N             - crawl bound (default: 200)
+        --ignore GLOB             - exclude paths from crawl + diff (repeatable)
+        --strict-orphans          - fail on sitemap entries nothing links to
+        --require-llms-complete   - fail if a reachable page is absent from llms.txt
+
+      Usage:
+        task ss:reliability:sitemap -- https://your-site.example.com
+        SITEMAP_TEST_URL=https://your-site.example.com task ss:reliability:sitemap
+    cmds:
+      - slopstopper run reliability:sitemap -- {{.CLI_ARGS}}
+
   reliability:accessibility:
     desc: Run accessibility audit against a live URL
     summary: |
