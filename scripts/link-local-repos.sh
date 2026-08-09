@@ -9,7 +9,6 @@ PARENT_DIR=".."
 
 # Temporarily excluded from the site pending content review.
 EXCLUDE=(
-  "learn.bento"
   "learn.claude-code"
 )
 
