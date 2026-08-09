@@ -5,8 +5,8 @@ TARGET_DIR="training-repos"
 
 # Temporarily excluded pending content review:
 #   learn.bento
-#   learn.claude-code
 REPOS=(
+  "learn.claude-code"
 )
 
 mkdir -p "$TARGET_DIR"
