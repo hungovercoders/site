@@ -14,7 +14,7 @@ image:
 
 Today I want to start small, with just enough to fit in our heads and really enjoy ourselves developing. If we're not careful some of the joy of engineering can be lost with heavy usage of AI, and whilst AI can accelerate us, lets ensure we use good tools with it that allow us to interact optimally with the things we, or yes AI, are building. An elegant codebase laid out well, coupled with tools that consider the joy of development, make for a happy builder. Two of my favourite data tools for just this are [duckdb](https://duckdb.org) and [harlequin](https://harlequin.sh), lets crack open a can and find out why!
 
-## What we are going to do?
+## What are we going to do?
 
 This is the first in a three part series on delightful data development with duckdb, harlequin and [dbt](https://www.getdbt.com/). This first post covers a simple setup for local development with duckdb and harlequin just to realise how enjoyable the tools are to work with before building a more rigorous engineering system around it.
 
@@ -266,7 +266,7 @@ theme = "dracula"
 limit = 500
 ```
 
-Now a plain `uv run harlequin analytics.duckdb` starts up dracula themed with your row limit and no flags needed.
+Now a plain `uv run harlequin` starts up dracula themed with your row limit and no flags needed.
 
 ### Harlequin Cheat Sheet
 
@@ -372,14 +372,18 @@ But wait... there's more!
 
 Harlequin comes with [hsql](https://harlequin.sh/docs/hsql) for headless interactions. This is the tooling that is going to make pure cli enthusiasts and agents down tequilas and dance like its 1999.
 
+Copy and paste this hsql script into your terminal and execute.
+
 ```bash
 uv run hsql \
   -c "select * from read_parquet('data/summary/*.parquet') limit 10;"
 ```
 
+This will output the sql query direct to your cli!
+
 ![hsql First Query](/assets/2026-09-13-delightful-local-data-engineering-with-duckdb-and-harlequin/hsql_first_query.png)
 
-You can output to different formats such as csv:
+You can also output to different formats such as csv:
 
 ```bash
 uv run hsql --csv \
