@@ -385,9 +385,10 @@ uv run hsql --csv \
   -c "select * from read_parquet('data/summary/*.parquet') limit 10;"
 ```
 
-Among others everyones favourite these days - markdown! Below is outputting the markdown to a persisted file too.
+Among others everyones favourite these days - markdown! Below is outputting the markdown to a persisted file too. We make the output directory first so the redirect has somewhere to land.
 
 ```bash
+mkdir -p data/markdown
 uv run hsql --markdown \
   -c "select * from read_parquet('data/summary/*.parquet');" > data/markdown/summary.md
 ```
