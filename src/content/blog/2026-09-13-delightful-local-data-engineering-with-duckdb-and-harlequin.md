@@ -12,7 +12,7 @@ image:
   path: /assets/2026-09-13-delightful-local-data-engineering-with-duckdb-and-harlequin/link.png
 ---
 
-Lets start small, with just enough to fit in our heads and really enjoy ourselves. The joy of engineering has got lost with AI, and whilst AI can accelerate us, lets ensure we use good tools that allow us to interact with the things we, or yes AI, are building. An elegant codebase laid out well coupled with tools that consider the joy of development make for a happy builder. Two of my favourite data tools are [duckdb](https://duckdb.org) and [harlequin](https://harlequin.sh), lets crack open a can and find out why!
+Today I want to start small, with just enough to fit in our heads and really enjoy ourselves developing. If we're not careful some of the joy of engineering can be lost with heavy usage of AI, and whilst AI can accelerate us, lets ensure we use good tools with it that allow us to interact optimally with the things we, or yes AI, are building. An elegant codebase laid out well, coupled with tools that consider the joy of development, make for a happy builder. Two of my favourite data tools for just this are [duckdb](https://duckdb.org) and [harlequin](https://harlequin.sh), lets crack open a can and find out why!
 
 ## What we are going to do?
 
