@@ -12,13 +12,11 @@ image:
   path: /assets/2026-09-13-delightful-local-data-engineering-with-duckdb-and-harlequin/link.png
 ---
 
-Lets start small, with just enough to fit in our heads and really enjoy ourselves. The joy of engineering has got lost with AI, and whilst AI can accelerate us, lets ensure we use good tools that allow us to interact with the things we, or yes AI, are building. An elegant codebase laid out well coupled with tools that consider the joy of development make for a happy builder. Two of my favourite data tools are duckdb and harlequin, lets crack open a can and find out why!
-
-This is a guided path, not the source of truth. The authoritative references are the [duckdb docs](https://duckdb.org/docs/) and [harlequin.sh](https://harlequin.sh/) — this post is just the route through them I'd already walked, with the boring bits taken out.
+Lets start small, with just enough to fit in our heads and really enjoy ourselves. The joy of engineering has got lost with AI, and whilst AI can accelerate us, lets ensure we use good tools that allow us to interact with the things we, or yes AI, are building. An elegant codebase laid out well coupled with tools that consider the joy of development make for a happy builder. Two of my favourite data tools are [duckdb](https://duckdb.org) and [harlequin](https://harlequin.sh), lets crack open a can and find out why!
 
 ## What we are going to do?
 
-This is the first in a three part series on delightful data development with duckdb, harlequin and dbt. This first post covers a simple setup for local development with duckdb and harlequin just to realise how enjoyable the tools are to work with before building a more rigorous engineering system around it.
+This is the first in a three part series on delightful data development with duckdb, harlequin and [dbt](https://www.getdbt.com/). This first post covers a simple setup for local development with duckdb and harlequin just to realise how enjoyable the tools are to work with before building a more rigorous engineering system around it.
 
 Our codebase today should look not much more than the below:
 
@@ -41,8 +39,8 @@ That's how it always begins - very small.
 ## Pre-Requisites
 
 - [VS Code](https://code.visualstudio.com/download) (or your editor of choice)
-- [uv](https://docs.astral.sh/uv/) — the python package manager we'll use for setup
-- A terminal you're happy living in for the afternoon
+- [uv](https://docs.astral.sh/uv/) for python and package management
+- A terminal
 
 ## Setup with UV
 
@@ -60,33 +58,33 @@ Your repo should end up looking something like this:
 
 ## Ok, what did we just install?
 
-We're a bit bleary eyed from the night before and just blindly followed some tutorial on the interweb. Did I just tell you to install duck**d**estroy**b**ackups? Did you inadvertently just download a faker for identity theft? Luckily - no. Here's the round we just bought.
+We're a bit bleary eyed from the night before and just blindly followed some tutorial on the interweb. Did I just tell you to install duck**d**estroy**b**ackups? Did you inadvertently just download a faker for identity theft? Luckily - no.
 
 ### DuckDB
 
-An in-process analytics database. Think SQLite, but built for the columnar, group-by-and-aggregate work data folk actually do. There's no server to start and no cluster to babysit — it runs inside your python process and it's very, very quick. This is the query engine doing all the heavy lifting today.
+[DuckDB](https://duckdb.org) is an in-process analytics database. Think SQLite but pointed at analytics work - columns, aggregations, big group bys. There's no server and no cluster, it runs inside your python process and it's fast. It's the engine doing the actual work today.
 
 ### Harlequin
 
-A SQL IDE that lives entirely in your terminal. It talks to duckdb by default, so you point it at a folder of files and start querying immediately. It's the lovely little front end that makes local exploration feel like a treat rather than a chore.
+[Harlequin](https://harlequin.sh) is a SQL IDE that runs in your terminal. It uses duckdb out of the box, so you point it at some files and start querying. It's the bit that makes poking around your data actually enjoyable.
 
 ### Pandas
 
-The dataframe workhorse we all know. We only use it here to shape our fake data and write it out to parquet — duckdb does the querying, pandas does the generating.
+[Pandas](https://pandas.pydata.org) is the python dataframe library. We only use it here to build our fake data and write it out to parquet.
 
 ### PyArrow
 
-The plumbing that makes parquet work. It's the columnar format library pandas leans on to write those parquet files, and it's what lets duckdb read them back so fast. You rarely call it directly; it just needs to be in the room.
+[PyArrow](https://arrow.apache.org/docs/python/) is what reads and writes the parquet files under the hood. You won't call it directly, it just needs to be installed.
 
 ### Faker
 
-The mischief-maker. Faker conjures up believable-looking nonsense — names, timestamps, countries — so we've got something to query without waiting on a real system. Ours is going to fake a craft beer shop.
+[Faker](https://faker.readthedocs.io) makes up realistic looking data for us - names, timestamps, countries - so we've got something to query. Ours is going to run a fake craft beer shop.
 
 Now back to the tutorial - lets make some faking events!
 
 ## Generate Fake Events
 
-Keeping in the spirit of simplicity, we're not going to spin up a kafka cluster to generate some events, we're going to use a simple python script. We're pretending to run a little online shop that sells [Tiny Rebel](https://www.tinyrebel.co.uk/) beer by the case, and every click, search and checkout throws off an event. Create a file in your repo called `scripts/generate_fake_events.py` and paste the below into it:
+Keeping in the spirit of simplicity, we're not going to spin up a [kafka](https://kafka.apache.org/) cluster to generate some events, we're going to use a simple python script. We're pretending to run a little online shop that sells [Tiny Rebel](https://www.tinyrebel.co.uk/) beer by the case, and every click, search and checkout throws off an event. Create a file in your repo called `scripts/generate_fake_events.py` and paste the below into it:
 
 ```python
 from pathlib import Path
@@ -152,7 +150,7 @@ uv run python scripts/generate_fake_events.py
 
 We've not added a .gitignore yet and this chunky data is going to happily commit to your source control if we don't do something about it now.
 
-If we run git status now we'll see the data directory (among others):
+If we run [git](https://git-scm.com/) status now we'll see the data directory (among others):
 
 ```sh
 git status
@@ -230,9 +228,7 @@ Then press CTRL + Enter to run to get the results:
 
 The default database adapter for harlequin is duckdb so its using the duckdb query engine under the hood to execute SQL queries. We're also keeping this as simple as possible and its using an in-memory duckdb session that doesn't persist any metadata at this point (more to come on this in the second blog in the series where we'll use a .duckdb file for persistence!).
 
-That in-memory bit is the one gotcha worth flagging early: close harlequin and reopen it expecting your tables back and you'll find nothing there. That's not a bug, that's the point — the `.duckdb` file is what buys you persistence, and we're deliberately not using one yet.
-
-While we're here, lets find out which beers are actually shifting off the shelves:
+Lets also have a quick look at which beers are actually selling:
 
 ```sql
 select beer, count(*) as purchases, round(sum(revenue),2) as revenue
@@ -258,7 +254,7 @@ Will give you that classic dracula feel for harlequin.
 
 ### Harlequin Config
 
-Passing flags every time gets old fast. Harlequin will read a `harlequin.toml` from the current directory (or a `[tool.harlequin]` block in your `pyproject.toml`), so you can set your defaults once and forget about them. Drop this in the root of your repo:
+Passing flags every time gets old fast. Harlequin will read a `harlequin.toml` from the current directory (or a `[tool.harlequin]` block in your `pyproject.toml`), so you can set your defaults once. Drop this in the root of your repo:
 
 ```toml
 [harlequin]
@@ -266,7 +262,7 @@ theme = "dracula"
 limit = 500
 ```
 
-Now a plain `uv run harlequin analytics.duckdb` starts up dracula-themed with a sensible row limit, no flags required. Small thing, but it's the kind of small thing that keeps the tool a pleasure rather than a faff.
+Now a plain `uv run harlequin analytics.duckdb` starts up dracula themed with your row limit and no flags needed.
 
 ### Harlequin Cheat Sheet
 
@@ -279,8 +275,6 @@ You should go to the official [harlequin key bindings](https://harlequin.sh/docs
 | `F5` | Refresh the data catalog on the left |
 | `Ctrl + B` | Toggle the catalog sidebar |
 | `Ctrl + Q` | Quit harlequin |
-
-Learn those five and you'll rarely reach for the mouse.
 
 ## Deliberately Simple Data Pipeline
 
@@ -395,27 +389,12 @@ uv run hsql --markdown \
 
 ![hsql Markdown](/assets/2026-09-13-delightful-local-data-engineering-with-duckdb-and-harlequin/hsql_markdown.png)
 
-That's a nice little taster of what the tool can offer and we'll be using this a lot more in upcoming parts of the series. The markdown output in particular is the bit I keep coming back to — being able to pipe a query straight into a file an agent (or a human) can read is quietly brilliant.
-
-## The Verdict — Would I Actually Use This?
-
-For local exploration and small pipelines, without hesitation. Point duckdb at a folder of parquet, open harlequin, and you're querying in seconds with no server, no cluster, no cloud bill ticking over while you think. It's the small-cheap-and-yours end of the data world, and it fits a hangover-day rhythm perfectly — you can get real work done on a Saturday morning with a coffee and no infrastructure to wrestle first.
-
-Where it falls down, and this is the honest bit, is that today's setup is deliberately light. An in-memory session with two hand-rolled SQL files is not a production pipeline — there's no persistence, no environment awareness, no tests, and no schema to speak of. That's fine for a taster, but I wouldn't ship it as-is.
-
-The worldview hook is that you don't need the behemoth to do the work. Most data problems are not big data problems, and reaching for a cluster before you've reached for duckdb is how afternoons get lost. Start small, stay small until small genuinely stops working.
+That's a nice little taster of what the tool can offer and we'll be using this a lot more in upcoming parts of the series.
 
 ## Shortcomings and Next Steps
 
-There are some shortcomings to this quick demo that make it a bit light for a production-worthy setup. It was nice to delicately dip our toe into this technology though just for fun.
+There are some shortcomings to this quick demo that make it a bit light for a production-worthy setup. There's no persistence, no environment awareness and no tests to speak of. It was nice to delicately dip our toe into this technology though just for fun, and for local mooching about with some data I'd reach for duckdb and harlequin every time.
 
-Next steps in parts 2 and 3 we'll get some environment awareness, persisted duckdb metadata, data pipeline testing capabilities and a live environment! If I were starting this again I'd reach for the `.duckdb` file from the very first query rather than the in-memory session — persistence costs nothing here and saves re-running everything each time you reopen the tool.
+Next steps in parts 2 and 3 we'll get some environment awareness, persisted duckdb metadata, data pipeline testing capabilities and a live environment! If I did this bit again I'd use a .duckdb file from the first query instead of the in-memory session, just so nothing disappears when you close the tool.
 
-## Sources and further reading
-
-- [DuckDB documentation](https://duckdb.org/docs/) — the canonical reference for the query engine
-- [Harlequin](https://harlequin.sh/) and its [key bindings](https://harlequin.sh/docs/bindings) and [hsql](https://harlequin.sh/docs/hsql) docs
-- [uv](https://docs.astral.sh/uv/) — the python package manager
-- The full series repo: [github.com/hungovercoders/learn.harlequin](https://github.com/hungovercoders/learn.harlequin)
-
-Well done fellow hungovercoder — you've queried a folder of beer data on your own machine with nothing rented and nothing to tear down afterwards. Crack open a can, and watch this space for part two where we give it some persistence and a bit of backbone.
+To see the most up to date version of this code check out the repo at [github.com/hungovercoders/learn.harlequin](https://github.com/hungovercoders/learn.harlequin). Crack open a can and watch this space for part two.
