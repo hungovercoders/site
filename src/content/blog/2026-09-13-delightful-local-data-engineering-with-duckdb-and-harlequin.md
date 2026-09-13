@@ -44,7 +44,7 @@ That's how it always begins - very small.
 
 ## Setup with UV
 
-First lets use the delightful [python package manager](https://docs.astral.sh/uv/) to setup our codebase. After installing run the following commands:
+First lets use the delightful [uv python package manager](https://docs.astral.sh/uv/) to setup our codebase. After installing run the following commands:
 
 ```bash
 uv init
@@ -145,6 +145,10 @@ Next run this command which should populate a local data directory with some par
 ```bash
 uv run python scripts/generate_fake_events.py
 ```
+
+These parquet files should be seen under the data/raw/events directory:
+
+![Data Directory](/assets/2026-09-13-delightful-local-data-engineering-with-duckdb-and-harlequin/data_directory.png)
 
 ### Gitignore Alert
 
@@ -274,7 +278,10 @@ You should go to the official [harlequin key bindings](https://harlequin.sh/docs
 | `Ctrl + N` | Open a new query tab |
 | `F5` | Refresh the data catalog on the left |
 | `Ctrl + B` | Toggle the catalog sidebar |
+| `Ctrl + S` | Save the current query to a file |
 | `Ctrl + Q` | Quit harlequin |
+
+Ctrl + S is a good habit to get into. Save your queries into a local `queries/` folder and they're in source control with the rest of the project, ready to run again next time.
 
 ## Deliberately Simple Data Pipeline
 
