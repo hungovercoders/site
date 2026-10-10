@@ -26,7 +26,7 @@
     "pagefind": "^1.5.2",
     "reading-time": "^1.5.0",
     "rehype-external-links": "^3.0.0",
-    "sharp": "^0.35.4"
+    "sharp": "^0.35.5"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.1",
@@ -41,6 +41,6 @@
     "ws": "^8.21.0",
     "js-yaml": "^4.2.0",
     "undici": ">=7.28.0",
-    "sharp": "^0.35.4"
+    "sharp": "^0.35.5"
   }
 }
