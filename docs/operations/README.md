@@ -12,11 +12,11 @@ All checks are defined as `task ss:*` targets in `Taskfile.ss.yml` and runnable 
 task --list                              # see every available check
 task ss:security:secrets                 # gitleaks scan
 task ss:hygiene:complexity               # cyclomatic complexity
-task ss:hygiene:docs-structure           # validate docs/ tree against this index
+task ss:hygiene:docs-structure           # every doc under docs/ is routed
 task ss:reliability:accessibility -- https://www.hungovercoders.com
 ```
 
-The Map Pattern documented in [`docs/index.md`](../index.md) is what makes the `docs-accuracy`, `docs-structure`, and `docs-size` workflows meaningful — adding a category means adding a row to the index, creating the directory, dropping in a `README.md`.
+Before you add or move a doc, read [`docs/README.md`](../README.md) for the routing table the `docs-structure` check validates — every doc needs a trigger-first route there or in its category README, and `AGENTS.md`, `README.md` and the map each have a token budget enforced by `entry-files`.
 
 ## Common runbooks
 

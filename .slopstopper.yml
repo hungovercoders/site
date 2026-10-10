@@ -92,9 +92,10 @@ hygiene:
     # Total number of doc files before the report flags it.
     max_files: 25
   entry_files:
-    # Hard cap for entry files (README.md, CLAUDE.md, AGENTS.md, etc.).
-    # ~1500 words ≈ ~2000 tokens — see docs/hygiene/ for the rationale.
-    max_words: 1500
+    # Estimated-token budgets (chars/4) for the entry files and the map.
+    max_tokens: 2000           # AGENTS.md
+    readme_max_tokens: 600     # README.md, badges excluded
+    map_max_tokens: 1000       # docs/README.md
 
 # ── Reliability coverage modes ───────────────────────────────────────
 # Opt-in alternative to the hand-list above. When set, accessibility,
@@ -145,3 +146,8 @@ reliability:
 # don't bring them back). Same semantics as manually deleting the file.
 workflows:
   disabled: []
+
+# ── Project-shape profile ────────────────────────────
+# Which checks apply to a repo of this shape. See
+# `slopstopper profile list` for the full mapping.
+profile: ui

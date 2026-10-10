@@ -1,10 +1,11 @@
 name: SlopStopper · SAST Analysis
 
-# Runs Semgrep static analysis. Workflow gates fail and emit-issue
-# on the count of ERROR-severity findings in the Semgrep JSON;
-# INFO/WARNING findings are reported but non-blocking. Triggers: PR,
-# push to main. Emits a rolling PR comment with all findings and a
-# main-branch tracking issue on ERROR-severity regressions.
+# Runs Semgrep static analysis. The check itself is the gate: it exits 1
+# when a finding is at or above `security.sast.fail_on` (default: error)
+# and 2 when the scan couldn't run; findings below the threshold are
+# reported but non-blocking. Triggers: PR, push to main. Emits a rolling
+# PR comment with all findings and a main-branch tracking issue when
+# blocking findings land (exit 1 only).
 # Docs: docs/security/README.md.
 
 on:
@@ -26,58 +27,38 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.11'
+      - name: Set up slopstopper
+        # Python, the mise-pinned toolchain (task, node, slopstopper-cli) and,
+        # in the slopstopper repo only, the CLI from source. One local
+        # composite action; install.sh copies it in next to the workflows.
+        uses: ./.github/actions/ss-setup
 
       - name: Install Semgrep
         run: |
           pip install --upgrade pip
           pip install semgrep
 
-      - name: Set up slopstopper toolchain
-        # Installs the pinned slopstopper-cli + task from mise.toml and puts
-        # them on PATH for later steps. The pin lives in mise.toml ([tools]
-        # "pipx:slopstopper-cli"); mise resolves it per-repo, so CI and local
-        # runs share one version.
-        uses: jdx/mise-action@v2
-
-      - name: Install slopstopper-cli from source (slopstopper.dev only)
-        # In this repo the CLI runs from source (HEAD), so mise.toml carries
-        # no slopstopper-cli pin — install it editable here. Adopter repos
-        # skip this (no cli/ source) and use the mise-pinned wheel.
-        if: ${{ hashFiles('cli/pyproject.toml') != '' }}
-        run: pip install -e ./cli
-
+      # The check itself is the gate: it exits 1 on blocking findings, so
+      # this step's outcome IS the verdict. No separate detect / fail-job
+      # steps, and the local `task ss:security:sast` agrees with CI.
       - name: Run SAST analysis
         id: sast
-        run: task ss:security:sast
-
-      - name: Detect error-severity findings
-        id: gate
+        # `task -x` passes the CLI's exit code through (plain `task` maps
+        # every failure to 201). The code is kept as an output so later
+        # steps can tell findings (1) from could-not-run (2).
+        shell: bash
         run: |
-          if [ -f .ss/reports/sast/sast-report.json ]; then
-            ERROR_COUNT=$(python3 -c "
-          import json
-          with open('.ss/reports/sast/sast-report.json') as f:
-              data = json.load(f)
-          errors = [r for r in data.get('results', []) if r.get('extra', {}).get('severity', '').upper() == 'ERROR']
-          print(len(errors))
-          ")
-          else
-            ERROR_COUNT=0
-          fi
-          echo "errors_found=$([ "$ERROR_COUNT" -gt 0 ] && echo 1 || echo 0)" >> "$GITHUB_OUTPUT"
-          if [ "$ERROR_COUNT" -gt 0 ]; then
-            echo "⚠️  Found $ERROR_COUNT error-severity finding(s)"
-          fi
+          set +e
+          task -x ss:security:sast
+          rc=$?
+          echo "rc=$rc" >> "$GITHUB_OUTPUT"
+          exit $rc
 
       - name: Upload SAST reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: sast-reports
           path: |
@@ -87,25 +68,20 @@ jobs:
           if-no-files-found: warn
 
       - name: Emit PR comment
-        if: github.event_name == 'pull_request'
+        if: always() && github.event_name == 'pull_request' && steps.sast.outcome != 'skipped'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: slopstopper emit security:sast --target pr-comment
+        run: slopstopper emit security:sast --target pr-comment --status ${{ steps.sast.outcome == 'success' && 'pass' || 'fail' }} --on-pass=delete
 
       - name: Emit issue on main (if error-severity findings)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.gate.outputs.errors_found == '1'
+        # Only rc 1 is a finding. Exit 2 means the scan didn't run.
+        if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.sast.outputs.rc == '1'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: slopstopper emit security:sast --target issue
 
       - name: Close issue on main when clean
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.gate.outputs.errors_found != '1'
+        if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.sast.outcome == 'success'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: slopstopper emit security:sast --target issue --on-pass=close
-
-      - name: Fail job if error-severity findings
-        if: steps.gate.outputs.errors_found == '1'
-        run: |
-          echo "::error::SAST error-severity findings detected. Review and address before merge."
-          exit 1
