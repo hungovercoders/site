@@ -4,36 +4,15 @@ The public-facing site at [hungovercoders.com](https://hungovercoders.com). Astr
 
 [![Site](https://img.shields.io/website?url=https%3A%2F%2Fhungovercoders.com&label=hungovercoders.com&up_message=up&down_message=down)](https://hungovercoders.com/)
 
-## Contents
-
-- [Deployment](#deployment)
-- [Project structure](#project-structure)
-- [Commands](#commands)
-- [Credit](#credit)
-- [Quality pipeline (add-on)](#quality-pipeline-add-on)
-
 ## Deployment
 
 Deployed via [Cloudflare Workers Builds](https://developers.cloudflare.com/workers/ci-cd/) — every push to `main` deploys, every PR gets a preview URL as a commit check, closing a PR retires the preview.
 
 ## Project structure
 
-```text
-src/
-  components/        Astro components (BaseHead, Header, Footer, Search)
-  content/blog/      Blog posts — pattern: YYYY-MM-DD-slug.md
-  content/projects/  Live project entries (e.g. slopstopper)
-  layouts/           BlogPost.astro, TrainingLesson.astro
-  pages/             Routes (blog, training, about, projects)
-  styles/global.css
-public/              Static assets (favicons, share images per post)
-scripts/             fetch-training-repos.sh, generate-share-image.mjs, …
-training-repos/      Gitignored — populated at build by fetch-training-repos.sh
-.ss/                 Slopstopper analysis scripts + Playwright tests
-.github/workflows/   ss-*.yml (slopstopper) + repo-specific workflows
-```
+Before you change components, layouts or content collections, read [`docs/architecture/README.md`](./docs/architecture/README.md) for the repo layout and routing.
 
-See [`docs/index.md`](./docs/index.md) for the full documentation map, [`AGENTS.md`](./AGENTS.md) for conventions and where-to-look pointers, and the [hungovercoders/learn.*](https://github.com/hungovercoders) sibling repos for training content sources.
+For any task not covered above, read [`docs/README.md`](./docs/README.md) for the routing table for every doc in this repo.
 
 ## Commands
 
@@ -62,29 +41,36 @@ Quality gates are provided by [slopstopper](https://slopstopper.dev/) — a port
 [![slopstopper](https://img.shields.io/badge/quality-slopstopper-2c7be5?style=flat-square)](https://slopstopper.dev/)
 
 ### 🔒 Security
-[![SAST](https://github.com/hungovercoders/site/actions/workflows/ss-security-sast-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-security-sast-check.yml)
+[![API Headers](https://github.com/hungovercoders/site/actions/workflows/ss-security-api-headers-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-security-api-headers-check.yml)
 [![DAST](https://github.com/hungovercoders/site/actions/workflows/ss-security-dast-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-security-dast-check.yml)
+[![SAST](https://github.com/hungovercoders/site/actions/workflows/ss-security-sast-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-security-sast-check.yml)
 [![Secrets](https://github.com/hungovercoders/site/actions/workflows/ss-security-secrets-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-security-secrets-check.yml)
 [![Dependency CVEs](https://github.com/hungovercoders/site/actions/workflows/ss-security-vulnerability-all-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-security-vulnerability-all-check.yml)
 [![Dependency Review](https://github.com/hungovercoders/site/actions/workflows/ss-security-vulnerability-new-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-security-vulnerability-new-check.yml)
 
 ### 🧹 Hygiene
+[![Auto-label PRs](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-auto-label-pr.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-auto-label-pr.yml)
 [![Complexity](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-complexity-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-complexity-check.yml)
-[![Entry Files](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-entry-files-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-entry-files-check.yml)
+[![CSP Exceptions](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-csp-exceptions-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-csp-exceptions-check.yml)
 [![Docs Accuracy](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-docs-accuracy-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-docs-accuracy-check.yml)
 [![Docs Size](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-docs-size-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-docs-size-check.yml)
 [![Docs Structure](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-docs-structure-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-docs-structure-check.yml)
-[![Auto Label PRs](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-auto-label-pr.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-auto-label-pr.yml)
-[![CSP Exceptions](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-csp-exceptions-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-csp-exceptions-check.yml)
+[![Entry Files](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-entry-files-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-entry-files-check.yml)
+[![OpenAPI Drift](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-openapi-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-openapi-check.yml)
 
 ### ✅ Reliability
-[![Smoke Tests](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-smoke-tests.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-smoke-tests.yml)
 [![Accessibility](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-accessibility-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-accessibility-check.yml)
-[![Core Web Vitals](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-core-web-vitals.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-core-web-vitals.yml)
-[![SEO Metatags](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-seo-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-seo-check.yml)
+[![API Health](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-api-health-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-api-health-check.yml)
+[![API Latency](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-api-latency-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-api-latency-check.yml)
 [![Broken Links](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-broken-links-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-broken-links-check.yml)
+[![Core Web Vitals](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-core-web-vitals.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-core-web-vitals.yml)
+[![E2E](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-e2e-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-e2e-check.yml)
 [![llms.txt](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-llms-txt-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-llms-txt-check.yml)
+[![robots.txt](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-robots-txt-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-robots-txt-check.yml)
+[![SEO](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-seo-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-seo-check.yml)
+[![Sitemap](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-sitemap-check.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-sitemap-check.yml)
+[![Smoke](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-smoke-tests.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-reliability-smoke-tests.yml)
 
 ### 🤖 Operational
-[![Doc Auto-Updater](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-doc-updater.lock.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-doc-updater.lock.yml)
-[![Failure Alerts](https://github.com/hungovercoders/site/actions/workflows/ss-workflow-failure-issue.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-workflow-failure-issue.yml)
+[![Doc Updater](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-doc-updater.lock.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-hygiene-doc-updater.lock.yml)
+[![Workflow Failures](https://github.com/hungovercoders/site/actions/workflows/ss-workflow-failure-issue.yml/badge.svg?branch=main)](https://github.com/hungovercoders/site/actions/workflows/ss-workflow-failure-issue.yml)

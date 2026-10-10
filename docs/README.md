@@ -1,23 +1,14 @@
-# Documentation Index
+# Documentation map
 
-This file is **the map** — every other entry point in the repo defers to it.
+The fallback routing table. `AGENTS.md` routes the common tasks directly; use this when a task isn't covered there. Every doc under `docs/` must be reachable from here (or from a category README), and `task ss:hygiene:docs-structure` fails the build when one isn't.
 
-The three thin entry-point files at the repo root — [`README.md`](../README.md) (humans), [`AGENTS.md`](../AGENTS.md) (automation tools) and [`CLAUDE.md`](../CLAUDE.md) (Claude Code) — point at this index rather than duplicating documentation inline. Each entry file is capped at <2000 words by [`task ss:hygiene:entry-files`](../Taskfile.ss.yml); detail lives below.
+| When you are… | Do this |
+| ------------- | ------- |
+| Changing how the site is built — Astro, content collections, routing, training-repo wiring | Read [architecture/README.md](architecture/README.md) for the stack, repo layout and routes |
+| Authoring blog posts, training lessons or project entries | Read [content/README.md](content/README.md) for the frontmatter schemas and share-image steps |
+| Changing deploy, DNS, analytics, or chasing a "works locally, 404 in prod" asset | Read [deployment/README.md](deployment/README.md) for Workers Builds, Namecheap DNS and the `dist/client` gotcha |
+| Running pipeline checks, triaging a failing slopstopper workflow, or following a runbook | Read [operations/README.md](operations/README.md) for the local check commands and runbooks |
+| Changing security headers, CSP, or the DAST allowlist | Read [security/README.md](security/README.md) for the header policy and ZAP exceptions |
+| Adding or relaxing a per-path CSP rule | Read [security/CSP_EXCEPTIONS.md](security/CSP_EXCEPTIONS.md) for every documented relaxation and why |
 
-## Documentation Categories
-
-Each category has a README that defines its purpose. Content within categories evolves with the site.
-
-| Category | Purpose | README |
-| -------- | ------- | ------ |
-| [architecture/](architecture/) | How the site is built — Astro, content collections, training-repo wiring | [README](architecture/README.md) |
-| [content/](content/) | Authoring blog posts, training lessons and project entries | [README](content/README.md) |
-| [deployment/](deployment/) | Cloudflare Workers Builds, DNS, the `dist/client` gotcha | [README](deployment/README.md) |
-| [operations/](operations/) | Pipeline gates, runbooks, slopstopper notes | [README](operations/README.md) |
-| [security/](security/) | Security headers, CSP, DAST exceptions, false-positive rule allowlist | [README](security/README.md) |
-
-## Governance Model
-
-**This index is the sole source of truth for documentation structure.** The directory tree must conform to this index — not the reverse. The [hygiene docs-structure check](../Taskfile.ss.yml) fails the build if `docs/` drifts from the table above, and the [docs-accuracy check](../Taskfile.ss.yml) catches broken cross-references in any doc.
-
-To add a new category: add a row to the table above, create `docs/<category>/`, drop in a `README.md`. The check will pass on the next run.
+To add a doc: create it under a category, then add a trigger-first row here or in that category's README.
