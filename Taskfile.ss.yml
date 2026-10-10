@@ -2,7 +2,7 @@ version: '3'
 
 # Canonical adopter interface for the slopstopper quality suite.
 #
-# This Taskfile is THE entry point — humans, agents and CI all invoke
+# This Taskfile is THE entry point. Humans, agents and CI all invoke
 # checks through `task ss:<category>:<check>`. The underlying
 # `slopstopper-cli` is the implementation each shim calls; it is not
 # a parallel surface to promote to adopters.
@@ -28,6 +28,21 @@ tasks:
         SMOKE_TEST_URL=https://your-site.example.com task ss:reliability:smoke
     cmds:
       - slopstopper run reliability:smoke -- {{.CLI_ARGS}}
+
+  reliability:e2e:
+    desc: Walk user journeys (nav, anchors, disclosures, back) against a live URL
+    summary: |
+      Drive a browser through the portable end-to-end journeys any HTML
+      site offers: every primary-nav link from each start path, in-page
+      anchors, <details> toggles and the back button. Reads `pages.e2e`
+      and `e2e.max_links` from `.slopstopper.yml`.
+
+      Usage:
+        task ss:reliability:e2e -- https://your-site.example.com
+        task ss:reliability:e2e -- https://your-site.example.com --ci
+        E2E_TEST_URL=https://your-site.example.com task ss:reliability:e2e
+    cmds:
+      - slopstopper run reliability:e2e -- {{.CLI_ARGS}}
 
   reliability:cwv:
     desc: Run a Core Web Vitals (Lighthouse CI) audit
@@ -72,6 +87,81 @@ tasks:
         SEO_TEST_URL=https://your-site.example.com task ss:reliability:seo
     cmds:
       - slopstopper run reliability:seo -- {{.CLI_ARGS}}
+
+  reliability:api-health:
+    desc: Probe the API health/readiness endpoint and assert its contract
+    summary: |
+      The API-shaped analogue of the smoke check. Fetches the endpoint named
+      by `api.health.path` and asserts: reachable, the documented status code,
+      a JSON content-type, a body that parses, and every field declared in
+      `api.health.require_fields` / `expect_fields`.
+
+      The field assertions are the point. `{"status": "degraded"}` returned
+      with HTTP 200 passes any reachability probe and fails here, which is
+      the whole reason a health endpoint returns a body at all.
+
+      Skips gracefully (exit 0) when `api.health.path` is unset, because an
+      unconfigured check is not a failing check.
+
+      Configuration (environment variables; every knob below is also read
+      from .slopstopper.yml's `api.health`):
+        API_HEALTH_TEST_URL  - base URL of the API (required)
+        API_HEALTH_PATH      - path to the health endpoint (e.g. /health)
+
+      Flags:
+        --expect-status N    - status code the endpoint must return
+        --allow-non-json     - skip the JSON content-type + parse assertions
+        --require-field X    - dot-path that must be present (repeatable)
+        --max-response-ms N  - fail if slower than this
+
+      Usage:
+        task ss:reliability:api-health -- https://api.example.com
+        API_HEALTH_TEST_URL=https://api.example.com task ss:reliability:api-health
+    cmds:
+      - slopstopper run reliability:api-health -- {{.CLI_ARGS}}
+
+  reliability:api-latency:
+    desc: Sample API endpoint response times and payload sizes against budgets
+    summary: |
+      The API-shaped analogue of Core Web Vitals. There is no rendering on
+      a JSON API, so the answerable question is narrower: how long does the
+      endpoint take to answer, and how much does it send back.
+
+      Samples each path in `api.latency.paths` several times and reports
+      the median and slowest sample plus the response size.
+
+      Deliberately not "p95": five samples cannot support a 95th
+      percentile, and calling max() a percentile would dress up one noisy
+      reading as statistics. Budgets gate on the median, because a single
+      slow sample from a shared CI runner moves the maximum and not the
+      middle. `slowest_ms` is there for anyone who wants an explicit tail
+      ceiling, opt-in.
+
+      Budgets are opt-in throughout. With none set, the check reports
+      timings as notes and exits 0. Reachability is not opt-in. An
+      endpoint that errors or answers non-2xx fails whether or not a
+      budget is set, because timing a connection error is meaningless.
+
+      Skips gracefully (exit 0) when `api.latency.paths` is empty, because an
+      unconfigured check is not a failing check.
+
+      Configuration (environment variables; every knob below is also read
+      from .slopstopper.yml's `api.latency`):
+        API_LATENCY_TEST_URL - base URL of the API (required)
+        API_LATENCY_PATHS    - comma-separated paths to sample
+
+      Flags:
+        --samples N       - measured requests per endpoint (default: 5)
+        --warmup N        - discarded requests before measuring (default: 1)
+        --median-ms N     - fail if the median exceeds this
+        --slowest-ms N    - fail if any sample exceeds this
+        --max-bytes N     - fail if the response exceeds this size
+
+      Usage:
+        task ss:reliability:api-latency -- https://api.example.com
+        API_LATENCY_TEST_URL=https://api.example.com task ss:reliability:api-latency
+    cmds:
+      - slopstopper run reliability:api-latency -- {{.CLI_ARGS}}
 
   reliability:llms-txt:
     desc: Validate the llms.txt AI-discoverability map on a live URL
@@ -224,11 +314,13 @@ tasks:
       - slopstopper run hygiene:docs-size
 
   hygiene:docs-structure:
-    desc: Validate documentation structure matches the governance model
+    desc: Validate every doc under docs/ has an explicit route from AGENTS.md or the map
     summary: |
-      Validates that the docs/ tree matches the governance model
-      declared in docs/index.md. Generates JSON + MD reports under
-      .ss/reports/docs/.
+      AGENTS.md-first: a doc is reachable only through a trigger-first
+      "read" line in AGENTS.md, docs/README.md (the map) or a README above
+      it. Fails on an unrouted doc, a soft route in the map, a route deeper
+      than the limit, a topic doc over its line budget, or a legacy
+      docs/index.md. Generates JSON + MD reports under .ss/reports/docs/.
 
       Usage:
         task ss:hygiene:docs-structure
@@ -236,14 +328,15 @@ tasks:
       - slopstopper run hygiene:docs-structure
 
   hygiene:entry-files:
-    desc: Enforce <2k token budget on agent entry files (README.md, AGENTS.md, CLAUDE.md)
+    desc: Enforce token budgets + explicit routes on AGENTS.md, README.md, CLAUDE.md and the docs map
     summary: |
-      The agent entry files are loaded into every conversation. docs/index.md
-      declares they should stay under ~2k tokens each so they don't crowd
-      the context window. This check enforces that with a 1,500-word cap
-      (≈ 2k tokens for English prose) and exits non-zero if any file is
-      over budget — moving the over-budget file's bulk into the category
-      README that owns the topic is the fix.
+      AGENTS.md is loaded into every agent conversation, so it carries what
+      most tasks need within ~2k estimated tokens and routes the rest with
+      explicit "before you X, read Y" lines. This check enforces the token
+      budgets (AGENTS.md, README.md with badges excluded, docs/README.md),
+      that CLAUDE.md is exactly `@AGENTS.md`, that every .md link in
+      AGENTS.md is an explicit route and one reaches the map, and prints
+      the cold-start cost on every run.
 
       Generates a report at .ss/reports/entry-files/entry-file-size-report.md.
 
@@ -279,8 +372,56 @@ tasks:
     cmds:
       - slopstopper run hygiene:docs-accuracy
 
+  hygiene:openapi:
+    desc: Detect drift between the OpenAPI spec and the API it documents
+    summary: |
+      The API-shaped analogue of docs-accuracy. Two directions, both of
+      which this can answer without introspecting the app's routes:
+
+      - Committed vs served. When `api.openapi.spec` is a file in the repo
+        and `api.openapi.served_spec` is the URL the running API publishes
+        its spec at, the two operation sets are compared. A difference
+        means the committed artifact is stale against what is deployed.
+        This is the headline: no probing, no guessing, no false positives.
+      - Documented vs reachable. Every documented path taking no
+        parameters is probed; a 404 or 5xx means the spec describes a
+        route that isn't there. A 405 proves the route exists and passes.
+
+      Paths with parameters (/users/{id}) are counted but not probed: a
+      404 from one could mean "route missing" or merely "no such record",
+      and this check can't tell those apart.
+
+      It reads JSON specs only, because slopstopper-cli has no YAML
+      parser. A YAML spec skips with guidance rather than failing, and
+      most frameworks serve the JSON form at /openapi.json.
+
+      Skips gracefully (exit 0) when `api.openapi.spec` is unset, because an
+      unconfigured check is not a failing check.
+
+      Configuration (.slopstopper.yml's `api.openapi`):
+        spec          - the spec: URL or repo-relative JSON file
+                        (shared with security:dast)
+        served_spec   - URL the live API serves its spec at
+        probe_paths   - false to skip the reachability probes
+        ignore_paths  - globs excluded from probing and comparison
+
+      Flags:
+        --spec X          - override api.openapi.spec
+        --served-spec X   - override api.openapi.served_spec
+        --no-probe        - skip the reachability probes
+        --ignore GLOB     - path glob to skip (repeatable)
+
+      Usage:
+        task ss:hygiene:openapi -- https://api.example.com
+    cmds:
+      - slopstopper run hygiene:openapi -- {{.CLI_ARGS}}
+
   hygiene:test:
     desc: Run all hygiene checks (docs-size, docs-structure, docs-accuracy, entry-files, csp-exceptions, complexity)
+    # Deliberately excludes hygiene:openapi. This aggregate is what the
+    # installed pre-push hook runs. It is all-static by design, because
+    # adding a URL-driven check would make every `git push` hit the
+    # network.
     cmds:
       - task: hygiene:docs-size
       - task: hygiene:docs-structure
@@ -316,14 +457,29 @@ tasks:
   security:dast:
     desc: Run dynamic application security testing using OWASP ZAP
     summary: |
-      Subprocess-invokes `docker run ghcr.io/zaproxy/zaproxy:stable
-      zap-baseline.py` (Docker must be running). The CLI also runs the
-      CSP-exception gate against the resulting JSON — see
-      docs/security/CSP_EXCEPTIONS.md.
+      Subprocess-invokes `docker run ghcr.io/zaproxy/zaproxy:stable`
+      (Docker must be running). The CLI also runs the CSP-exception gate
+      against the resulting JSON. See docs/security/CSP_EXCEPTIONS.md.
+
+      Two scan modes, picked by whether an OpenAPI spec is configured:
+
+        baseline (default): ZAP spiders the site from the URL you pass.
+          That suits an HTML surface and is useless on a JSON API, which
+          exposes no links to crawl.
+        API: set `api.openapi.spec` in .slopstopper.yml (or pass
+          `--spec`) and ZAP reads the spec and exercises the operations it
+          declares instead. The URL you pass becomes ZAP's -O host
+          override, so a spec naming production can be scanned against a
+          preview environment.
+
+      Flags:
+        --spec S             - OpenAPI spec: URL or repo-relative file
+        --no-host-override   - don't pass the target as ZAP's -O
 
       Usage:
         task ss:security:dast -- http://localhost:8080
         task ss:security:dast -- https://staging.example.com
+        task ss:security:dast -- https://api.example.com --spec openapi.yaml
     cmds:
       - slopstopper run security:dast -- {{.CLI_ARGS}}
 
@@ -338,10 +494,63 @@ tasks:
     cmds:
       - slopstopper run security:secrets
 
-  security:scan:
-    desc: Run full security scan suite (SAST + vulnerabilities + DAST + secrets)
+  security:api-headers:
+    desc: Audit API response headers + CORS policy on a live URL
+    summary: |
+      The API-shaped analogue of the CSP-exceptions check. On an HTML
+      surface CSP is the header that matters. On a JSON API it's CORS,
+      because a permissive policy on a credentialed endpoint is a
+      cross-origin data leak, not a style violation.
+
+      Probes each path in `api.headers.paths` and hard-fails on: a
+      wildcard `Access-Control-Allow-Origin` sent with
+      `Access-Control-Allow-Credentials: true` (browsers reject the pair,
+      so the intended policy was never enforced), an arbitrary Origin
+      reflected back with credentials, a configured origin that is no
+      longer allowed, and a missing HSTS / nosniff header. Stack-version
+      leaks (`X-Powered-By`, a versioned `Server`) and a missing
+      `Vary: Origin` are advisory.
+
+      Skips gracefully (exit 0) when `api.headers.paths` is empty, because an
+      unconfigured check is not a failing check.
+
+      Configuration (environment variables; every knob below is also read
+      from .slopstopper.yml's `api.headers`):
+        API_HEADERS_TEST_URL  - base URL of the API (required)
+        API_HEADERS_PATHS     - comma-separated paths to probe
+
+      Flags:
+        --path P                - endpoint to probe (repeatable)
+        --allowed-origin O      - origin that must be allowed (repeatable)
+        --allow-wildcard-cors   - permit `Access-Control-Allow-Origin: *`
+        --no-require-hsts       - don't demand HSTS
+        --no-require-nosniff    - don't demand nosniff
+
+      Usage:
+        task ss:security:api-headers -- https://api.example.com
+        API_HEADERS_TEST_URL=https://api.example.com task ss:security:api-headers
     cmds:
-      - task: security:sast
-      - task: security:vulnerability:all
-      - task: security:dast
-      - task: security:secrets
+      - slopstopper run security:api-headers -- {{.CLI_ARGS}}
+
+  security:scan:
+    desc: Run full security scan suite (SAST + vulnerabilities + DAST + API headers + secrets)
+    # Runs every scan even when an earlier one fails. sast exits 1 on
+    # findings, and a sequential `task:` list would stop there and never
+    # reach secrets. Calls the CLI the way each shim does and exits with
+    # the worst code: 2 (couldn't run) > 1 > 0. A target passed after `--`
+    # goes to dast and api-headers, as their shims pass it; the other
+    # three take no arguments and would reject it.
+    #   task ss:security:scan -- https://staging.example.com
+    cmds:
+      - |
+        worst=0
+        for check in sast vulnerability:all dast api-headers secrets; do
+          code=0
+          # `|| code=$?` is needed because Task's shell exits on a failure.
+          case "$check" in
+            dast|api-headers) slopstopper run "security:$check" -- {{.CLI_ARGS}} || code=$? ;;
+            *) slopstopper run "security:$check" || code=$? ;;
+          esac
+          if [ "$code" -gt "$worst" ]; then worst=$code; fi
+        done
+        exit "$worst"

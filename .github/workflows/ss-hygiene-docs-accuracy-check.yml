@@ -12,40 +12,13 @@ on:
   schedule:
     - cron: '0 7 * * 1'
 
+  # No paths filter on purpose. `broken_repo_link` depends on files
+  # anywhere in the tree, so a PR that deletes a script a page links to
+  # must run this check. It is static, so it takes seconds and no network.
   pull_request:
-    paths:
-      - 'docs/**'
-      - 'README.md'
-      - 'AGENTS.md'
-      - 'CLAUDE.md'
-      - 'CONTRIBUTING.md'
-      - '*.html'
-      - '*.js'
-      - '*.css'
-      - 'Taskfile.yml'
-      - 'Taskfile.ss.yml'
-      - 'wrangler.jsonc'
-      - 'worker/**'
-      - 'server.js'
-      - '.github/workflows/**'
   push:
     branches:
       - main
-    paths:
-      - 'docs/**'
-      - 'README.md'
-      - 'AGENTS.md'
-      - 'CLAUDE.md'
-      - 'CONTRIBUTING.md'
-      - '*.html'
-      - '*.js'
-      - '*.css'
-      - 'Taskfile.yml'
-      - 'Taskfile.ss.yml'
-      - 'wrangler.jsonc'
-      - 'worker/**'
-      - 'server.js'
-      - '.github/workflows/**'
 
   workflow_dispatch:
 
@@ -60,28 +33,15 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.11'
-
-      - name: Set up slopstopper toolchain
-        # Installs the pinned slopstopper-cli + task from mise.toml and puts
-        # them on PATH for later steps. The pin lives in mise.toml ([tools]
-        # "pipx:slopstopper-cli"); mise resolves it per-repo, so CI and local
-        # runs share one version.
-        uses: jdx/mise-action@v2
-
-      - name: Install slopstopper-cli from source (slopstopper.dev only)
-        # In this repo the CLI runs from source (HEAD), so mise.toml carries
-        # no slopstopper-cli pin — install it editable here. Adopter repos
-        # skip this (no cli/ source) and use the mise-pinned wheel.
-        if: ${{ hashFiles('cli/pyproject.toml') != '' }}
-        run: pip install -e ./cli
+      - name: Set up slopstopper
+        # Python, the mise-pinned toolchain (task, node, slopstopper-cli) and,
+        # in the slopstopper repo only, the CLI from source. One local
+        # composite action; install.sh copies it in next to the workflows.
+        uses: ./.github/actions/ss-setup
 
       - name: Run documentation accuracy check
         id: check
@@ -89,12 +49,12 @@ jobs:
         run: task ss:hygiene:docs-accuracy
 
       - name: Emit PR comment
-        if: github.event_name == 'pull_request' && steps.check.outcome == 'failure'
+        if: github.event_name == 'pull_request'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: slopstopper emit hygiene:docs-accuracy --target pr-comment
+        run: slopstopper emit hygiene:docs-accuracy --target pr-comment --status ${{ steps.check.outcome == 'success' && 'pass' || 'fail' }} --on-pass=delete
 
-      - name: Emit issue (push / schedule / dispatch — when issues found)
+      - name: Emit issue on push, schedule or dispatch (if issues found)
         if: >-
           (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
           && steps.check.outcome == 'failure'
@@ -112,7 +72,7 @@ jobs:
 
       - name: Upload accuracy report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: docs-accuracy-report
           path: .ss/reports/docs/docs-accuracy-report.md

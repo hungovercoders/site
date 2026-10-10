@@ -3,21 +3,36 @@ name: SlopStopper · Raise Issue on Workflow Failure
 on:
   workflow_run:
     workflows:
-      - "SlopStopper · Hygiene - Auto Label PRs"
+      # This lists every check workflow plus the doc updater. workflow_run
+      # can't glob, so a name left out here fails on main with no issue
+      # raised. cli/tests/test_workflow_triggers.py keeps this list in step
+      # with ss-pr-summary.yml.
       - "SlopStopper · Code Complexity Check"
-      - "SlopStopper · Hygiene - Documentation Updater"
+      - "SlopStopper · Hygiene - CSP Exceptions Drift Check"
       - "SlopStopper · Hygiene - Documentation Accuracy Check"
       - "SlopStopper · Documentation Size Monitor"
       - "SlopStopper · Hygiene - Documentation Structure Check"
-      - "SlopStopper · Playwright Tests"
+      - "SlopStopper · Hygiene - Entry-File Budget Check"
+      - "SlopStopper · OpenAPI Drift Check"
+      - "SlopStopper · Hygiene - Auto Label PRs"
+      - "SlopStopper · Accessibility Check"
+      - "SlopStopper · API Health Check"
+      - "SlopStopper · API Latency Check"
+      - "SlopStopper · Broken Links Check"
+      - "SlopStopper · Core Web Vitals"
+      - "SlopStopper · llms.txt Check"
+      - "SlopStopper · robots.txt Check"
+      - "SlopStopper · SEO Metatag Check"
+      - "SlopStopper · sitemap Check"
       - "SlopStopper · Reliability Smoke Tests"
+      - "SlopStopper · E2E Check"
+      - "SlopStopper · API Headers Check"
       - "SlopStopper · DAST Analysis"
       - "SlopStopper · SAST Analysis"
       - "SlopStopper · Secrets Detection"
       - "SlopStopper · Dependency Vulnerability Scan"
       - "SlopStopper · Dependency review"
-      - "SlopStopper · Accessibility Check"
-      - "SlopStopper · Core Web Vitals"
+      - "SlopStopper · Hygiene - Documentation Updater"
     types:
       - completed
 
@@ -33,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Create or update issue for failed workflow run
-        uses: actions/github-script@v7
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const workflowName = context.payload.workflow_run.name;
@@ -127,7 +142,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Close issue for recovered workflow
-        uses: actions/github-script@v7
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const workflowName = context.payload.workflow_run.name;
