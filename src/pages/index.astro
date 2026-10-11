@@ -4,7 +4,7 @@ import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import Header from '../components/Header.astro';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { SITE_META_DESCRIPTION, SITE_TITLE } from '../consts';
 import { excerpt } from '../utils/excerpt';
 
 const latest = (await getCollection('blog'))
@@ -15,7 +15,7 @@ const latest = (await getCollection('blog'))
 <!doctype html>
 <html lang="en">
 	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+		<BaseHead title={SITE_TITLE} description={SITE_META_DESCRIPTION} />
 		<style>
 			main {
 				width: 760px;

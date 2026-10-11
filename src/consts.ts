@@ -8,6 +8,7 @@ export const SITE_TITLE = 'hungovercoders';
 // the page HTML. Leave blank to switch the cookieless beacon off entirely.
 export const CF_BEACON_TOKEN = '6a7288858b584e5cb2c9c358dc8f8bde';
 export const SITE_DESCRIPTION = 'Folk tales of working in tech from the South Wales valleys. Built with the AI on the team and the dog on the sofa. Honest walkthroughs, strong opinions a model couldn\'t form, and the occasional Sunday-morning hangover.';
+export const SITE_META_DESCRIPTION = 'Folk tales of working in tech from the South Wales valleys. Built with the AI on the team and the dog on the sofa.';
 
 // Giscus (GitHub Discussions-backed comments). Fill in these four values to
 // switch on commenting; leave any blank and the Giscus block won't render.
