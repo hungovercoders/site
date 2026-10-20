@@ -4,9 +4,9 @@ set -euo pipefail
 TARGET_DIR="training-repos"
 
 # Temporarily excluded pending content review:
-#   learn.bento
 #   learn.claude-code
 REPOS=(
+  "learn.bento"
 )
 
 mkdir -p "$TARGET_DIR"
