@@ -20,8 +20,8 @@ name: SlopStopper · Cloudflare Deployed Checks
 # path with a bare "Not found" carrying none of the site's headers, which
 # ZAP's 404 probes always flag.
 #
-# install.sh ships this only when the repo has wrangler config or a
-# worker/ directory. Docs: docs/deployment/README.md.
+# install.sh ships this only when the repo has wrangler config (at the
+# root or one directory down) or a worker/ directory. Docs: docs/deployment/README.md.
 
 on:
   check_run:
@@ -68,7 +68,7 @@ jobs:
               exit 0
             fi
           else
-            pr_line="$(gh pr list -R "$GITHUB_REPOSITORY" --head "$BRANCH" --state open --json number,headRepositoryOwner -q '.[0] | "\(.number) \(.headRepositoryOwner.login)"')"
+            pr_line="$(gh pr list -R "$GITHUB_REPOSITORY" --head "$BRANCH" --state open --json number,headRepositoryOwner -q '.[0] // empty | "\(.number) \(.headRepositoryOwner.login)"')"
             pr="${pr_line%% *}"
             pr_owner="${pr_line#* }"
             if [ -z "$pr" ]; then
@@ -79,7 +79,7 @@ jobs:
               echo "::notice::#$pr comes from a fork ($pr_owner), whose branch gh workflow run can't target, so its preview isn't checked."
               exit 0
             fi
-            # The bot's comment is a table with one row per deployed commit.
+            # The bot's comment is a table (HTML or Markdown) with one row per deployed commit.
             # It can land a little after the check run completes, so retry.
             url=""
             for attempt in 1 2 3 4 5 6; do
@@ -96,7 +96,11 @@ jobs:
               exit 0
             fi
           fi
-          [[ "$url" =~ ^https?://[^[:space:][:cntrl:]]+$ ]] || { echo "::error::Invalid URL format: $url"; exit 1; }
+          if ! python -c 'import sys; from urllib.parse import urlsplit; value=sys.argv[1]; parsed=urlsplit(value); parsed.port; sys.exit(not (parsed.scheme in ("http", "https") and parsed.hostname and not any(char.isspace() for char in value)))' "$url" 2>/dev/null
+          then
+            echo "::error::Invalid URL format"
+            exit 1
+          fi
           echo "Deployed ${SHA:0:7} on $BRANCH to $url"
           {
             echo "url=$url"
@@ -111,8 +115,18 @@ jobs:
           URL: ${{ steps.target.outputs.url }}
           BRANCH: ${{ steps.target.outputs.branch }}
           PRODUCTION: ${{ steps.target.outputs.production }}
+          SHA: ${{ github.event.check_run.head_sha }}
         run: |
           set -eo pipefail
+          # A dispatch runs on the branch head, not on a commit. If a newer
+          # commit has reached the branch, these results would land on it
+          # while auditing this older deploy, so leave it to that commit's
+          # own deploy.
+          head="$(gh api "repos/$GITHUB_REPOSITORY/commits/$BRANCH" --jq .sha)"
+          if [ "$head" != "$SHA" ]; then
+            echo "::notice::$BRANCH has moved on from ${SHA:0:7} to ${head:0:7}, so this deploy's checks are left to the newer one."
+            exit 0
+          fi
           checks=(
             ss-reliability-smoke-tests.yml
             ss-reliability-e2e-check.yml
