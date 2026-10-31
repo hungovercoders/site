@@ -21,6 +21,13 @@ Time to increment to the next level now we have completed [part 1](/blog/2026-09
 - [uv](https://docs.astral.sh/uv/) for python and package management
 - A terminal
 
+Did part 1 before this post came out? The generator has since been tweaked so Clwb Tropica sells like it should, so regenerate your events from the repo root to match the results here. Clear the old files first, as the generator names them by date and won't tidy up after itself:
+
+```bash
+rm -rf data/raw/events
+uv run python scripts/generate_fake_events.py
+```
+
 ## Installation
 
 All we have to do to bring dbt into the mix is run the following command:
@@ -292,7 +299,7 @@ These are dbt's built in generic tests. `not_null` and `unique` do what they say
 
 ## Local Dev Loop
 
-Run this now for your local dev loop from inside the `beer_sales` directory:
+Run this now for your local dev loop, starting from the repo root. From here on everything runs inside the `beer_sales` directory:
 
 ```bash
 cd beer_sales
