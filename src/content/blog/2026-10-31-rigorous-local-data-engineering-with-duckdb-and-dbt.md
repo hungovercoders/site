@@ -47,14 +47,14 @@ Next run the following command:
 uv run dbt init
 ```
 
-Which will ask for some details to start your dbt project. I called mine `analytics_engineering` and picked duckdb as the database:
+Which will ask for some details to start your dbt project. I called mine `beer_sales`, after the data product it serves rather than the tool building it, and picked duckdb as the database:
 
 ![dbt init](/assets/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/dbt_init.png)
 
 You'll then get a gnarly looking and obviously far more professional (and complicated!) directory layout compared to our first iteration. Hold on there reader, it'll be worth it.
 
 ```txt
-analytics_engineering/
+beer_sales/
 ├── analyses/
 ├── macros/
 ├── models/
@@ -77,7 +77,7 @@ If yours looks like this, dbt init did its job.
 Keeping in the spirit of simplicity, we're going to focus on only what we need right now to get going. Delete the macros, snapshots and tests directories, the starter README, and the `models/example` folder (its starter tests fail out of the box, so it has to go). We'll keep analyses and seeds as they each earn their place in our beer shop. You can look at the [dbt docs](https://docs.getdbt.com/docs/build/projects) for more information on what everything is for. Your dbt directory structure should look something like this now:
 
 ```txt
-analytics_engineering/
+beer_sales/
 ├── analyses/
 ├── models/
 ├── seeds/
@@ -103,14 +103,14 @@ Small CSV files of reference data that dbt loads into a table for you. Think loo
 The project config. Update yours to look like this:
 
 ```yaml
-name: analytics_engineering
+name: beer_sales
 version: "1.0.0"
 config-version: 2
-profile: analytics_engineering
+profile: beer_sales
 model-paths: ["models"]
 
 models:
-  analytics_engineering:
+  beer_sales:
     staging:
       +materialized: view
     marts:
@@ -121,22 +121,22 @@ The bit worth knowing is the `models` block at the bottom. It sets how each fold
 
 #### profiles.yml
 
-This tells dbt where to connect. `dbt init` puts this in your home directory by default, but keeping it in the project means it lives in source control with everything else. Create `analytics_engineering/profiles.yml` with the following:
+This tells dbt where to connect. `dbt init` puts this in your home directory by default, but keeping it in the project means it lives in source control with everything else. Create `beer_sales/profiles.yml` with the following:
 
 ```yaml
-analytics_engineering:
+beer_sales:
   target: "{{ env_var('DBT_TARGET', 'local') }}"
   outputs:
     local:
       type: duckdb
-      path: analytics.duckdb
+      path: beer_sales.duckdb
       schema: main
       threads: 4
       extensions:
         - parquet
 ```
 
-We've only got one target called `local`, which writes to an `analytics.duckdb` file. The `DBT_TARGET` environment variable picks which target to use and defaults to local.
+We've only got one target called `local`, which writes to an `beer_sales.duckdb` file. The `DBT_TARGET` environment variable picks which target to use and defaults to local.
 
 This will become important for when we want to deploy to a new environment - coming in part 3!
 
@@ -145,7 +145,7 @@ This will become important for when we want to deploy to a new environment - com
 Our dbt project should end up looking something like this for the demo:
 
 ```txt
-analytics_engineering/
+beer_sales/
 ├── analyses/
 │   └── beer_revenue.sql
 ├── models/
@@ -185,7 +185,7 @@ sources:
 
 This starts adding the environmental awareness in to our dbt setup. We can now reference a table called events consistently in our other scripts but the actual location can change now per environment based on the environment variable. This means we can use a local directory for local development in `EVENTS_LOCATION` and later use say an AWS S3 url for dev and production.
 
-The default path starts with `../` because we run dbt from inside the `analytics_engineering` directory and our data lives one level up.
+The default path starts with `../` because we run dbt from inside the `beer_sales` directory and our data lives one level up.
 
 The `columns` block puts our first tests straight on the raw data. Every event needs an `event_id` and a `customer_id`, and we want to know if the source ever stops sending them. Testing here matters, because our staging model filters those nulls out - test after the filter and the test could never fail, it would just quietly drop the bad rows.
 
@@ -290,10 +290,10 @@ These are dbt's built in generic tests. `not_null` and `unique` do what they say
 
 ## Local Dev Loop
 
-Run this now for your local dev loop from inside the `analytics_engineering` directory:
+Run this now for your local dev loop from inside the `beer_sales` directory:
 
 ```bash
-cd analytics_engineering
+cd beer_sales
 export DBT_PROFILES_DIR="$(pwd)"
 export DBT_TARGET=local
 export EVENTS_LOCATION="../data/raw/events/*.parquet"
@@ -304,7 +304,7 @@ uv run dbt build
 
 `dbt debug` checks your profile and connection are happy. `dbt build` then loads the seed and runs every model and every test in dependency order - source tests, seed and staging view, staging tests, mart table, mart tests. If a test fails, everything downstream of it gets skipped rather than built on bad data.
 
-Between them these create `analytics.duckdb` in the `analytics_engineering` directory - `dbt debug` opens it for the first time, and `dbt build` fills it with our seed, view and table. That's the persistent database part 1 was missing.
+Between them these create `beer_sales.duckdb` in the `beer_sales` directory - `dbt debug` opens it for the first time, and `dbt build` fills it with our seed, view and table. That's the persistent database part 1 was missing.
 
 ![dbt build](/assets/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/dbt_build.png)
 
@@ -312,7 +312,7 @@ Nine green passes. A seed, two models and six tests (two on the source, two on s
 
 ## Harlequin on a Real Database
 
-Now for the persistence we promised in part 1. Stay inside the `analytics_engineering` directory for this bit. The `stg_events` view stores the relative `../data/raw/events` path, so harlequin has to run from the same place dbt did to find the parquet files. Harlequin also reads `harlequin.toml` from the current directory, so if you created one in part 1, copy it into `analytics_engineering` to keep your dracula theme:
+Now for the persistence we promised in part 1. Stay inside the `beer_sales` directory for this bit. The `stg_events` view stores the relative `../data/raw/events` path, so harlequin has to run from the same place dbt did to find the parquet files. Harlequin also reads `harlequin.toml` from the current directory, so if you created one in part 1, copy it into `beer_sales` to keep your dracula theme:
 
 ```bash
 cp ../harlequin.toml .
@@ -321,12 +321,12 @@ cp ../harlequin.toml .
 Then open harlequin against the duckdb file dbt just built:
 
 ```bash
-uv run harlequin analytics.duckdb
+uv run harlequin beer_sales.duckdb
 ```
 
-In the data catalog on the left (`Ctrl + B` if it's hidden), expand `analytics` and then `main`. There's everything dbt built for us - our `beers` seed and `fct_daily_event_summary` as tables, and `stg_events` as a view. Quit harlequin, open it again, and they're all still there. No more in-memory amnesia.
+In the data catalog on the left (`Ctrl + B` if it's hidden), expand `beer_sales` and then `main`. There's everything dbt built for us - our `beers` seed and `fct_daily_event_summary` as tables, and `stg_events` as a view. Quit harlequin, open it again, and they're all still there. No more in-memory amnesia.
 
-![Harlequin data catalog showing the beers seed, the fct_daily_event_summary table and the stg_events view in the main schema](/assets/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/harlequin_analytics_db.png)
+![Harlequin data catalog showing the beers seed, the fct_daily_event_summary table and the stg_events view in the main schema](/assets/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/harlequin_beer_sales_db.png)
 
 Lets see which beers are paying the bills. Paste this into the query editor and hit `Ctrl + Enter`:
 
@@ -342,7 +342,7 @@ order by revenue desc;
 
 No `read_parquet`, no file paths, just a table name.
 
-A gotcha worth knowing about the schema. Set `schema: analytics` in `profiles.yml` and duckdb throws an "ambiguous reference" error the moment you query anything. The database file is called `analytics.duckdb`, so duckdb names the catalog `analytics` too, and it can't tell which `analytics` you mean. You end up typing `analytics.analytics.fct_daily_event_summary` everywhere, which is why we use the `main` schema.
+A gotcha worth knowing about the schema. It's tempting to name it after the data product too, but set `schema: beer_sales` in `profiles.yml` and duckdb throws an "ambiguous reference" error the moment you query anything. The database file is called `beer_sales.duckdb`, so duckdb names the catalog `beer_sales` too, and it can't tell which `beer_sales` you mean. You end up typing `beer_sales.beer_sales.fct_daily_event_summary` everywhere, which is why we use the `main` schema.
 
 When you're done, quit harlequin with `Ctrl + Q`. Duckdb only lets one process write to a database file at a time, so leave harlequin open and the next dbt or hsql run fails with a `Could not set lock on file` error.
 
@@ -374,8 +374,8 @@ dbt won't build this, but it will compile it into plain SQL with the `ref()` swa
 
 ```bash
 uv run dbt compile --select beer_revenue
-uv run hsql analytics.duckdb \
-  -c "$(cat target/compiled/analytics_engineering/analyses/beer_revenue.sql)"
+uv run hsql beer_sales.duckdb \
+  -c "$(cat target/compiled/beer_sales/analyses/beer_revenue.sql)"
 ```
 
 ![hsql mart](/assets/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/hsql_mart.png)
