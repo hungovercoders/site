@@ -129,14 +129,16 @@ beer_sales:
   outputs:
     local:
       type: duckdb
-      path: beer_sales.duckdb
-      schema: main
+      path: beers.duckdb
+      schema: beer_sales
       threads: 4
       extensions:
         - parquet
 ```
 
-We've only got one target called `local`, which writes to an `beer_sales.duckdb` file. The `DBT_TARGET` environment variable picks which target to use and defaults to local.
+We've only got one target called `local`, which writes to a `beers.duckdb` file. The `DBT_TARGET` environment variable picks which target to use and defaults to local.
+
+Notice the database and the schema have different names. `beers` is our domain database, and each data product gets its own schema inside it - `beer_sales` being our first. Just the one for now, but there's room for a `beer_stock` or `beer_reviews` to move in next door later without reshuffling anything. Keep the names different though. If the schema matches the database name, duckdb can't tell them apart and throws an "ambiguous reference" error the moment you query anything.
 
 This will become important for when we want to deploy to a new environment - coming in part 3!
 
@@ -304,7 +306,7 @@ uv run dbt build
 
 `dbt debug` checks your profile and connection are happy. `dbt build` then loads the seed and runs every model and every test in dependency order - source tests, seed and staging view, staging tests, mart table, mart tests. If a test fails, everything downstream of it gets skipped rather than built on bad data.
 
-Between them these create `beer_sales.duckdb` in the `beer_sales` directory - `dbt debug` opens it for the first time, and `dbt build` fills it with our seed, view and table. That's the persistent database part 1 was missing.
+Between them these create `beers.duckdb` in the `beer_sales` directory - `dbt debug` opens it for the first time, and `dbt build` fills it with our seed, view and table. That's the persistent database part 1 was missing.
 
 ![dbt build](/assets/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/dbt_build.png)
 
@@ -321,18 +323,18 @@ cp ../harlequin.toml .
 Then open harlequin against the duckdb file dbt just built:
 
 ```bash
-uv run harlequin beer_sales.duckdb
+uv run harlequin beers.duckdb
 ```
 
-In the data catalog on the left (`Ctrl + B` if it's hidden), expand `beer_sales` and then `main`. There's everything dbt built for us - our `beers` seed and `fct_daily_event_summary` as tables, and `stg_events` as a view. Quit harlequin, open it again, and they're all still there. No more in-memory amnesia.
+In the data catalog on the left (`Ctrl + B` if it's hidden), expand `beers` and then `beer_sales`. There's our data product and everything dbt built for it - our `beers` seed and `fct_daily_event_summary` as tables, and `stg_events` as a view. Quit harlequin, open it again, and they're all still there. No more in-memory amnesia.
 
-![Harlequin data catalog showing the beers seed, the fct_daily_event_summary table and the stg_events view in the main schema](/assets/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/harlequin_beer_sales_db.png)
+![Harlequin data catalog showing the beers seed, the fct_daily_event_summary table and the stg_events view in the beer_sales schema](/assets/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/harlequin_catalog.png)
 
 Lets see which beers are paying the bills. Paste this into the query editor and hit `Ctrl + Enter`:
 
 ```sql
 select beer, sum(event_count) as purchases, round(sum(revenue),2) as revenue
-from fct_daily_event_summary
+from beer_sales.fct_daily_event_summary
 where event_type = 'purchase'
 group by beer
 order by revenue desc;
@@ -340,9 +342,7 @@ order by revenue desc;
 
 ![Harlequin running the beer revenue query against fct_daily_event_summary, with Dutty top of the results](/assets/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/harlequin_mart_query.png)
 
-No `read_parquet`, no file paths, just a table name.
-
-A gotcha worth knowing about the schema. It's tempting to name it after the data product too, but set `schema: beer_sales` in `profiles.yml` and duckdb throws an "ambiguous reference" error the moment you query anything. The database file is called `beer_sales.duckdb`, so duckdb names the catalog `beer_sales` too, and it can't tell which `beer_sales` you mean. You end up typing `beer_sales.beer_sales.fct_daily_event_summary` everywhere, which is why we use the `main` schema.
+No `read_parquet`, no file paths, just the data product and the table. Harlequin starts in duckdb's default `main` schema, so we prefix the table with `beer_sales` to say which data product we mean.
 
 When you're done, quit harlequin with `Ctrl + Q`. Duckdb only lets one process write to a database file at a time, so leave harlequin open and the next dbt or hsql run fails with a `Could not set lock on file` error.
 
@@ -374,7 +374,7 @@ dbt won't build this, but it will compile it into plain SQL with the `ref()` swa
 
 ```bash
 uv run dbt compile --select beer_revenue
-uv run hsql beer_sales.duckdb \
+uv run hsql beers.duckdb \
   -c "$(cat target/compiled/beer_sales/analyses/beer_revenue.sql)"
 ```
 
