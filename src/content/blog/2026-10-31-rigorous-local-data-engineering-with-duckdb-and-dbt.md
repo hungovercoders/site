@@ -176,11 +176,18 @@ sources:
       - name: events
         config:
           external_location: "{{ env_var('EVENTS_LOCATION', '../data/raw/events/*.parquet') }}"
+        columns:
+          - name: event_id
+            data_tests: [not_null]
+          - name: customer_id
+            data_tests: [not_null]
 ```
 
 This starts adding the environmental awareness in to our dbt setup. We can now reference a table called events consistently in our other scripts but the actual location can change now per environment based on the environment variable. This means we can use a local directory for local development in `EVENTS_LOCATION` and later use say an AWS S3 url for dev and production.
 
 The default path starts with `../` because we run dbt from inside the `analytics_engineering` directory and our data lives one level up.
+
+The `columns` block puts our first tests straight on the raw data. Every event needs an `event_id` and a `customer_id`, and we want to know if the source ever stops sending them. Testing here matters, because our staging model filters those nulls out - test after the filter and the test could never fail, it would just quietly drop the bad rows.
 
 ### Create Stable Views
 
@@ -247,9 +254,7 @@ models:
   - name: stg_events
     columns:
       - name: event_id
-        data_tests: [not_null, unique]
-      - name: customer_id
-        data_tests: [not_null]
+        data_tests: [unique]
       - name: event_type
         data_tests:
           - accepted_values:
@@ -297,11 +302,11 @@ uv run dbt debug
 uv run dbt build
 ```
 
-`dbt debug` checks your profile and connection are happy. `dbt build` then loads the seed and runs every model and every test in dependency order - seed and staging view, staging tests, mart table, mart tests. If a staging test fails, the mart downstream of it gets skipped rather than built on bad data.
+`dbt debug` checks your profile and connection are happy. `dbt build` then loads the seed and runs every model and every test in dependency order - source tests, seed and staging view, staging tests, mart table, mart tests. If a test fails, everything downstream of it gets skipped rather than built on bad data.
 
 ![dbt build](/assets/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/dbt_build.png)
 
-Nine green passes. A seed, two models and six tests in under a second, on a laptop, with no cluster in sight.
+Nine green passes. A seed, two models and six tests (two on the source, two on staging, two on the mart) in under a second, on a laptop, with no cluster in sight.
 
 ## Harlequin on a Real Database
 
