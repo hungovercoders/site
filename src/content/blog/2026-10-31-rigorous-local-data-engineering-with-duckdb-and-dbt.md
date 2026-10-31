@@ -304,6 +304,8 @@ uv run dbt build
 
 `dbt debug` checks your profile and connection are happy. `dbt build` then loads the seed and runs every model and every test in dependency order - source tests, seed and staging view, staging tests, mart table, mart tests. If a test fails, everything downstream of it gets skipped rather than built on bad data.
 
+Between them these create `analytics.duckdb` in the `analytics_engineering` directory - `dbt debug` opens it for the first time, and `dbt build` fills it with our seed, view and table. That's the persistent database part 1 was missing.
+
 ![dbt build](/assets/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/dbt_build.png)
 
 Nine green passes. A seed, two models and six tests (two on the source, two on staging, two on the mart) in under a second, on a laptop, with no cluster in sight.
