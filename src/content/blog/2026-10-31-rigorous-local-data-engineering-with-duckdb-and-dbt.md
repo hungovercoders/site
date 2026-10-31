@@ -55,13 +55,12 @@ You'll then get a gnarly looking and obviously far more professional (and compli
 
 ### DBT Directories and Files I need to Know Right Now
 
-Keeping in the spirit of simplicity, we're going to focus on only what we need right now to get going. Delete the analyses, macros, seeds, snapshots and tests directories, along with the starter README. You can look at the [dbt docs](https://docs.getdbt.com/docs/build/projects) for more information on what they're all for. Your dbt directory structure should look something like this now:
+Keeping in the spirit of simplicity, we're going to focus on only what we need right now to get going. Delete the analyses, macros, seeds, snapshots and tests directories, the starter README, and the `models/example` folder (its starter tests fail out of the box, so it has to go). You can look at the [dbt docs](https://docs.getdbt.com/docs/build/projects) for more information on what they're all for. Your dbt directory structure should look something like this now:
 
 ```txt
 analytics_engineering/
 ├── models/
-├── dbt_project.yml
-└── profiles.yml
+└── dbt_project.yml
 ```
 
 That's much more like it.
@@ -279,7 +278,9 @@ No `read_parquet`, no file paths, just a table name.
 
 A gotcha worth knowing about the schema. Set `schema: analytics` in `profiles.yml` and duckdb throws an "ambiguous reference" error the moment you query anything. The database file is called `analytics.duckdb`, so duckdb names the catalog `analytics` too, and it can't tell which `analytics` you mean. You end up typing `analytics.analytics.fct_daily_event_summary` everywhere, which is why we use the `main` schema.
 
-Run harlequin from inside `analytics_engineering` too. The `stg_events` view stores the relative `../data/raw/events` path, so it'll only find the parquet files from the same place dbt ran.
+Run harlequin from inside `analytics_engineering` too. The `stg_events` view stores the relative `../data/raw/events` path, so it'll only find the parquet files from the same place dbt ran. Harlequin reads `harlequin.toml` from the current directory, so copy the one from part 1 into `analytics_engineering` if you want to keep your dracula theme.
+
+One more thing before leaving harlequin open. Duckdb only lets one process write to a database file at a time, so quit harlequin (`Ctrl + Q`) before running dbt or hsql again or you'll get a `Could not set lock on file` error.
 
 ## When Tests Bite
 
@@ -291,7 +292,7 @@ uv run dbt build --select fct_daily_event_summary
 
 ![dbt test fail](/assets/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/dbt_test_fail.png)
 
-There it is. One failure, the exact test that failed, and the compiled SQL in `target/compiled` if you want to see which rows upset it. Paste that SQL into harlequin and you'll find Dutty sitting there. In a real pipeline that's a new beer launched without anyone telling the data team, and you'd rather find out here than from the finance meeting. Put Dutty back and run the build again to go green.
+There it is. One failure, the exact test that failed, and the compiled SQL in `target/compiled` if you want to see which rows upset it. Paste that SQL into harlequin and you'll find Dutty sitting there (quit it again afterwards, remember the lock). In a real pipeline that's a new beer launched without anyone telling the data team, and you'd rather find out here than from the finance meeting. Put Dutty back and run the build again to go green.
 
 ## hsql on the Mart
 
