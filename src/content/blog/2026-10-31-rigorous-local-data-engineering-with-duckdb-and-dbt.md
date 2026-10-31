@@ -74,11 +74,13 @@ If yours looks like this, dbt init did its job.
 
 ### DBT Directories and Files I need to Know Right Now
 
-Keeping in the spirit of simplicity, we're going to focus on only what we need right now to get going. Delete the analyses, macros, seeds, snapshots and tests directories, the starter README, and the `models/example` folder (its starter tests fail out of the box, so it has to go). You can look at the [dbt docs](https://docs.getdbt.com/docs/build/projects) for more information on what they're all for. Your dbt directory structure should look something like this now:
+Keeping in the spirit of simplicity, we're going to focus on only what we need right now to get going. Delete the macros, snapshots and tests directories, the starter README, and the `models/example` folder (its starter tests fail out of the box, so it has to go). We'll keep analyses and seeds as they each earn their place in our beer shop. You can look at the [dbt docs](https://docs.getdbt.com/docs/build/projects) for more information on what everything is for. Your dbt directory structure should look something like this now:
 
 ```txt
 analytics_engineering/
+├── analyses/
 ├── models/
+├── seeds/
 └── dbt_project.yml
 ```
 
@@ -87,6 +89,14 @@ That's much more like it.
 #### Models
 
 This is where our SQL lives. Every `.sql` file in here is a model - a single `select` statement that dbt turns into a view or a table named after the file. The yaml files sitting next to them describe the models and hold their tests.
+
+#### Analyses
+
+The home for queries you want to keep but never want dbt to build. They can use `ref()` like a model, and `dbt compile` turns them into plain SQL you can run yourself. Remember the Ctrl + S tip from part 1 about saving your harlequin queries? This is a better place for them, as the table names resolve for whatever environment you're pointing at.
+
+#### Seeds
+
+Small CSV files of reference data that dbt loads into a table for you. Think lookups that rarely change, like a list of country codes or, in our case, the beers we sell. Not for raw data - our events stay in parquet where they belong.
 
 #### dbt_project.yml
 
@@ -132,18 +142,25 @@ This will become important for when we want to deploy to a new environment - com
 
 ## Models Setup
 
-Our models directory should end up looking something like this for the demo:
+Our dbt project should end up looking something like this for the demo:
 
 ```txt
-models/
-├── sources/
-│   └── raw_sources.yml
-├── staging/
-│   ├── stg_events.sql
-│   └── staging.yml
-└── marts/
-    ├── fct_daily_event_summary.sql
-    └── marts.yml
+analytics_engineering/
+├── analyses/
+│   └── beer_revenue.sql
+├── models/
+│   ├── sources/
+│   │   └── raw_sources.yml
+│   ├── staging/
+│   │   ├── stg_events.sql
+│   │   └── staging.yml
+│   └── marts/
+│       ├── fct_daily_event_summary.sql
+│       └── marts.yml
+├── seeds/
+│   └── beers.csv
+├── dbt_project.yml
+└── profiles.yml
 ```
 
 ### Stable Source with Dynamic Location
@@ -201,6 +218,24 @@ Look familiar? These are our two part 1 SQL files with the `COPY ... TO` plumbin
 
 We can see the chain of dynamic locations and variable referenced object names really becoming useful now.
 
+### Seeding the Beer List
+
+Our shop only sells eight beers, and we want to know straight away if a beer turns up in the data that isn't one of ours. In seeds add the file beers.csv:
+
+```csv
+beer
+Cwtch
+Stay Puft
+Clwb Tropica
+Easy Livin
+Hank
+Fubar
+Juicy
+Dutty
+```
+
+`dbt build` loads this into a `beers` table before anything that depends on it, and we can `ref('beers')` it like any other model. A real shop would pull its product catalogue from its product system as a source rather than a hand-edited CSV, but for a small list that barely changes a seed is just the ticket.
+
 ### Add Model Tests
 
 In models/staging add the following code to the file staging.yml:
@@ -240,20 +275,13 @@ models:
         data_tests: [not_null]
       - name: beer
         data_tests:
-          - accepted_values:
+          - relationships:
               arguments:
-                values:
-                  - Cwtch
-                  - Stay Puft
-                  - Clwb Tropica
-                  - Easy Livin
-                  - Hank
-                  - Fubar
-                  - Juicy
-                  - Dutty
+                to: ref('beers')
+                field: beer
 ```
 
-These are dbt's built in generic tests. `not_null` and `unique` do what they say on the can, and `accepted_values` fails if a column has anything outside the list. Nulls don't count against `accepted_values`, which is handy as page views and searches don't have a beer.
+These are dbt's built in generic tests. `not_null` and `unique` do what they say on the can, and `accepted_values` fails if a column has anything outside the list. `relationships` does the same job against another table, so every beer in the mart has to exist in our seed. When a new beer launches you add a row to the CSV instead of digging through yaml. Nulls don't count against either, which is handy as page views and searches don't have a beer.
 
 ## Local Dev Loop
 
@@ -269,11 +297,11 @@ uv run dbt debug
 uv run dbt build
 ```
 
-`dbt debug` checks your profile and connection are happy. `dbt build` then runs every model and every test in dependency order - staging view, staging tests, mart table, mart tests. If a staging test fails, the mart downstream of it gets skipped rather than built on bad data.
+`dbt debug` checks your profile and connection are happy. `dbt build` then loads the seed and runs every model and every test in dependency order - seed and staging view, staging tests, mart table, mart tests. If a staging test fails, the mart downstream of it gets skipped rather than built on bad data.
 
 ![dbt build](/assets/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/dbt_build.png)
 
-Eight green passes. Two models and six tests in under a second, on a laptop, with no cluster in sight.
+Nine green passes. A seed, two models and six tests in under a second, on a laptop, with no cluster in sight.
 
 ## Harlequin on a Real Database
 
@@ -283,7 +311,7 @@ Now for the persistence we promised in part 1. Open harlequin against the duckdb
 uv run harlequin analytics.duckdb
 ```
 
-Open the catalog on the left and there they are in the `main` schema - `stg_events` as a view and `fct_daily_event_summary` as a table. Close harlequin, open it again, and they're still there. Lets see which beers are paying the bills:
+Open the catalog on the left and there they are in the `main` schema - `stg_events` as a view, and `fct_daily_event_summary` and our `beers` seed as tables. Close harlequin, open it again, and they're still there. Lets see which beers are paying the bills:
 
 ```sql
 select beer, sum(event_count) as purchases, round(sum(revenue),2) as revenue
@@ -303,23 +331,34 @@ One more thing before leaving harlequin open. Duckdb only lets one process write
 
 ## When Tests Bite
 
-Tests that always pass are just decoration, so lets break one. Remove `Dutty` from the beer list in `marts.yml` and build only the mart:
+Tests that always pass are just decoration, so lets break one. Remove `Dutty` from `seeds/beers.csv` and build again:
 
 ```bash
-uv run dbt build --select fct_daily_event_summary
+uv run dbt build
 ```
 
 ![dbt test fail](/assets/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/dbt_test_fail.png)
 
-There it is. One failure, the exact test that failed, and the compiled SQL in `target/compiled` if you want to see which rows upset it. Paste that SQL into harlequin and you'll find Dutty sitting there (quit it again afterwards, remember the lock). In a real pipeline that's a new beer launched without anyone telling the data team, and you'd rather find out here than from the finance meeting. Put Dutty back and run the build again to go green.
+There it is. One failure, the exact test that failed, and the compiled SQL in `target/compiled` if you want to see which rows upset it - every daily row with a Dutty in it. Paste that SQL into harlequin and you'll find Dutty sitting there (quit it again afterwards, remember the lock). In a real pipeline that's a new beer launched without anyone telling the data team, and you'd rather find out here than from the finance meeting. Put Dutty back in the CSV and run the build again to go green.
 
-## hsql on the Mart
+## Saved Analyses with hsql
 
-hsql from part 1 works against the duckdb file too, which is perfect for quick checks in the terminal or for an agent poking at your data:
+That beer revenue query is one we'll keep coming back to, so lets save it properly. In analyses add the file beer_revenue.sql:
+
+```sql
+select beer, sum(event_count) as purchases, round(sum(revenue),2) as revenue
+from {{ ref('fct_daily_event_summary') }}
+where event_type = 'purchase'
+group by beer
+order by revenue desc
+```
+
+dbt won't build this, but it will compile it into plain SQL with the `ref()` swapped for the real table name. hsql from part 1 works against the duckdb file too, so we can compile and run it straight from the terminal - perfect for quick checks or for an agent poking at your data:
 
 ```bash
+uv run dbt compile --select beer_revenue
 uv run hsql analytics.duckdb \
-  -c "select beer, sum(event_count) as purchases, round(sum(revenue),2) as revenue from fct_daily_event_summary where event_type = 'purchase' group by beer order by revenue desc;"
+  -c "$(cat target/compiled/analytics_engineering/analyses/beer_revenue.sql)"
 ```
 
 ![hsql mart](/assets/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/hsql_mart.png)
@@ -328,7 +367,7 @@ Dutty top of the pile. Can't argue with that.
 
 ## Shortcomings and Next Steps
 
-We've now got persistence, environment variables doing the heavy lifting for our source location, and tests guarding our data. All still running happily on a laptop with the delightful tools from part 1. Is this worth it for real? For a small team or a side project it's a sensible day one setup. Once more than a handful of people are writing models, CI running `dbt build` on every pull request is the next thing to add.
+We've now got persistence, environment variables doing the heavy lifting for our source location, a seeded beer list, saved analyses, and tests guarding our data. All still running happily on a laptop with the delightful tools from part 1. Is this worth it for real? For a small team or a side project it's a sensible day one setup. Once more than a handful of people are writing models, CI running `dbt build` on every pull request is the next thing to add.
 
 The obvious shortcoming is that it all still lives on my machine. In part 3 we'll point `EVENTS_LOCATION` at S3, add a new target to `profiles.yml` and get this pipeline running as a deployed job - same SQL, same tests, different environment. If you're starting fresh, create `profiles.yml` in the project from the off rather than letting `dbt init` squirrel it away in your home directory.
 
