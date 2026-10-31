@@ -53,6 +53,25 @@ Which will ask for some details to start your dbt project. I called mine `analyt
 
 You'll then get a gnarly looking and obviously far more professional (and complicated!) directory layout compared to our first iteration. Hold on there reader, it'll be worth it.
 
+```txt
+analytics_engineering/
+├── analyses/
+├── macros/
+├── models/
+│   └── example/
+│       ├── my_first_dbt_model.sql
+│       ├── my_second_dbt_model.sql
+│       └── schema.yml
+├── seeds/
+├── snapshots/
+├── tests/
+├── .gitignore
+├── README.md
+└── dbt_project.yml
+```
+
+If yours looks like this, dbt init did its job.
+
 ### DBT Directories and Files I need to Know Right Now
 
 Keeping in the spirit of simplicity, we're going to focus on only what we need right now to get going. Delete the analyses, macros, seeds, snapshots and tests directories, the starter README, and the `models/example` folder (its starter tests fail out of the box, so it has to go). You can look at the [dbt docs](https://docs.getdbt.com/docs/build/projects) for more information on what they're all for. Your dbt directory structure should look something like this now:
