@@ -408,4 +408,4 @@ There are some shortcomings to this quick demo that make it a bit light for a pr
 
 Next steps in parts 2 and 3 we'll get some environment awareness, persisted duckdb metadata, data pipeline testing capabilities and a live environment! If I did this bit again I'd use a .duckdb file from the first query instead of the in-memory session, just so nothing disappears when you close the tool.
 
-To see the most up to date version of this code check out the repo at [github.com/hungovercoders/learn.harlequin](https://github.com/hungovercoders/learn.harlequin). Crack open a can and watch this space for part two.
+To see the most up to date version of this code check out the repo at [github.com/hungovercoders/learn.harlequin](https://github.com/hungovercoders/learn.harlequin). Crack open a can and carry on to [part two](/blog/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt), where dbt brings tests and environments to the party.
