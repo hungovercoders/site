@@ -21,7 +21,7 @@ Time to increment to the next level now we have completed [part 1](/blog/2026-09
 - [uv](https://docs.astral.sh/uv/) for python and package management
 - A terminal
 
-Did part 1 before this post came out? The generator has since been tweaked so Clwb Tropica sells like it should, so regenerate your events from the repo root to match the results here. Clear the old files first, as the generator names them by date and won't tidy up after itself:
+Before we start, generate a fresh batch of fake events from the repo root. Clear out any old ones first, as the generator names its files by date and won't tidy up after itself:
 
 ```bash
 rm -rf data/raw/events
