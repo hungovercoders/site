@@ -351,7 +351,7 @@ order by revenue desc;
 
 No `read_parquet`, no file paths, just the data product and the table. Harlequin starts in duckdb's default `main` schema, so we prefix the table with `beer_sales` to say which data product we mean.
 
-When you're done, quit harlequin with `Ctrl + Q`. Duckdb only lets one process write to a database file at a time, so leave harlequin open and the next dbt or hsql run fails with a `Could not set lock on file` error.
+When you're done, quit harlequin with `Ctrl + Q`. I'll be honest, I hit this one myself - left harlequin open, went back to dbt and got a `Could not set lock on file` error for my troubles. Duckdb only lets one process write to a database file at a time, so while harlequin has it open, dbt and hsql are locked out.
 
 ## When Tests Bite
 
