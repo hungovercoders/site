@@ -340,7 +340,7 @@ group by beer
 order by revenue desc;
 ```
 
-![Harlequin running the beer revenue query against fct_daily_event_summary, with Dutty top of the results](/assets/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/harlequin_mart_query.png)
+![Harlequin running the beer revenue query against fct_daily_event_summary, with Clwb Tropica top of the results](/assets/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/harlequin_mart_query.png)
 
 No `read_parquet`, no file paths, just the data product and the table. Harlequin starts in duckdb's default `main` schema, so we prefix the table with `beer_sales` to say which data product we mean.
 
@@ -380,7 +380,7 @@ uv run hsql beers.duckdb \
 
 ![hsql mart](/assets/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/hsql_mart.png)
 
-Dutty top of the pile. Can't argue with that.
+Clwb Tropica top of the pile, and by a distance. Deceptively strong and goes down easy - can't argue with that.
 
 That's the split worth remembering. Harlequin with plain table names for poking around, analyses with refs for anything worth keeping.
 
