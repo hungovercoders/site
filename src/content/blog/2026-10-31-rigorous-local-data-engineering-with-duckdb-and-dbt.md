@@ -358,7 +358,7 @@ There it is. One failure, the exact test that failed, and the compiled SQL in `t
 
 ## Saved Analyses with hsql
 
-That beer revenue query is one we'll keep coming back to, so lets save it properly. In analyses add the file beer_revenue.sql:
+That beer revenue query we just ran in harlequin is one we'll keep coming back to, so lets promote it. In analyses add the file beer_revenue.sql - same query, but with the table name swapped for a `ref()`:
 
 ```sql
 select beer, sum(event_count) as purchases, round(sum(revenue),2) as revenue
@@ -379,6 +379,8 @@ uv run hsql analytics.duckdb \
 ![hsql mart](/assets/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/hsql_mart.png)
 
 Dutty top of the pile. Can't argue with that.
+
+That's the split worth remembering. Harlequin with plain table names for poking around, analyses with refs for anything worth keeping.
 
 ## Shortcomings and Next Steps
 
