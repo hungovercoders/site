@@ -310,13 +310,23 @@ Nine green passes. A seed, two models and six tests (two on the source, two on s
 
 ## Harlequin on a Real Database
 
-Now for the persistence we promised in part 1. Open harlequin against the duckdb file dbt just built:
+Now for the persistence we promised in part 1. Stay inside the `analytics_engineering` directory for this bit. The `stg_events` view stores the relative `../data/raw/events` path, so harlequin has to run from the same place dbt did to find the parquet files. Harlequin also reads `harlequin.toml` from the current directory, so if you created one in part 1, copy it into `analytics_engineering` to keep your dracula theme:
+
+```bash
+cp ../harlequin.toml .
+```
+
+Then open harlequin against the duckdb file dbt just built:
 
 ```bash
 uv run harlequin analytics.duckdb
 ```
 
-Open the catalog on the left and there they are in the `main` schema - `stg_events` as a view, and `fct_daily_event_summary` and our `beers` seed as tables. Close harlequin, open it again, and they're still there. Lets see which beers are paying the bills:
+In the data catalog on the left (`Ctrl + B` if it's hidden), expand `analytics` and then `main`. There's everything dbt built for us - our `beers` seed and `fct_daily_event_summary` as tables, and `stg_events` as a view. Quit harlequin, open it again, and they're all still there. No more in-memory amnesia.
+
+![Harlequin data catalog showing the beers seed, the fct_daily_event_summary table and the stg_events view in the main schema](/assets/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/harlequin_analytics_db.png)
+
+Lets see which beers are paying the bills. Paste this into the query editor and hit `Ctrl + Enter`:
 
 ```sql
 select beer, sum(event_count) as purchases, round(sum(revenue),2) as revenue
@@ -326,13 +336,13 @@ group by beer
 order by revenue desc;
 ```
 
+![Harlequin running the beer revenue query against fct_daily_event_summary, with Dutty top of the results](/assets/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/harlequin_mart_query.png)
+
 No `read_parquet`, no file paths, just a table name.
 
 A gotcha worth knowing about the schema. Set `schema: analytics` in `profiles.yml` and duckdb throws an "ambiguous reference" error the moment you query anything. The database file is called `analytics.duckdb`, so duckdb names the catalog `analytics` too, and it can't tell which `analytics` you mean. You end up typing `analytics.analytics.fct_daily_event_summary` everywhere, which is why we use the `main` schema.
 
-Run harlequin from inside `analytics_engineering` too. The `stg_events` view stores the relative `../data/raw/events` path, so it'll only find the parquet files from the same place dbt ran. Harlequin reads `harlequin.toml` from the current directory, so copy the one from part 1 into `analytics_engineering` if you want to keep your dracula theme.
-
-One more thing before leaving harlequin open. Duckdb only lets one process write to a database file at a time, so quit harlequin (`Ctrl + Q`) before running dbt or hsql again or you'll get a `Could not set lock on file` error.
+When you're done, quit harlequin with `Ctrl + Q`. Duckdb only lets one process write to a database file at a time, so leave harlequin open and the next dbt or hsql run fails with a `Could not set lock on file` error.
 
 ## When Tests Bite
 
