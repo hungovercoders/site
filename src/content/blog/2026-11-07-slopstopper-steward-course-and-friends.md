@@ -1,8 +1,8 @@
 ---
-title: Slopstopper Five Months On, with a Steward, a Course and Twenty-Five Checks
+title: Doing the Rounds with a Slopstopper Steward
 date: 2026-11-07
 author: dataGriff
-description: Twenty-five checks, a profile per repo shape, a course on a slopped demo, and a steward that keeps every repo current, five months after the first install
+description: Slopstopper five months on, with twenty-five checks, a course on a slopped demo, and a steward that keeps every repo current without me remembering
 tags:
   - Slopstopper
   - Steward
