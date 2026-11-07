@@ -102,17 +102,17 @@ As of this week it isn't only mine. Fork the repo (or use it as a template if yo
 
 ### Dependabot Bumps
 
-Dependabot opens the bump and the steward waits for the checks. A red one goes to the agent with the job log and the release notes, under a brief that says adapt the repo and never loosen a test or pin it back, and the fix lands on Dependabot's own branch with one comment. The same run merges green patch and minor bumps. A major waits for a human. The first run merged six across two repos in under five minutes, and no agent touched any of them.
+Dependabot opens the bump and the steward waits for the checks. A red one goes to the agent with the job log and the release notes, under a brief that says adapt the repo and never loosen a test or pin it back. The fix lands on Dependabot's own branch with one comment. The same run merges green patch and minor bumps. A major waits for a human. The first run merged six across two repos in under five minutes, and no agent touched any of them.
 
 ### The 0.29.0 Upgrade
 
-When 0.29.0 shipped this week the steward moved three repos to it in one run. On apic the agent found the complexity check red on a function at CCN 32 against a ceiling of 30, split it, had the self-review approve the split, and all forty-six checks went green. The PR body says all of that with the model, the cost ($0.22 for the work, $0.08 for the review) and the one command the box refused. On this site the agent found nothing to change, said so, and all I did was press merge.
+When 0.29.0 shipped this week the steward moved three repos to it in one run. On apic the agent found the complexity check red on a function at CCN 32 against a ceiling of 30, split it, and the self-review approved. All forty-six checks on the PR went green. The PR body says all of that with the model, the cost ($0.22 for the work, $0.08 for the review) and the one command the box refused. On this site the agent found nothing to change, said so, and all I did was press merge.
 
 ![This site's pull request 83, opened by the steward bot: the pin moved from 0.26.0 to 0.29.0, the agent's account of the refresh with the model, cost and turn count, the browser checks it left to the PR's own workflows, and the line saying all thirty checks are green](/assets/2026-11-07-slopstopper-steward-course-and-friends/steward-pr.png)
 
 ## What Went Wrong, Again
 
-Seven things in June. Five this month, and all of them in the machinery around the checks rather than in the checks. The installer edited `package.json` and left `package-lock.json` behind, so the first upgrade the steward ever opened went red on ten checks at once. The steward timed its wait for PR checks from when it looked rather than from when they'd finished. A cancelled CI job counted as red and cost the agent a turn discovering there was no log to read. Semgrep wouldn't run in the agent's box, because the GitHub runner puts `XDG_CONFIG_HOME` in `/etc/environment` and sudo reads it back in. And the Claude API key hit its monthly spend limit mid-run, so the PR opened as a draft saying the agent hadn't finished, which is what should happen. Every one of these only showed up against real repos.
+Seven things in June. Five this month, and all of them in the machinery around the checks rather than in the checks. The installer edited `package.json` and left `package-lock.json` behind, so the first upgrade the steward ever opened went red on ten checks at once. The steward timed its wait for PR checks from when it looked rather than from when they'd finished. A cancelled CI job counted as red and cost the agent a turn discovering there was no log to read. Semgrep wouldn't run in the agent's box, because the GitHub runner puts `XDG_CONFIG_HOME` in `/etc/environment` and sudo reads it back in. And the Claude API key hit its monthly spend limit mid-run, so the PR opened as a draft saying the agent hadn't finished, as it should. Every one of these only showed up against real repos.
 
 ## Would I Pour Another One
 
