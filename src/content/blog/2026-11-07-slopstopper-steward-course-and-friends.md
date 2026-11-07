@@ -24,12 +24,12 @@ The agent is the punter: creative, chatty, and a different answer every time you
 
 ![Three boxes left to right: generators (agents writing code, a different answer every time), gates (slopstopper, twenty-five deterministic checks in three loops, the same task command locally and in CI, exiting 0 for clean, 1 for found something, 2 for could not run) and what ships (the PR merges, Cloudflare deploys). A steward band beneath loops back into the gates, keeping every repo on the current version and working the issues the gates raise](/assets/2026-11-07-slopstopper-steward-course-and-friends/factory.svg)
 
-Here's the loop in one go, recorded with [vhs](https://github.com/charmbracelet/vhs) from the tapes slopstopper keeps in its repo. A check goes green, a routing table gets pasted into the README because "people read the README", the check goes red and points at the report, the change gets reverted, green again.
+Here's the loop in one go, on the Lantern demo repo the CLI writes for you (more on that below). The entry-files check goes red because the README has grown a whole manual, the report says by how much, the manual gets moved into `docs/` where it belongs, and the check goes green.
 
 <video autoplay loop muted playsinline>
   <source src="/assets/2026-11-07-slopstopper-steward-course-and-friends/triage.mp4" type="video/mp4">
   <source src="/assets/2026-11-07-slopstopper-steward-course-and-friends/triage.webm" type="video/webm">
-  <img src="/assets/2026-11-07-slopstopper-steward-course-and-friends/triage.gif" alt="The triage loop in a terminal: task ss:hygiene:entry-files passes, a routing table is pasted into README.md, the same check fails naming the file and its token budget, the report under .ss/reports is read, the change is reverted and the check passes again">
+  <img src="/assets/2026-11-07-slopstopper-steward-course-and-friends/triage.gif" alt="The triage loop in a terminal: slopstopper run hygiene:entry-files fails on the Lantern demo because README.md is 800 tokens against a budget of 600, the report under .ss/reports is read, the oversized section is moved into docs, and the same check passes with README.md at 225 tokens">
 </video>
 
 ## What's on Tap Now
@@ -55,7 +55,7 @@ curl -fsSL https://raw.githubusercontent.com/hungovercoders/slopstopper/main/ins
 
 `slopstopper profile show` tells you which profile you're on and which workflows it's deliberately not carrying, because a missing workflow used to look like a broken install and I'd go hunting for a bug that wasn't there.
 
-![slopstopper profile detect suggests ui because it found app/feedback.html, and profile show lists the four API workflows the ui profile deliberately leaves out](/assets/2026-11-07-slopstopper-steward-course-and-friends/profile.png)
+![slopstopper profile detect suggests ui because it found app/index.html, and profile show lists the four API workflows the ui profile deliberately leaves out](/assets/2026-11-07-slopstopper-steward-course-and-friends/profile.png)
 
 ## One Comment, Not Twenty
 
