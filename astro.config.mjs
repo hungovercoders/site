@@ -10,6 +10,7 @@ import rehypeExternalLinks from 'rehype-external-links';
 
 import { remarkReadingTime } from './scripts/remark-reading-time.mjs';
 import { rehypeImageLinks } from './scripts/rehype-image-links.mjs';
+import { rehypeTableWrap } from './scripts/rehype-table-wrap.mjs';
 
 // https://astro.build/config
 export default defineConfig({
@@ -21,6 +22,7 @@ export default defineConfig({
     rehypePlugins: [
       [rehypeExternalLinks, { target: '_blank', rel: ['noopener', 'noreferrer'] }],
       rehypeImageLinks,
+      rehypeTableWrap,
     ],
     shikiConfig: {
       themes: { light: 'github-light', dark: 'github-dark' },

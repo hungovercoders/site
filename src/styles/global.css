@@ -177,6 +177,14 @@ tbody tr:hover {
 table code {
 	font-size: 0.95em;
 }
+.table-wrap {
+	margin: 1.5em 0;
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+}
+.table-wrap > table {
+	margin: 0;
+}
 img,
 video {
 	max-width: 100%;
