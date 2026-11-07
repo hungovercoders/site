@@ -22,9 +22,9 @@ I barely write code by hand now. Agents write it, often from my phone, and the o
 
 ![Three boxes left to right: generators (agents writing code, a different answer every time), gates (slopstopper, twenty-five deterministic checks in three loops, the same task command locally and in CI, exiting 0 for clean, 1 for found something, 2 for could not run) and what ships (the PR merges, Cloudflare deploys). A steward band beneath loops back into the gates, keeping every repo on the current version and working the issues the gates raise](/assets/2026-11-07-slopstopper-steward-course-and-friends/factory.svg)
 
-What makes a gate a gate, as I see it: same input, same verdict (Semgrep, Gitleaks, Trivy, Lizard, axe-core, Lighthouse, none of them guess); an honest verdict, where "could not run" is its own outcome rather than a scanner that failed to download its rules exiting 0 and waving the line through; one command everywhere, `task ss:<check>` on my laptop being the same command and pinned version as CI; and a red line that names a file and a report, so an agent can fix what a gate found without me translating.
+What makes a gate a gate, as I see it. Same input, same verdict: Semgrep, Gitleaks, Trivy, Lizard, axe-core and Lighthouse don't guess. An honest verdict: "could not run" is its own outcome, not a scanner that failed to download its rules exiting 0 and waving the line through. One command everywhere: `task ss:<check>` on my laptop is the same command and pinned version as CI. And a red line that names a file and a report, so an agent can fix what the gate found without me translating.
 
-Get those right and you can let the generators loose. Here's the loop in one sitting, recorded with [vhs](https://github.com/charmbracelet/vhs) from the tapes in slopstopper's own repo: a green check, a change that blows its budget, the red line and the report it points at, and the fix.
+Get those right and you can let the generators loose. Here's the loop end to end, recorded with [vhs](https://github.com/charmbracelet/vhs) from the tapes in slopstopper's repo: a green check, a change that blows its budget, the red line and the report it points at, and the fix.
 
 <video autoplay loop muted playsinline>
   <source src="/assets/2026-11-07-slopstopper-steward-course-and-friends/triage.mp4" type="video/mp4">
@@ -59,7 +59,7 @@ curl -fsSL https://raw.githubusercontent.com/hungovercoders/slopstopper/main/ins
 
 ## One comment, not twenty
 
-Twenty-five workflows each posting a comment is a PR nobody reads. Each check now posts only while it's red and deletes its comment when it passes, and one summary comment per PR says where everything stands. This is the one on the PR that moved this site to 0.29.0 this week:
+Twenty-five workflows each posting a comment is a PR nobody reads. Each check now posts only while it's red and deletes its comment when it passes. One summary comment per PR says where everything stands. This is the one on the PR that moved this site to 0.29.0 this week:
 
 ![The single SlopStopper summary comment on this site's pull request 83: all 20 checks passed, listed by loop, with the head commit and the time it was last updated](/assets/2026-11-07-slopstopper-steward-course-and-friends/pr-summary.png)
 
@@ -67,7 +67,7 @@ A green PR has that line and nothing else, which reads like a broken install unt
 
 ## Learn it on a slopped repo
 
-The thing I most wanted in June was a way to teach each check without breaking a real repo. The CLI now ships one:
+What I most wanted in June was a way to teach each check without breaking a real repo. The CLI now ships one:
 
 ```bash
 pipx install slopstopper-cli
@@ -96,7 +96,7 @@ Slopstopper is per-repo, and I've got it on a handful of repos. Every release me
 
 ![One steward run as a pipeline of seven steps: discover, inventory, plan, execute, self-review, settle and report. Five are plain code. Execute and settle hand two judgement calls, reading a refresh and fixing a red check, to a boxed Claude Code agent with its own OS user, no token and no network. Whatever it changes goes back up through the gates, the pinned CLI's checks and then the pull request's own CI, before anything is pushed](/assets/2026-11-07-slopstopper-steward-course-and-friends/steward-run.svg)
 
-The agent is boxed, because the steward runs git and `gh` with a push token over whatever it leaves behind. It runs as its own OS user in its own copy of the clone, with no token, no network, a tool allow-list built per order from the checks the pinned CLI says the clone can run, a dollar cap and a turn cap. It never gets a vote on whether its own change passes. The gates do, then the PR's CI does, and only then does anything merge.
+The agent is boxed, because the steward runs git and `gh` with a push token over whatever it leaves behind. It runs as its own OS user in its own copy of the clone, with no token, no network, a tool allow-list built per order from the checks the pinned CLI says the clone can run, a dollar cap and a turn cap. It never gets a vote on whether its own change passes. The gates do, then the PR's CI, and only then does anything merge.
 
 Which model does the judging is one line in `steward.yml`, handed straight to `claude --model`. Mine says `sonnet`, and so far Sonnet has been really cheap for this work: twelve cents to read a refresh and change nothing, twenty to explain why nothing needed changing, thirty to find and split a function that had crept over the complexity ceiling and have a second run review it. Every PR body names the model and the bill, so if I ever move up a model I'll see exactly what it buys.
 
@@ -136,7 +136,7 @@ If I were doing this again I'd have pointed the steward at real repos a week ear
 
 ## Sources and further reading
 
-This post is the guided path. The references are these:
+This post is the guided path. These are the sources:
 
 - [slopstopper.dev](https://slopstopper.dev) for the install one-liner, the checks and the profiles, and [From zero to slopstopper](https://slopstopper.dev/learn) for the course.
 - The [slopstopper repo](https://github.com/hungovercoders/slopstopper) and its [changelog](https://github.com/hungovercoders/slopstopper/blob/main/CHANGELOG.md), where 0.26.0 to 0.29.0 is the stretch this post covers.
