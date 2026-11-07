@@ -34,14 +34,12 @@ Here's the loop in one go, on the Lantern demo repo the CLI writes for you (more
 
 ## What's on Tap Now
 
-The June table is wrong in most cells now, so here's the current one.
+The June table is wrong in most cells now, so here's the current line-up, four loops and what each one carries.
 
-| Loop | Checks | Tools under the hood |
-| --- | --- | --- |
-| 🔒 **Security** | SAST, DAST, secrets, dependency CVEs, dependency review, licence inventory, API headers and CORS | Semgrep, OWASP ZAP, Gitleaks, Trivy, GitHub dependency review |
-| 🧹 **Hygiene** | Complexity caps, docs structure, accuracy and size, entry-file budgets, CSP drift, privacy statement, OpenAPI drift, auto-label PRs | Lizard, the CLI's own Python, actions/labeler |
-| ✅ **Reliability** | Smoke, E2E journeys, accessibility (WCAG 2.1 AA), Core Web Vitals, SEO and social metadata, broken links, robots.txt, sitemap, llms.txt, API health and latency | Playwright, axe-core, Lighthouse CI, the CLI |
-| 🤖 **Operational** | One rolling PR summary comment, failed workflows raise and close their own issue, the Cloudflare post-deploy run, a weekly doc updater, release-please | GitHub Actions, gh-aw |
+- 🔒 **Security.** SAST, DAST, secrets, dependency CVEs, dependency review, licence inventory, API headers and CORS. Semgrep, OWASP ZAP, Gitleaks, Trivy and GitHub's dependency review do the work.
+- 🧹 **Hygiene.** Complexity caps, docs structure, accuracy and size, entry-file budgets, CSP drift, a privacy statement, OpenAPI drift and auto-labelled PRs. Lizard and the CLI's own Python.
+- ✅ **Reliability.** Smoke, E2E journeys, accessibility to WCAG 2.1 AA, Core Web Vitals, SEO and social metadata, broken links, robots.txt, sitemap, llms.txt, API health and latency. Playwright, axe-core and Lighthouse CI.
+- 🤖 **Operational.** One rolling PR summary comment, failed workflows that raise and close their own issue, the Cloudflare post-deploy run, a weekly doc updater and release-please. GitHub Actions and gh-aw.
 
 The robots, sitemap and llms.txt checks are there because I kept shipping a sitemap that didn't match the pages, and once shipped a robots file that de-indexed production. The CVE scan now re-runs on main every Monday, because a quiet repo never used to hear about a CVE that came out after its last push, and most of mine are quiet.
 
