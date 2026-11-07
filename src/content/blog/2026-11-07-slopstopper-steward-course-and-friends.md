@@ -98,7 +98,7 @@ I didn't want an agent anywhere near a push token, so it doesn't get one. It run
 
 ### Run Your Own
 
-As of this week it isn't just mine. The repo at hungovercoders/slopstopper-steward is hungovercoders' copy, not a service, and it's built to be forked. Fork it (or use it as a template if your org won't allow forks), replace `steward.yml` from the example with your own orgs, install your own GitHub App on your adopters with its ID as a variable and its key as a secret, add a Claude token, and run `steward plan` before you let it open anything. A copy that still has the example's `your-org` in its config exits 2 before it reads a thing, which is me saving you from my own first mistake. The fork keeps its link upstream, so when I fix something a Sync fork brings it in. The [setup runbook](https://github.com/hungovercoders/slopstopper-steward/blob/main/docs/runbooks/SETUP.md) walks the whole thing.
+As of this week it isn't only mine. The hungovercoders repo is my copy, not a service, and it's built to be forked. Fork it (or use it as a template if your org won't allow forks), replace `steward.yml` from the example with your own orgs, install your own GitHub App on your adopters with its ID as a variable and its key as a secret, add a Claude token, and run `steward plan` before you let it open anything. A copy that still has the example's `your-org` in its config exits 2 before it reads a thing. The fork keeps its link upstream, so when I fix something a Sync fork brings it in. The [setup runbook](https://github.com/hungovercoders/slopstopper-steward/blob/main/docs/runbooks/SETUP.md) has the steps.
 
 ### Dependabot's Round
 
