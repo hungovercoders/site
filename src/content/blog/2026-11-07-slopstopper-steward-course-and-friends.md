@@ -14,17 +14,17 @@ image:
   path: /assets/2026-11-07-slopstopper-steward-course-and-friends/link.png
 ---
 
-I wanted [slopstopper](https://slopstopper.dev) to look after itself. It already does on this site. I wanted it on every repo I've got, on the current version, without me being the one who remembers to bump a pin on a Sunday with a head on me. Back in [June](/blog/2026-06-21-slopstopper-cli-and-tooling/) I installed it here and wrote up the seven things it found. It's November now, there are twenty-five checks, there's a course, and there's a second tool called the [steward](https://github.com/hungovercoders/slopstopper-steward) that does the rounds of my repos so I don't have to. Read on fellow hungovercoder and meet the robot that nags the other robots.
+I wanted [slopstopper](https://slopstopper.dev) to look after itself. It already does on this site. I wanted the same on every repo I've got, on the current version, without me being the one who remembers to bump a pin on a Sunday with a head on me. Back in [June](/blog/2026-06-21-slopstopper-cli-and-tooling/) I installed it here and wrote up the seven things it found. It's November now, there are twenty-five checks, there's a course, and there's a second tool called the [steward](https://github.com/hungovercoders/slopstopper-steward) that does the rounds of my repos so I don't have to. Read on fellow hungovercoder and meet the robot that nags the other robots.
 
 ## The Bouncer on the Door
 
 I barely type code any more. I tap an idea into Claude Code on my phone, an agent writes it, a pull request turns up, and I'm reading a diff I didn't write. It's brilliant fun and it's also a factory, and a factory with nobody on inspection ships slop.
 
-The agent is the punter. Creative, chatty, and you get a different answer every time you ask. Slopstopper is the bouncer. Same question, same answer, whoever's asking. That's why the checking is done by Semgrep, Gitleaks, Trivy, Lizard, axe-core and Lighthouse and not by a model having a guess. A check that couldn't run says so and exits 2. It doesn't exit 0 and wave the whole queue in. The `task ss:<check>` on my laptop is the same command and the same pinned version as CI. And every red line names a file and a report, so I can hand it to an agent to fix.
+The agent is the punter. Creative, chatty, and you get a different answer every time you ask. Slopstopper is the bouncer. Same question, same answer, whoever's asking. That's why Semgrep, Gitleaks, Trivy, Lizard, axe-core and Lighthouse do the checking, not a model having a guess. A check that couldn't run says so and exits 2. It doesn't exit 0 and wave the whole queue in. The `task ss:<check>` on my laptop is the same command and the same pinned version as CI. And every red line names a file and a report, so I can hand it to an agent to fix.
 
 ![Three boxes left to right: generators (agents writing code, a different answer every time), gates (slopstopper, twenty-five deterministic checks in three loops, the same task command locally and in CI, exiting 0 for clean, 1 for found something, 2 for could not run) and what ships (the PR merges, Cloudflare deploys). A steward band beneath loops back into the gates, keeping every repo on the current version and working the issues the gates raise](/assets/2026-11-07-slopstopper-steward-course-and-friends/factory.svg)
 
-Here's the loop in one go, on the Lantern demo repo the CLI writes for you (more on that below). The entry-files check goes red because the README has grown a whole manual, the report says by how much, the manual gets moved into `docs/` where it belongs, and the check goes green.
+Here's the loop in one go, on the Lantern demo repo the CLI writes for you (more on that below). The entry-files check goes red because the README has grown a whole manual, the report says by how much, the manual moves into `docs/` where it belongs, and the check goes green.
 
 <video autoplay loop muted playsinline>
   <source src="/assets/2026-11-07-slopstopper-steward-course-and-friends/triage.mp4" type="video/mp4">
@@ -82,7 +82,7 @@ slopstopper demo        # writes slopstopper-demo/, a two-page status page calle
 
 Lantern is a little status page with one deliberate finding per check. There's a complexity hotspot, a README over budget, a missing header and a requests pin from 2018 with a CVE on it. The one thing it doesn't carry is a secret, because a realistic-looking key in a public repo gets found by every scanner on the internet and reported to the vendor. That lesson has you write your own fake one.
 
-On top of the demo is the course, [From zero to slopstopper](https://slopstopper.dev/learn). Twenty-one short lessons, one check or one idea each, with a YouTube episode to come for every one. The site got a dark theme this week too, for those of you reading this after last orders. Every command in every lesson runs in CI, which I added after lesson 4's commands rotted while I was writing lesson 5. The two Claude Code skills from June, `slopstopper-install` and `slopstopper-triage`, now ship inside the CLI, so when the pin moves the playbook the agent reads moves with it.
+On top of the demo is the course, [From zero to slopstopper](https://slopstopper.dev/learn). Twenty-one short lessons, one check or one idea each, with a YouTube episode to come for every one. Every command in every lesson runs in CI, which I added after lesson 4's commands rotted while I was writing lesson 5. The site got a dark theme this week too, for those of you reading this after last orders. The two Claude Code skills from June, `slopstopper-install` and `slopstopper-triage`, now ship inside the CLI, so when the pin moves the playbook the agent reads moves with it.
 
 ![The From zero to slopstopper course page on slopstopper.dev after this week's redesign, with a theme toggle in the header: twenty-one short lessons, what you will need, and the four commands that install the CLI and write the Lantern demo repo](/assets/2026-11-07-slopstopper-steward-course-and-friends/learn.png)
 
@@ -102,9 +102,9 @@ As of this week it isn't only mine. The hungovercoders repo is my copy, not a se
 
 ### Dependabot's Round
 
-Dependabot opens the bump and the steward waits for the checks. If they're red, the agent gets the failing job's log and the release notes, with a brief that says adapt the repo to the new version and never loosen a test or pin it back. The fix goes onto Dependabot's own branch with one comment saying what happened. Green patch and minor bumps get merged by the same run. Majors get listed for a human.
+Dependabot opens the bump and the steward waits for the checks. If they're red, the agent gets the failing job's log and the release notes, with a brief that says adapt the repo to the new version and never loosen a test or pin it back. The fix goes onto Dependabot's own branch with one comment saying what happened. The same run merges green patch and minor bumps. A major bump waits for a human.
 
-The first run merged six Dependabot PRs across two repos in under five minutes and left two alone with a comment each. No agent was involved in any of the six. A green bump is a yes or no question, and a model would only have slowed it down.
+The first run merged six Dependabot PRs across two repos in under five minutes and left two alone with a comment each. No agent touched any of the six. A green bump is a yes or no question, and a model would only have slowed it down.
 
 ### The 0.29.0 Round
 
@@ -118,7 +118,7 @@ Seven things in June. Five this month, in the order they bit me.
 
 1. **The installer added devDependencies to `package.json` and left `package-lock.json` alone.** Every browser workflow starts with `npm ci`, which refuses a stale lock, so the first upgrade the steward ever opened went red on ten checks at once. Both the steward and the 0.29.0 installer regenerate the lock now.
 2. **The steward timed the wait for PR checks from when it looked, not from when they'd finished.** On Dependabot PRs that had been green for a week, that was five minutes each of waiting for nothing.
-3. **A cancelled CI job counted as red**, so the agent got handed a job with no log and spent a round working out there was nothing to read.
+3. **A cancelled CI job counted as red**, so the steward handed the agent a job with no log, and the agent spent a round working out there was nothing to read.
 4. **Semgrep wouldn't run inside the agent's box.** The GitHub runner image puts `XDG_CONFIG_HOME=/home/runner/.config` in `/etc/environment`, sudo's PAM session reads that back in, and Semgrep tried to write its settings somewhere the agent user couldn't.
 5. **The Claude API key hit its monthly spend limit** halfway through the run. The install and every check still ran, and the PR opened as a draft saying the agent hadn't finished. The agent is the only part of this with a bill.
 
