@@ -18,9 +18,9 @@ I wanted [slopstopper](https://slopstopper.dev) to look after itself. Not on thi
 
 ## The Bouncer on the Door
 
-Here's what I've properly understood since June. I barely type code any more. I tap an idea into Claude Code on my phone, an agent writes it, a pull request turns up, and I'm reading a diff I didn't write. That is brilliant fun and it is also a factory, and a factory with nobody on inspection is how slop gets out of the building.
+Here's what I've understood since June. I barely type code any more. I tap an idea into Claude Code on my phone, an agent writes it, a pull request turns up, and I'm reading a diff I didn't write. It's brilliant fun and it's also a factory, and a factory with nobody on inspection ships slop.
 
-The agent is the punter. Creative, chatty, and you get a different answer every time you ask. Slopstopper is the bouncer. Same question, same answer, doesn't care who you are or how nicely you asked. I only want four things from the bouncer and I want them every single time. Same input, same verdict, which is why it's Semgrep, Gitleaks, Trivy, Lizard, axe-core and Lighthouse under the hood and not a model having a guess. An honest "couldn't run" when it couldn't run, because a scanner that fails to download its rules and exits 0 has just waved the whole queue in. The same `task ss:<check>` on my laptop as in CI, on the same pinned version. And a red line that names a file and a report, so I can hand it straight to an agent to fix without me translating.
+The agent is the punter. Creative, chatty, and you get a different answer every time you ask. Slopstopper is the bouncer. Same question, same answer, doesn't care who you are or how nicely you asked. I want four things from the bouncer, every time. Same input, same verdict, which is why it's Semgrep, Gitleaks, Trivy, Lizard, axe-core and Lighthouse doing the checking and not a model having a guess. An honest "couldn't run" when it couldn't run, because a scanner that fails to download its rules and exits 0 has just waved the whole queue in. The same `task ss:<check>` on my laptop as in CI, on the same pinned version. And a red line that names a file and a report, so I can hand it to an agent to fix without translating.
 
 ![Three boxes left to right: generators (agents writing code, a different answer every time), gates (slopstopper, twenty-five deterministic checks in three loops, the same task command locally and in CI, exiting 0 for clean, 1 for found something, 2 for could not run) and what ships (the PR merges, Cloudflare deploys). A steward band beneath loops back into the gates, keeping every repo on the current version and working the issues the gates raise](/assets/2026-11-07-slopstopper-steward-course-and-friends/factory.svg)
 
@@ -47,13 +47,13 @@ A few of these have a story. The robots, sitemap and llms.txt checks are there b
 
 ## Pick Your Poison: ui, api or library
 
-June's install assumed everything was a website, so when I put it on an API nine browser checks fell over instead of politely staying out of the way. There are three profiles now. `ui` is the default and gives you the lot, holding the API checks back until the repo shows an API. `api` drops the browser and SEO checks and runs DAST in ZAP's OpenAPI mode. `library` is static checks only, which is what the steward itself runs on.
+June's install assumed everything was a website, so when I put it on an API nine browser checks fell over instead of staying out of the way. There are three profiles now. `ui` is the default and gives you the lot, holding the API checks back until the repo shows an API. `api` drops the browser and SEO checks and runs DAST in ZAP's OpenAPI mode. `library` is static checks only, which is what the steward itself runs on.
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/hungovercoders/slopstopper/main/install.sh | bash -s -- --profile api
 ```
 
-`slopstopper profile show` tells you which profile you're on and which workflows it's deliberately not carrying. I wanted that one because a missing workflow used to look exactly like a broken install, and I'd go hunting for a bug that wasn't there.
+`slopstopper profile show` tells you which profile you're on and which workflows it's deliberately not carrying. I wanted that one because a missing workflow used to look like a broken install, and I'd go hunting for a bug that wasn't there.
 
 ![slopstopper profile detect suggests ui because it found app/feedback.html, and profile show lists the four API workflows the ui profile deliberately leaves out](/assets/2026-11-07-slopstopper-steward-course-and-friends/profile.png)
 
@@ -82,17 +82,17 @@ slopstopper demo        # writes slopstopper-demo/, a two-page status page calle
 
 Lantern is a little status page with one deliberate finding per check: a complexity hotspot, a README over budget, a missing header, a requests pin from 2018 with a CVE on it. The one thing it doesn't carry is a secret, because a realistic-looking key in a public repo gets found by every scanner on the internet and reported to the vendor. That lesson has you write your own fake one.
 
-On top of the demo is the course, [From zero to slopstopper](https://slopstopper.dev/learn). Twenty-one short lessons, each with a YouTube episode to come. Lesson 0 is what slop actually is. Lessons 2 to 16 take one check each: what it stops, the tool behind it, what it looks like going off on Lantern, and the fix. The rest cover the installer, the workflows, the Claude Code skills and the profiles, and lesson 20 has you add a check of your own to the CLI and lets the test suite list every surface you forgot. Every command in every lesson runs in CI now, which I added after lesson 4's commands rotted while I was busy writing lesson 5.
+On top of the demo is the course, [From zero to slopstopper](https://slopstopper.dev/learn). Twenty-one short lessons, each with a YouTube episode to come. Lesson 0 is what slop is. Lessons 2 to 16 take one check each: what it stops, the tool behind it, what it looks like going off on Lantern, and the fix. The rest cover the installer, the workflows, the Claude Code skills and the profiles, and lesson 20 has you add a check of your own to the CLI and lets the test suite list every surface you forgot. Every command in every lesson runs in CI now, which I added after lesson 4's commands rotted while I was writing lesson 5.
 
 ![The From zero to slopstopper course page on slopstopper.dev: twenty-one short lessons, what you will need, and the four commands that install the CLI and write the Lantern demo repo](/assets/2026-11-07-slopstopper-steward-course-and-friends/learn.png)
 
-The two Claude Code skills from June, `slopstopper-install` and `slopstopper-triage`, are still how I install and fix things. The difference is they ship inside the CLI now, so when the pin moves the skills move with it and the playbook the agent reads matches the checks it's actually running.
+The two Claude Code skills from June, `slopstopper-install` and `slopstopper-triage`, are still how I install and fix things. The difference is they ship inside the CLI now, so when the pin moves the skills move with it and the playbook the agent reads matches the checks it's running.
 
 ## The Steward Does the Rounds
 
 Slopstopper is per-repo, and I've got it on a handful of repos. That meant every release was a round of pin bumps and refreshes and reading the release notes in each one, every red check on main was an issue in each one, and every Dependabot PR was a green tick sat there waiting for me to press the button. I built the tool so I'd stop forgetting the important stuff, and then forgot to keep the tool current. Classic.
 
-So I built [slopstopper-steward](https://github.com/hungovercoders/slopstopper-steward) to do the round for the whole org. It has no check logic and no fix knowledge of its own. Slopstopper decides what's wrong in a repo and ships the skill that says how to fix it. The steward just works out which repos need a hand and points slopstopper's own tooling at them, one PR each. The rule I held myself to is the bouncer rule again: code for anything that has a right answer, an agent only where there's a judgement to make. The agent gets two jobs. Read a refresh and tell me if a knob moved or a workaround can come out, and fix a check that's gone red. Everything it touches goes back through the gates before anything is pushed.
+So I built [slopstopper-steward](https://github.com/hungovercoders/slopstopper-steward) to do the round for the whole org. It has no check logic and no fix knowledge of its own. Slopstopper decides what's wrong in a repo and ships the skill that says how to fix it. The steward works out which repos need a hand and points slopstopper's own tooling at them, one PR each. The rule I held myself to is the bouncer rule again: code for anything that has a right answer, an agent only where there's a judgement to make. The agent gets two jobs. Read a refresh and tell me if a knob moved or a workaround can come out, and fix a check that's gone red. Everything it touches goes back through the gates before anything is pushed.
 
 ![One steward run as a pipeline of seven steps: discover, inventory, plan, execute, self-review, settle and report. Five are plain code. Execute and settle hand two judgement calls, reading a refresh and fixing a red check, to a boxed Claude Code agent with its own OS user, no token and no network. Whatever it changes goes back up through the gates, the pinned CLI's checks and then the pull request's own CI, before anything is pushed](/assets/2026-11-07-slopstopper-steward-course-and-friends/steward-run.svg)
 
@@ -122,13 +122,13 @@ Seven things in June. Five this month, in the order they bit me.
 2. **The steward timed the wait for PR checks from when it looked, not from when they'd finished.** On Dependabot PRs that had been green for a week, that was five minutes each of waiting for nothing. It reads completion times now.
 3. **A cancelled CI job counted as red**, so the agent got handed a job with no log and spent a whole round working out there was nothing to read. Cancelled is its own state now and costs nothing.
 4. **Semgrep wouldn't run inside the agent's box.** The box set `HOME` for the agent user, but the GitHub runner image puts `XDG_CONFIG_HOME=/home/runner/.config` in `/etc/environment`, and sudo's PAM session reads that back in. Semgrep tried to write its settings somewhere it couldn't. The XDG directories are per-user now too.
-5. **The Claude API key hit its monthly spend limit** halfway through the run. The install and every check still ran, and the PR opened as a draft saying the agent hadn't finished, which is exactly right. Also a reminder that the agent is the only part of this with a bill.
+5. **The Claude API key hit its monthly spend limit** halfway through the run. The install and every check still ran, and the PR opened as a draft saying the agent hadn't finished, which is right. Also a reminder that the agent is the only part of this with a bill.
 
 None of these were in the checks. All of them were in the machinery around the checks, and every one of them only showed up when I ran it against real repos.
 
 ## Would I Pour Another One
 
-Yes, more than in June. The checks were already earning their keep. The steward turns them from a thing I have to remember into a thing that just happens, and the course means I can hand slopstopper to somebody without a two-hour call and a whiteboard.
+Yes, more than in June. The checks were already worth it. The steward turns them from a thing I have to remember into a thing that just happens, and the course means I can hand slopstopper to somebody without a two-hour call and a whiteboard.
 
 I'm not going to read every line an agent writes, and neither are you. What I can do is make sure every line goes through a bouncer that doesn't care who wrote it, gives the same answer every time, and says so when it couldn't do its job. It's still too darn fun with AI at the moment to keep remembering the important stuff, so I'd rather the important stuff remembered itself.
 
@@ -143,7 +143,7 @@ This post is the guided path. These are the sources.
 - [slopstopper.dev](https://slopstopper.dev) for the install one-liner, the checks and the profiles, and [From zero to slopstopper](https://slopstopper.dev/learn) for the course.
 - The [slopstopper repo](https://github.com/hungovercoders/slopstopper) and its [changelog](https://github.com/hungovercoders/slopstopper/blob/main/CHANGELOG.md), where 0.26.0 to 0.29.0 is the stretch this post covers.
 - The [steward repo](https://github.com/hungovercoders/slopstopper-steward) and its [architecture doc](https://github.com/hungovercoders/slopstopper-steward/blob/main/docs/architecture/README.md), where the box and the settle loop are written up properly.
-- [The June post](/blog/2026-06-21-slopstopper-cli-and-tooling/), for where this all started.
+- [The June post](/blog/2026-06-21-slopstopper-cli-and-tooling/), for where this started.
 
 ## What Next
 
