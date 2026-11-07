@@ -82,9 +82,9 @@ slopstopper demo        # writes slopstopper-demo/, a two-page status page calle
 
 Lantern is a little status page with one deliberate finding per check: a complexity hotspot, a README over budget, a missing header, a requests pin from 2018 with a CVE on it. The one thing it doesn't carry is a secret, because a realistic-looking key in a public repo gets found by every scanner on the internet and reported to the vendor. That lesson has you write your own fake one.
 
-On top of the demo is the course, [From zero to slopstopper](https://slopstopper.dev/learn): twenty-one short lessons, one check or one idea each, with a YouTube episode to come for every one. Every command in every lesson runs in CI, which I added after lesson 4's commands rotted while I was writing lesson 5. The two Claude Code skills from June, `slopstopper-install` and `slopstopper-triage`, now ship inside the CLI, so when the pin moves the playbook the agent reads moves with it.
+On top of the demo is the course, [From zero to slopstopper](https://slopstopper.dev/learn): twenty-one short lessons, one check or one idea each, with a YouTube episode to come for every one. The site got a dark theme this week too, for those of you reading this after last orders. Every command in every lesson runs in CI, which I added after lesson 4's commands rotted while I was writing lesson 5. The two Claude Code skills from June, `slopstopper-install` and `slopstopper-triage`, now ship inside the CLI, so when the pin moves the playbook the agent reads moves with it.
 
-![The From zero to slopstopper course page on slopstopper.dev: twenty-one short lessons, what you will need, and the four commands that install the CLI and write the Lantern demo repo](/assets/2026-11-07-slopstopper-steward-course-and-friends/learn.png)
+![The From zero to slopstopper course page on slopstopper.dev after this week's redesign, with a theme toggle in the header: twenty-one short lessons, what you will need, and the four commands that install the CLI and write the Lantern demo repo](/assets/2026-11-07-slopstopper-steward-course-and-friends/learn.png)
 
 ## The Steward Does the Rounds
 
@@ -95,6 +95,10 @@ So I built [slopstopper-steward](https://github.com/hungovercoders/slopstopper-s
 ![One steward run as a pipeline of seven steps: discover, inventory, plan, execute, self-review, settle and report. Five are plain code. Execute and settle hand two judgement calls, reading a refresh and fixing a red check, to a boxed Claude Code agent with its own OS user, no token and no network. Whatever it changes goes back up through the gates, the pinned CLI's checks and then the pull request's own CI, before anything is pushed](/assets/2026-11-07-slopstopper-steward-course-and-friends/steward-run.svg)
 
 I didn't want an agent anywhere near a push token, so it doesn't get one. It runs as its own OS user in its own copy of the clone, with no network, a tool allow-list, a dollar cap and a turn cap, and it never gets a vote on whether its own change passes. Which model does the judging is one line in `steward.yml`, passed straight to `claude --model`. Mine says `sonnet` and so far Sonnet has been really cheap for this: twelve cents to read a refresh and change nothing, twenty to read one and write up why nothing needed changing, thirty to find a function over the complexity ceiling, split it and have a second run review the split. Every PR body says which model ran and what it cost.
+
+### Run Your Own
+
+As of this week it isn't just mine. The repo at hungovercoders/slopstopper-steward is hungovercoders' copy, not a service, and it's built to be forked. Fork it (or use it as a template if your org won't allow forks), replace `steward.yml` from the example with your own orgs, install your own GitHub App on your adopters with its ID as a variable and its key as a secret, add a Claude token, and run `steward plan` before you let it open anything. A copy that still has the example's `your-org` in its config exits 2 before it reads a thing, which is me saving you from my own first mistake. The fork keeps its link upstream, so when I fix something a Sync fork brings it in. The [setup runbook](https://github.com/hungovercoders/slopstopper-steward/blob/main/docs/runbooks/SETUP.md) walks the whole thing.
 
 ### Dependabot's Round
 
@@ -134,7 +138,7 @@ This post is the guided path. These are the sources.
 
 - [slopstopper.dev](https://slopstopper.dev) for the install one-liner, the checks and the profiles, and [From zero to slopstopper](https://slopstopper.dev/learn) for the course.
 - The [slopstopper repo](https://github.com/hungovercoders/slopstopper) and its [changelog](https://github.com/hungovercoders/slopstopper/blob/main/CHANGELOG.md), where 0.26.0 to 0.29.0 is the stretch this post covers.
-- The [steward repo](https://github.com/hungovercoders/slopstopper-steward) and its [architecture doc](https://github.com/hungovercoders/slopstopper-steward/blob/main/docs/architecture/README.md), where the box and the settle loop are written up in full.
+- The [steward repo](https://github.com/hungovercoders/slopstopper-steward), its [architecture doc](https://github.com/hungovercoders/slopstopper-steward/blob/main/docs/architecture/README.md), where the box and the settle loop are written up in full, and its [setup runbook](https://github.com/hungovercoders/slopstopper-steward/blob/main/docs/runbooks/SETUP.md) for running your own.
 - [The June post](/blog/2026-06-21-slopstopper-cli-and-tooling/), for where this started.
 
 ## What Next
