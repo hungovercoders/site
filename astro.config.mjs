@@ -9,6 +9,7 @@ import cloudflare from '@astrojs/cloudflare';
 import rehypeExternalLinks from 'rehype-external-links';
 
 import { remarkReadingTime } from './scripts/remark-reading-time.mjs';
+import { rehypeImageLinks } from './scripts/rehype-image-links.mjs';
 
 // https://astro.build/config
 export default defineConfig({
@@ -19,6 +20,7 @@ export default defineConfig({
     remarkPlugins: [remarkReadingTime],
     rehypePlugins: [
       [rehypeExternalLinks, { target: '_blank', rel: ['noopener', 'noreferrer'] }],
+      rehypeImageLinks,
     ],
     shikiConfig: {
       themes: { light: 'github-light', dark: 'github-dark' },

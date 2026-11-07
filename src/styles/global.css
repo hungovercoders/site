@@ -183,6 +183,13 @@ video {
 	height: auto;
 	border-radius: 8px;
 }
+a.img-link {
+	display: block;
+	cursor: zoom-in;
+}
+a.img-link:hover {
+	text-decoration: none;
+}
 code {
 	font-family: var(--font-mono);
 	font-size: 0.9em;
