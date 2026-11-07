@@ -88,9 +88,9 @@ On top of the demo is the course, [From zero to slopstopper](https://slopstopper
 
 ## The Steward Does the Rounds
 
-Slopstopper is per-repo, and I've got it on a handful of repos. Every release meant a round of pin bumps, refreshes and release notes, one repo at a time. Every red check on main was an issue to raise. Every Dependabot PR was a green tick waiting for me to press the button. I built the tool so I'd stop forgetting the important stuff, and then forgot to keep the tool current.
+Slopstopper is per-repo, and I've got it on a handful of repos. Every release meant pin bumps, refreshes and release notes, one repo at a time. Every red check on main was an issue to raise. Every Dependabot PR was a green tick waiting for me to press the button. I built the tool so I'd stop forgetting the important stuff, and then forgot to keep the tool current.
 
-So I built [slopstopper-steward](https://github.com/hungovercoders/slopstopper-steward) to do the round for the whole org. It has no check logic and no fix knowledge of its own. Slopstopper decides what's wrong in a repo and ships the skill that says how to fix it. The steward works out which repos need a hand and points slopstopper's own tooling at them, one PR each. The rule is the bouncer rule again. Code does anything with a right answer, and the agent only gets the judgement calls. There are two of those. It reads a refresh and tells me if a knob moved or a workaround can come out, and it fixes a check that's gone red. Everything it touches goes back through the gates before anything is pushed.
+So I built [slopstopper-steward](https://github.com/hungovercoders/slopstopper-steward) to do that job for the whole org. It has no check logic and no fix knowledge of its own. Slopstopper decides what's wrong in a repo and ships the skill that says how to fix it. The steward works out which repos need a hand and points slopstopper's own tooling at them, one PR each. The rule is the bouncer rule again. Code does anything with a right answer, and the agent only gets the judgement calls. There are two of those. It reads a refresh and tells me if a knob moved or a workaround can come out, and it fixes a check that's gone red. Everything it touches goes back through the gates before anything is pushed.
 
 ![One steward run as a pipeline of seven steps: discover, inventory, plan, execute, self-review, settle and report. Five are plain code. Execute and settle hand two judgement calls, reading a refresh and fixing a red check, to a boxed Claude Code agent with its own OS user, no token and no network. Whatever it changes goes back up through the gates, the pinned CLI's checks and then the pull request's own CI, before anything is pushed](/assets/2026-11-07-slopstopper-steward-course-and-friends/steward-run.svg)
 
@@ -98,51 +98,34 @@ I didn't want an agent anywhere near a push token, so it doesn't get one. It run
 
 ### Bring Your Own Steward
 
-As of this week it isn't only mine. The hungovercoders repo is my copy, not a service, and it's built to be forked. Fork it (or use it as a template if your org won't allow forks), replace `steward.yml` from the example with your own orgs, install your own GitHub App on your adopters with its ID as a variable and its key as a secret, add a Claude token, and run `steward plan` before you let it open anything. A copy that still has the example's `your-org` in its config exits 2 before it reads a thing. The fork keeps its link upstream, so when I fix something a Sync fork brings it in. The [setup runbook](https://github.com/hungovercoders/slopstopper-steward/blob/main/docs/runbooks/SETUP.md) has the steps.
+As of this week it isn't only mine. Fork the repo (or use it as a template if your org won't allow forks), replace `steward.yml` from the example with your own orgs, install your own GitHub App with its ID as a variable and its key as a secret, add a Claude token, and run `steward plan` before you let it open anything. A copy with the example's `your-org` still in it exits 2 before it reads a thing. The [setup runbook](https://github.com/hungovercoders/slopstopper-steward/blob/main/docs/runbooks/SETUP.md) has the steps.
 
-### Dependabot's Round
+### Dependabot Bumps
 
-Dependabot opens the bump and the steward waits for the checks. If they're red, the agent gets the failing job's log and the release notes, with a brief that says adapt the repo to the new version and never loosen a test or pin it back. The fix goes onto Dependabot's own branch with one comment saying what happened. The same run merges green patch and minor bumps. A major bump waits for a human.
+Dependabot opens the bump and the steward waits for the checks. A red one goes to the agent with the job log and the release notes, under a brief that says adapt the repo and never loosen a test or pin it back, and the fix lands on Dependabot's own branch with one comment. The same run merges green patch and minor bumps. A major waits for a human. The first run merged six across two repos in under five minutes, and no agent touched any of them.
 
-The first run merged six Dependabot PRs across two repos in under five minutes and left two alone with a comment each. No agent touched any of the six. A green bump is a yes or no question, and a model would only have slowed it down.
+### The 0.29.0 Upgrade
 
-### The 0.29.0 Round
-
-When 0.29.0 shipped this week the steward moved three repos to it in one run. On apic the agent read the refresh, found no new knobs, and found the complexity check red on a function in the VS Code extension at CCN 32 against a ceiling of 30. It split the function, the self-review approved it, and all forty-six checks on the PR went green. The PR body says all of that, with the model, the cost ($0.22 for the work, $0.08 for the review) and the one command the box refused to let it run. This site was another of the three. The agent found nothing to change, said so, and all I did was press merge.
+When 0.29.0 shipped this week the steward moved three repos to it in one run. On apic the agent found the complexity check red on a function at CCN 32 against a ceiling of 30, split it, had the self-review approve the split, and all forty-six checks went green. The PR body says all of that with the model, the cost ($0.22 for the work, $0.08 for the review) and the one command the box refused. On this site the agent found nothing to change, said so, and all I did was press merge.
 
 ![This site's pull request 83, opened by the steward bot: the pin moved from 0.26.0 to 0.29.0, the agent's account of the refresh with the model, cost and turn count, the browser checks it left to the PR's own workflows, and the line saying all thirty checks are green](/assets/2026-11-07-slopstopper-steward-course-and-friends/steward-pr.png)
 
 ## What Went Wrong, Again
 
-Seven things in June. Five this month, in the order they bit me.
-
-1. **The installer added devDependencies to `package.json` and left `package-lock.json` alone.** Every browser workflow starts with `npm ci`, which refuses a stale lock, so the first upgrade the steward ever opened went red on ten checks at once. Both the steward and the 0.29.0 installer regenerate the lock now.
-2. **The steward timed the wait for PR checks from when it looked, not from when they'd finished.** On Dependabot PRs that had been green for a week, that was five minutes each of waiting for nothing.
-3. **A cancelled CI job counted as red**, so the steward handed the agent a job with no log, and the agent spent a round working out there was nothing to read.
-4. **Semgrep wouldn't run inside the agent's box.** The GitHub runner image puts `XDG_CONFIG_HOME=/home/runner/.config` in `/etc/environment`, sudo's PAM session reads that back in, and Semgrep tried to write its settings somewhere the agent user couldn't.
-5. **The Claude API key hit its monthly spend limit** halfway through the run. The install and every check still ran, and the PR opened as a draft saying the agent hadn't finished. The agent is the only part of this with a bill.
-
-None of these were in the checks. All of them were in the machinery around the checks, and every one of them showed up only when I ran it against real repos.
+Seven things in June. Five this month, and all of them in the machinery around the checks rather than in the checks. The installer edited `package.json` and left `package-lock.json` behind, so the first upgrade the steward ever opened went red on ten checks at once. The steward timed its wait for PR checks from when it looked rather than from when they'd finished. A cancelled CI job counted as red and cost the agent a turn discovering there was no log to read. Semgrep wouldn't run in the agent's box, because the GitHub runner puts `XDG_CONFIG_HOME` in `/etc/environment` and sudo reads it back in. And the Claude API key hit its monthly spend limit mid-run, so the PR opened as a draft saying the agent hadn't finished, which is what should happen. Every one of these only showed up against real repos.
 
 ## Would I Pour Another One
 
-Yes, more than in June. The checks were already worth it. The steward turns them from a thing I have to remember into a thing that just happens, and the course means I can hand slopstopper to somebody without a two-hour call and a whiteboard. It's still too darn fun with AI at the moment to keep remembering the important stuff, so I'd rather the important stuff remembered itself.
-
-The June caveats stand. Private repos will burn Actions minutes. Monorepos fight the defaults. And the steward's agent costs real money, pennies per PR, but it's a budget you set and a limit you will hit.
-
-If I were doing this again I'd have pointed the steward at real repos a week earlier and written less of it first. None of the five things that went wrong were in the checks, and I'd never have thought to write a test for a PAM session reading `/etc/environment`.
+Yes, more than in June. The checks were already worth it. The steward turns them from a thing I have to remember into a thing that just happens, and the course means I can hand slopstopper to somebody without a two-hour call. The June caveats stand. Private repos burn Actions minutes, monorepos fight the defaults, and the steward's agent costs real money, pennies per PR but a limit you will hit. If I were doing this again I'd have pointed the steward at real repos a week earlier and written less of it first.
 
 ## Sources and Further Reading
 
 This post is the guided path. These are the sources.
 
-- [slopstopper.dev](https://slopstopper.dev) for the install one-liner, the checks and the profiles, and [From zero to slopstopper](https://slopstopper.dev/learn) for the course.
-- The [slopstopper repo](https://github.com/hungovercoders/slopstopper) and its [changelog](https://github.com/hungovercoders/slopstopper/blob/main/CHANGELOG.md), where 0.26.0 to 0.29.0 is the stretch this post covers.
-- The [steward repo](https://github.com/hungovercoders/slopstopper-steward), its [architecture doc](https://github.com/hungovercoders/slopstopper-steward/blob/main/docs/architecture/README.md), where the box and the settle loop are written up in full, and its [setup runbook](https://github.com/hungovercoders/slopstopper-steward/blob/main/docs/runbooks/SETUP.md) for running your own.
+- [slopstopper.dev](https://slopstopper.dev) for the install, the checks and the profiles, and [From zero to slopstopper](https://slopstopper.dev/learn) for the course.
+- The [steward repo](https://github.com/hungovercoders/slopstopper-steward), its [architecture doc](https://github.com/hungovercoders/slopstopper-steward/blob/main/docs/architecture/README.md) for the box and the settle loop, and its [setup runbook](https://github.com/hungovercoders/slopstopper-steward/blob/main/docs/runbooks/SETUP.md) for running your own.
 - [The June post](/blog/2026-06-21-slopstopper-cli-and-tooling/), for where this started.
 
-## Next Round
+## What Next
 
-The steward's own upgrade PRs still wait for me to press merge, until I've read enough of its self-reviews to trust the switch. And there are twenty-one episodes to record, in between meals.
-
-Ideas and complaints to [slopstopper.dev/feedback](https://slopstopper.dev/feedback) as ever, and let's see if we can all save the world from slop. Cheers fellow hungovercoder!
+The steward's own upgrade PRs still wait for me to press merge until I've read enough of its self-reviews to trust it, and there are twenty-one episodes to record in between meals. Ideas and complaints to [slopstopper.dev/feedback](https://slopstopper.dev/feedback) as ever, and let's see if we can all save the world from slop. Cheers fellow hungovercoder!
