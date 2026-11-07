@@ -45,7 +45,7 @@ The June table is wrong in most cells now, so here's the current one.
 
 The robots, sitemap and llms.txt checks are there because I kept shipping a sitemap that didn't match the pages, and once shipped a robots file that de-indexed production. The CVE scan now re-runs on main every Monday, because a quiet repo never used to hear about a CVE that came out after its last push, and most of mine are quiet.
 
-## Pick Your Poison: ui, api or library
+## Three Profiles, Pick Your Poison
 
 June's install assumed everything was a website, so when I put it on an API nine browser checks fell over instead of staying out of the way. There are three profiles now. `ui` is the default and gives you the lot, holding the API checks back until the repo shows an API. `api` drops the browser and SEO checks and runs DAST in ZAP's OpenAPI mode. `library` is static checks only, and is what the steward itself runs on.
 
@@ -57,7 +57,7 @@ curl -fsSL https://raw.githubusercontent.com/hungovercoders/slopstopper/main/ins
 
 ![slopstopper profile detect suggests ui because it found app/index.html, and profile show lists the four API workflows the ui profile deliberately leaves out](/assets/2026-11-07-slopstopper-steward-course-and-friends/profile.png)
 
-## One Comment, Not Twenty
+## A Quieter PR
 
 Twenty-five workflows each posting their own comment is a PR nobody reads, including me. Each check now only comments while it's red and deletes the comment when it goes green, and one summary comment per PR says where everything stands. This is the one on the PR that moved this site to 0.29.0 this week.
 
@@ -65,7 +65,7 @@ Twenty-five workflows each posting their own comment is a PR nobody reads, inclu
 
 A green PR has that line and nothing else. It looks like the install has broken until you get used to it.
 
-## Break Lantern, Not Production
+## A Repo You're Allowed to Break
 
 The thing I wanted most in June was a way to show someone each check without breaking a real repo. The CLI now writes you one to break.
 
@@ -96,7 +96,7 @@ So I built [slopstopper-steward](https://github.com/hungovercoders/slopstopper-s
 
 I didn't want an agent anywhere near a push token, so it doesn't get one. It runs as its own OS user in its own copy of the clone, with no network, a tool allow-list, a dollar cap and a turn cap. It never gets a vote on whether its own change passes. The model is one line in `steward.yml`, passed straight to `claude --model`. Mine says `sonnet`, and so far Sonnet has been really cheap for this. Twelve cents to read a refresh and change nothing. Twenty to read one and write up why nothing needed changing. Thirty to find a function over the complexity ceiling, split it, and have a second run review the split. Every PR body says which model ran and what it cost.
 
-### Run Your Own
+### Bring Your Own Steward
 
 As of this week it isn't only mine. The hungovercoders repo is my copy, not a service, and it's built to be forked. Fork it (or use it as a template if your org won't allow forks), replace `steward.yml` from the example with your own orgs, install your own GitHub App on your adopters with its ID as a variable and its key as a secret, add a Claude token, and run `steward plan` before you let it open anything. A copy that still has the example's `your-org` in its config exits 2 before it reads a thing. The fork keeps its link upstream, so when I fix something a Sync fork brings it in. The [setup runbook](https://github.com/hungovercoders/slopstopper-steward/blob/main/docs/runbooks/SETUP.md) has the steps.
 
@@ -141,7 +141,7 @@ This post is the guided path. These are the sources.
 - The [steward repo](https://github.com/hungovercoders/slopstopper-steward), its [architecture doc](https://github.com/hungovercoders/slopstopper-steward/blob/main/docs/architecture/README.md), where the box and the settle loop are written up in full, and its [setup runbook](https://github.com/hungovercoders/slopstopper-steward/blob/main/docs/runbooks/SETUP.md) for running your own.
 - [The June post](/blog/2026-06-21-slopstopper-cli-and-tooling/), for where this started.
 
-## What Next
+## Next Round
 
 The steward's own upgrade PRs still wait for me to press merge, until I've read enough of its self-reviews to trust the switch. And there are twenty-one episodes to record, in between meals.
 
