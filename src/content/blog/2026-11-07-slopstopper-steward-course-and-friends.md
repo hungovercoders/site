@@ -45,7 +45,7 @@ The June table is wrong in most cells now, so here's the current one.
 
 The robots, sitemap and llms.txt checks are there because I kept shipping a sitemap that didn't match the pages, and once shipped a robots file that de-indexed production. The CVE scan now re-runs on main every Monday, because a quiet repo never used to hear about a CVE that came out after its last push, and most of mine are quiet.
 
-## Three Profiles, Pick Your Poison
+## Pick Your Poison
 
 June's install assumed everything was a website, so when I put it on an API nine browser checks fell over instead of staying out of the way. There are three profiles now. `ui` is the default and gives you the lot, holding the API checks back until the repo shows an API. `api` drops the browser and SEO checks and runs DAST in ZAP's OpenAPI mode. `library` is static checks only, and is what the steward itself runs on.
 
@@ -110,7 +110,7 @@ When 0.29.0 shipped this week the steward moved three repos to it in one run. On
 
 ![This site's pull request 83, opened by the steward bot: the pin moved from 0.26.0 to 0.29.0, the agent's account of the refresh with the model, cost and turn count, the browser checks it left to the PR's own workflows, and the line saying all thirty checks are green](/assets/2026-11-07-slopstopper-steward-course-and-friends/steward-pr.png)
 
-## What Went Wrong, Again
+## What Went Wrong This Time
 
 Seven things in June. Five this month, and all of them in the machinery around the checks rather than in the checks. The installer edited `package.json` and left `package-lock.json` behind, so the first upgrade the steward ever opened went red on ten checks at once. The steward timed its wait for PR checks from when it looked rather than from when they'd finished. A cancelled CI job counted as red and cost the agent a turn discovering there was no log to read. Semgrep wouldn't run in the agent's box, because the GitHub runner puts `XDG_CONFIG_HOME` in `/etc/environment` and sudo reads it back in. And the Claude API key hit its monthly spend limit mid-run, so the PR opened as a draft saying the agent hadn't finished, as it should. Every one of these only showed up against real repos.
 
