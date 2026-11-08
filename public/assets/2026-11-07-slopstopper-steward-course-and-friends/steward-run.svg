@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 500" role="img" aria-labelledby="stewardTitle stewardDesc">
   <title id="stewardTitle">One steward run: code does the deterministic steps, the agent gets two judgement calls, the gates decide</title>
-  <desc id="stewardDesc">A left-to-right pipeline of seven steps in one steward run: discover, inventory, plan, execute, self-review, settle and report. Five steps are plain code boxes. Two steps, execute and settle, hand a judgement call to a boxed Claude Code agent shown beneath them: reading a refresh for moved knobs, and fixing a red check from its job log. Whatever the agent changes flows back up through a green gates band, the slopstopper checks run by the steward and then by the pull request's own CI, before anything is pushed or merged. A footer lists what the agent never gets: no token, no network, no vote on whether its own change passes.</desc>
+  <desc id="stewardDesc">A left-to-right pipeline of seven steps in one steward run: discover, inventory, plan, execute, self-review, settle and report. Five steps are plain code boxes. Two steps, execute and settle, hand a judgement call to a sandboxed Claude Code agent shown beneath them: reading a refresh for moved knobs, and fixing a red check from its job log. Whatever the agent changes flows back up through a green gates band, the slopstopper checks run by the steward and then by the pull request's own CI, before anything is pushed or merged. A footer lists what the agent never gets: no token, no network, no vote on whether its own change passes.</desc>
   <defs>
     <style>
       .h { font-family: 'Lora', Georgia, Cambria, serif; font-size: 14px; font-weight: 700; fill: rgb(34, 41, 57); }
@@ -113,7 +113,7 @@
   <!-- The boxed agent -->
   <rect x="20" y="214" width="680" height="96" rx="6" class="agentBox"/>
   <rect x="20" y="214" width="680" height="20" rx="6" class="agentHead"/>
-  <text x="360" y="228" text-anchor="middle" class="pill">CLAUDE CODE · HEADLESS · IN A BOX</text>
+  <text x="360" y="228" text-anchor="middle" class="pill">CLAUDE CODE · HEADLESS · SANDBOXED</text>
   <text x="32" y="252" class="bodyDark">Two jobs only: did a knob move or a workaround's upstream issue close, and what fixes this red line.</text>
   <text x="32" y="268" class="bodyDark">It gets the repo's own slopstopper skills, the install diff, the release notes and the job log tail.</text>
   <text x="32" y="284" class="body">Own OS user · own copy of the clone · no token · no network · tool allow-list from the pinned CLI · dollar cap · turn cap</text>
