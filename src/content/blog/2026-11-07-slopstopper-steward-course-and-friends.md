@@ -14,17 +14,17 @@ image:
   path: /assets/2026-11-07-slopstopper-steward-course-and-friends/link.png
 ---
 
-The idea in one line is deterministic gates on a software factory where agents write the code. [Slopstopper](https://slopstopper.dev) is the gates, and I wanted it to look after itself. It already does on this site. I wanted the same on every repo I've got, on the current version, without me being the one who remembers to bump a pin on a Sunday with a head on me. Back in [June](/blog/2026-06-21-slopstopper-cli-and-tooling/) I installed it here and wrote up the seven things it found. It's November now, there are twenty-five checks, there's a course, and there's a second tool called the [steward](https://github.com/hungovercoders/slopstopper-steward) that does the rounds of my repos so I don't have to. Read on fellow hungovercoder and meet the robot that nags the other robots.
+Something that isn't an agent has to decide whether agent-written code ships. For me that's [slopstopper](https://slopstopper.dev), a set of deterministic gates on the software factory, and I wanted it to look after itself. It already does on this site. I wanted the same on every repo I've got, on the current version, without me being the one who remembers to bump a pin on a Sunday with a head on me. Back in [June](/blog/2026-06-21-slopstopper-cli-and-tooling/) I installed it here and wrote up the seven things it found. It's November now, there are twenty-five checks, there's a course, and there's a second tool called the [steward](https://github.com/hungovercoders/slopstopper-steward) that does the rounds of my repos so I don't have to. Read on fellow hungovercoder and meet the robot that nags the other robots.
 
 ## A Factory Needs Inspection
 
 I barely type code any more. I tap an idea into Claude Code on my phone, an agent writes it, a pull request turns up, and I'm reading a diff I didn't write. It's brilliant fun and it's also a factory, and a factory with nobody on inspection ships slop.
 
-The agent is the generator. Creative, chatty, and you get a different answer every time you ask. Slopstopper is the gate. Same input, same verdict, whoever wrote the code. That's why Semgrep, Gitleaks, Trivy, Lizard, axe-core and Lighthouse do the checking, not a model having a guess. A check that couldn't run says so and exits 2. It doesn't exit 0 and wave the whole batch through. The `task ss:<check>` on my laptop is the same command and the same pinned version as CI. And every red line names a file and a report, so I can hand it to an agent to fix.
+The agent is the generator. Creative, chatty, and you get a different answer every time you ask. Slopstopper is the gate. Same input, same verdict, whoever wrote the code. That's why Semgrep, Gitleaks, Trivy, Lizard, axe-core and Lighthouse do the checking rather than a model having a guess. It's also why the exit codes matter. A check exits 0 when it's clean, 1 when it found something and 2 when it couldn't run, and the third one is the important one, because a scanner that fails to download its rules and quietly exits 0 has just passed everything. The same `task ss:<check>` runs on my laptop and in CI, pinned to the same version, so red in one place is red in the other. When it is red, the line names the file and the report, and that is all an agent needs to go and fix it.
 
 ![Three boxes left to right: generators (agents writing code, a different answer every time), gates (slopstopper, twenty-five deterministic checks in three loops, the same task command locally and in CI, exiting 0 for clean, 1 for found something, 2 for could not run) and what ships (the PR merges, Cloudflare deploys). A steward band beneath loops back into the gates, keeping every repo on the current version and working the issues the gates raise](/assets/2026-11-07-slopstopper-steward-course-and-friends/factory.svg)
 
-Here's the loop in one go, on the Lantern demo repo the CLI writes for you (more on that below). The entry-files check goes red because the README has grown a whole manual, the report says by how much, the manual moves into `docs/` where it belongs, and the check goes green.
+On Lantern, the demo repo the CLI writes for you, the loop runs like this. The entry-files check goes red because the README has grown a whole manual, the report says by how much, the manual moves into `docs/` where it belongs, and the check goes green.
 
 <video autoplay loop muted playsinline>
   <source src="/assets/2026-11-07-slopstopper-steward-course-and-friends/triage.mp4" type="video/mp4">
@@ -34,7 +34,7 @@ Here's the loop in one go, on the Lantern demo repo the CLI writes for you (more
 
 ## What's on Tap Now
 
-The June table is wrong in most cells now, so here's the current line-up, four loops and what each one carries.
+June's post listed twenty checks in four loops. There are twenty-five now, the loops are the same, and most of what's in them has moved on.
 
 - 🔒 **Security.** SAST, DAST, secrets, dependency CVEs, dependency review, licence inventory, API headers and CORS. Semgrep, OWASP ZAP, Gitleaks, Trivy and GitHub's dependency review do the work.
 - 🧹 **Hygiene.** Complexity caps, docs structure, accuracy and size, entry-file budgets, CSP drift, a privacy statement, OpenAPI drift and auto-labelled PRs. Lizard and the CLI's own Python.
