@@ -108,7 +108,7 @@ Dependabot opens the bump and the steward waits for its checks. If one is red, t
 
 When 0.29.0 shipped this week the steward moved three repos to it in one run. On apic the complexity check came back red on a function at CCN 32 against a ceiling of 30. The agent split the function, the review run approved it, and all forty-six checks on the PR went green. The PR body records the model, the cost ($0.22 for the fix, $0.08 for the review) and the one command the sandbox refused to let it run. On this site the agent read the release notes, found nothing to change, said so, and all I did was press merge.
 
-![This site's pull request 83, opened by the steward bot: the pin moved from 0.26.0 to 0.29.0, the agent's account of the refresh with the model, cost and turn count, the browser checks it left to the PR's own workflows, and the line saying all thirty checks are green](/assets/2026-11-07-slopstopper-steward-course-and-friends/steward-pr.png)
+![This site's pull request 83, opened by the steward bot: the pin moved from 0.26.0 to 0.29.0, the agent's account of the upgrade with the model, cost and turn count, the browser checks it left to the PR's own workflows, and the line saying all thirty checks are green](/assets/2026-11-07-slopstopper-steward-course-and-friends/steward-pr.png)
 
 ## What Went Wrong This Time
 
@@ -123,7 +123,7 @@ Yes, more than in June. The checks were already worth it. The steward turns them
 This post is the guided path. These are the sources.
 
 - [slopstopper.dev](https://slopstopper.dev) for the install, the checks and the profiles, and [From zero to slopstopper](https://slopstopper.dev/learn) for the course.
-- The [steward repo](https://github.com/hungovercoders/slopstopper-steward), its [architecture doc](https://github.com/hungovercoders/slopstopper-steward/blob/main/docs/architecture/README.md) for the box and the settle loop, and its [setup runbook](https://github.com/hungovercoders/slopstopper-steward/blob/main/docs/runbooks/SETUP.md) for running your own.
+- The [steward repo](https://github.com/hungovercoders/slopstopper-steward), its [architecture doc](https://github.com/hungovercoders/slopstopper-steward/blob/main/docs/architecture/README.md) for the sandbox and the settle loop, and its [setup runbook](https://github.com/hungovercoders/slopstopper-steward/blob/main/docs/runbooks/SETUP.md) for running your own.
 - [The June post](/blog/2026-06-21-slopstopper-cli-and-tooling/), for where this started.
 
 ## What Next
