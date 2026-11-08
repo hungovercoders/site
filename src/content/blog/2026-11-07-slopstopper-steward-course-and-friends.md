@@ -34,7 +34,7 @@ On Lantern, the demo repo the CLI writes for you, the loop runs like this. The e
 
 ## What's on Tap Now
 
-The June table is wrong in most cells now. Four loops, and what each one carries.
+June's post listed twenty checks in four loops. There are twenty-five now, the loops are the same, and most of what's in them has moved on.
 
 - 🔒 **Security.** SAST, DAST, secrets, dependency CVEs, dependency review, licence inventory, API headers and CORS. Semgrep, OWASP ZAP, Gitleaks, Trivy and GitHub's dependency review do the work.
 - 🧹 **Hygiene.** Complexity caps, docs structure, accuracy and size, entry-file budgets, CSP drift, a privacy statement, OpenAPI drift and auto-labelled PRs. Lizard and the CLI's own Python.
