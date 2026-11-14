@@ -76,7 +76,17 @@ So before an agent writes a line, commands do everything that can be worked out 
 - `task http:generate` writes a ready-to-send `.http` request for every operation.
 - `task readme:generate` rewrites the README to describe your API, because once it has a spec it's no longer a template.
 
-On the example that's six operation files and seventy-three pending steps before any judgement is needed. Each operation arrives looking like this.
+![The README of the example API as task readme:generate wrote it from the contract. A Beer Catalogue API title, a one paragraph description, version 2.0.0 with links to the contract, the behaviour and the requests to try, then a table of the six operations with the request, who can call it and what it does](/assets/2026-11-14-repeatable-unit-of-a-software-factory/readme.png)
+
+On the example that's six operation files and seventy-three pending steps before any judgement is needed. Here it is on the branch that has a spec and nothing else.
+
+<video autoplay loop muted playsinline>
+  <source src="/assets/2026-11-14-repeatable-unit-of-a-software-factory/backlog.mp4" type="video/mp4">
+  <source src="/assets/2026-11-14-repeatable-unit-of-a-software-factory/backlog.webm" type="video/webm">
+  <img src="/assets/2026-11-14-repeatable-unit-of-a-software-factory/backlog.gif" alt="A terminal recording on the example spec branch. task test:unit fails and lists six operations with no file. task scaffold then writes 6 operation stubs and adds 73 pending steps. task test:unit runs again and still fails, now listing the six operations left to implement">
+</video>
+
+The gate stays red, and what it says is now the to-do list. Each operation arrives looking like this.
 
 ```typescript
 export async function create_beer(context: Context<"create_beer">): Promise<Result> {
@@ -92,14 +102,13 @@ In the past I'd have needed LocalStack for this bit. Then the [AWS Emulator](htt
 
 The template downloads a pinned version and checks AWS's signature on it. It unpacks into the repo, so nothing is installed system-wide. Then it applies the project's real Terraform to the emulator.
 
-```text
-aws_dynamodb_table.this: Creation complete after 6s [id=api-local]
-aws_lambda_function.api: Creation complete after 5s [id=api-local]
-aws_apigatewayv2_route.operation["POST /beers"]: Creation complete after 0s
-aws_apigatewayv2_route.operation["GET /beers/{beer_id}"]: Creation complete after 0s
+<video autoplay loop muted playsinline>
+  <source src="/assets/2026-11-14-repeatable-unit-of-a-software-factory/green-run.mp4" type="video/mp4">
+  <source src="/assets/2026-11-14-repeatable-unit-of-a-software-factory/green-run.webm" type="video/webm">
+  <img src="/assets/2026-11-14-repeatable-unit-of-a-software-factory/green-run.gif" alt="A terminal recording of the end of task ci, taken from the GitHub Actions log of the example implementation branch. Terraform creates the Lambda function, the alarms and one API Gateway route per operation on the AWS Emulator and reports Apply complete, 23 added. Cucumber then passes 50 scenarios and 278 steps, and Schemathesis reports 411 generated test cases, 411 passed, no issues found">
+</video>
 
-Apply complete! Resources: 15 added, 0 changed, 0 destroyed.
-```
+That's the tail of a real run, lifted from the GitHub Actions log. Twenty-three resources, fifty scenarios, then four hundred and eleven fuzzed requests.
 
 I was super excited when I saw Terraform deploy to it. There's no second definition of the table for the tests to drift away from.
 
@@ -125,7 +134,11 @@ I didn't type this. Claude Code built it in one session with me steering, and it
 
 A skill written by an agent and tested by the same agent proves very little. So a fresh one that had never seen the answer was pointed at the spec and told to follow the skill and nothing else. CI went green on its first push. A second fresh agent did the same after the skill had changed.
 
-Then a harder test. One agent changed the spec of the finished API from a written brief, a second caught the code up, and that was green first time too. It also found a hole. One requirement changed a rule without changing the contract's shape (an average rating would only show after three ratings) and the compatibility gate saw nothing at all. A change every consumer would notice went out as a minor version. The gate now reads the feature files as well and lists every existing scenario that changed. That one's the agent's lesson, found by a test and not by a consumer.
+Then a harder test. One agent changed the spec of the finished API from a written brief, a second caught the code up, and that was green first time too. It also found a hole. One requirement changed a rule without changing the contract's shape (an average rating would only show after three ratings) and the compatibility gate saw nothing at all. A change every consumer would notice went out as a minor version. The gate now reads the feature files as well and lists every existing scenario that changed.
+
+![Terminal output of task spec:compat on the changed spec, going from 2.0.0 to 2.1.0. No breaking contract changes, but under Existing behaviour changed it lists three changed scenarios and one removed, The first rating sets the average, and says that if a consumer can observe this it needs a new major version and that is a person's decision](/assets/2026-11-14-repeatable-unit-of-a-software-factory/compat.png)
+
+That one's the agent's lesson, found by a test and not by a consumer.
 
 ## Would I Build on It
 
