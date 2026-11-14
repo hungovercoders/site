@@ -88,7 +88,7 @@ So before an agent writes a line, commands do everything that can be worked out 
 
 On the example that's six operation files and seventy-three pending steps before any judgement is needed. Here it is on the branch that has a spec and nothing else.
 
-<video autoplay loop muted playsinline>
+<video autoplay loop muted playsinline controls>
   <source src="/assets/2026-11-14-repeatable-unit-of-a-software-factory/backlog.mp4" type="video/mp4">
   <source src="/assets/2026-11-14-repeatable-unit-of-a-software-factory/backlog.webm" type="video/webm">
   <img src="/assets/2026-11-14-repeatable-unit-of-a-software-factory/backlog.gif" alt="A terminal recording on the example spec branch. task test:unit fails and lists six operations with no file. task scaffold then writes 6 operation stubs and adds 73 pending steps. task test:unit runs again and still fails, now listing the six operations left to implement">
@@ -110,7 +110,7 @@ In the past I'd have needed LocalStack for this bit. Then the [AWS Emulator](htt
 
 The template applies the project's real Terraform to it.
 
-<video autoplay loop muted playsinline>
+<video autoplay loop muted playsinline controls>
   <source src="/assets/2026-11-14-repeatable-unit-of-a-software-factory/green-run.mp4" type="video/mp4">
   <source src="/assets/2026-11-14-repeatable-unit-of-a-software-factory/green-run.webm" type="video/webm">
   <img src="/assets/2026-11-14-repeatable-unit-of-a-software-factory/green-run.gif" alt="A terminal recording of the end of task ci, taken from the GitHub Actions log of the example implementation branch. Terraform creates the Lambda function, the alarms and one API Gateway route per operation on the AWS Emulator and reports Apply complete, 23 added, with the API ready on the emulator's own execute-api address. Cucumber then passes 53 scenarios and 290 steps, the responses check confirms every documented response of the 6 operations was returned to a scenario, and Schemathesis, pointed at the same emulator address, reports 396 generated test cases, 396 passed, no issues found">

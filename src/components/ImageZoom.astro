@@ -1,29 +1,64 @@
 ---
 // Tapping an image in an article opens it over the page instead of in a new
-// tab: zoomed so a diagram's text is readable on a phone, pannable, and closed
-// by the button, a tap outside, Escape or the Back button - which returns to
+// tab: zoomed so a diagram's text is readable on a phone, pannable by touch,
+// mouse drag or scrolling, with a button to zoom or fit, and closed by the
+// button, a tap outside, Escape or the Back button - which returns to
 // the article where the reader left it. Without JavaScript the link still
 // opens the file (scripts/rehype-image-links.mjs).
 // Mounted once per markdown layout (BlogPost, TrainingLesson).
 ---
 
 <dialog class="image-zoom" aria-label="Image, enlarged">
-	<button type="button" class="image-zoom-close" aria-label="Close image">Close</button>
-	<div class="image-zoom-scroll">
-		<img alt="" />
+	<div class="image-zoom-bar">
+		<button type="button" class="image-zoom-toggle" aria-pressed="false">Zoom in</button>
+		<button type="button" class="image-zoom-close">Close</button>
 	</div>
-	<p class="image-zoom-hint">Tap the image to fit it or zoom it. Drag to move around.</p>
+	<div class="image-zoom-scroll">
+		<img alt="" draggable="false" />
+	</div>
+	<p class="image-zoom-hint">Tap or click the image to zoom in or fit it. Drag or scroll to move around.</p>
 </dialog>
 
 <script>
+	type Shown = { src: string; alt: string; zoomed: boolean };
+
 	const dialog = document.querySelector<HTMLDialogElement>('dialog.image-zoom');
 	const picture = dialog?.querySelector('img');
 	const scroller = dialog?.querySelector<HTMLElement>('.image-zoom-scroll');
+	const toggle = dialog?.querySelector<HTMLButtonElement>('.image-zoom-toggle');
 
-	if (dialog && picture && scroller && typeof dialog.showModal === 'function') {
-		const close = () => {
-			if (dialog.open) dialog.close();
+	if (dialog && picture && scroller && toggle && typeof dialog.showModal === 'function') {
+		const setZoom = (zoomed: boolean) => {
+			dialog.classList.toggle('is-zoomed', zoomed);
+			toggle.setAttribute('aria-pressed', String(zoomed));
+			toggle.textContent = zoomed ? 'Fit to screen' : 'Zoom in';
 		};
+
+		const show = (shown: Shown) => {
+			picture.src = shown.src;
+			picture.alt = shown.alt;
+			setZoom(shown.zoomed);
+			if (!dialog.open) dialog.showModal();
+			// The article behind must not scroll while the viewer is open.
+			document.documentElement.classList.add('image-zoom-open');
+			scroller.scrollTo(0, 0);
+		};
+
+		// The viewer is one history entry, so Back closes it and Forward brings
+		// it back. Closing from inside the viewer is therefore a step back, and
+		// the dialog only ever follows the entry the browser is on.
+		const leave = () => {
+			if (history.state?.imageZoom) history.back();
+			else if (dialog.open) dialog.close();
+		};
+		const follow = () => {
+			const shown = history.state?.imageZoom as Shown | undefined;
+			if (shown) show(shown);
+			else if (dialog.open) dialog.close();
+		};
+		window.addEventListener('popstate', follow);
+		// A reload, or returning from another page, can land on a viewer entry.
+		follow();
 
 		document.addEventListener('click', (event) => {
 			const link = (event.target as Element | null)?.closest<HTMLAnchorElement>('article.prose a.img-link');
@@ -32,26 +67,51 @@
 			const source = link.querySelector('img');
 			if (!source) return;
 			event.preventDefault();
-			picture.src = link.href;
-			picture.alt = source.alt;
 			// Start zoomed where fitting the screen would leave the text too small to read.
-			dialog.classList.toggle('is-zoomed', source.naturalWidth > source.naturalHeight && window.innerWidth < 800);
-			dialog.showModal();
-			scroller.scrollTo(0, 0);
-			// So the Back button closes the image instead of leaving the article.
-			history.pushState({ imageZoom: true }, '');
+			const shown: Shown = { src: link.href, alt: source.alt, zoomed: source.naturalWidth > source.naturalHeight && window.innerWidth < 800 };
+			history.pushState({ imageZoom: shown }, '');
+			show(shown);
 		});
 
-		picture.addEventListener('click', () => dialog.classList.toggle('is-zoomed'));
-		dialog.querySelector('.image-zoom-close')?.addEventListener('click', close);
+		// Mouse: drag to pan (touch pans natively). A drag must not also toggle the zoom.
+		let drag: { x: number; y: number; left: number; top: number; moved: boolean } | undefined;
+		picture.addEventListener('pointerdown', (event) => {
+			if (event.pointerType !== 'mouse' || event.button !== 0) return;
+			drag = { x: event.clientX, y: event.clientY, left: scroller.scrollLeft, top: scroller.scrollTop, moved: false };
+			picture.setPointerCapture(event.pointerId);
+		});
+		picture.addEventListener('pointermove', (event) => {
+			if (!drag) return;
+			const [dx, dy] = [event.clientX - drag.x, event.clientY - drag.y];
+			if (Math.abs(dx) + Math.abs(dy) > 4) drag.moved = true;
+			if (drag.moved) scroller.scrollTo(drag.left - dx, drag.top - dy);
+		});
+		let dragged = false;
+		const drop = () => {
+			dragged = drag?.moved ?? false;
+			drag = undefined;
+		};
+		picture.addEventListener('pointerup', drop);
+		picture.addEventListener('pointercancel', drop);
+
+		picture.addEventListener('click', () => {
+			if (dragged) dragged = false;
+			else setZoom(!dialog.classList.contains('is-zoomed'));
+		});
+		toggle.addEventListener('click', () => setZoom(!dialog.classList.contains('is-zoomed')));
+		dialog.querySelector('.image-zoom-close')?.addEventListener('click', leave);
 		// A tap on the backdrop or the empty space around the image.
 		dialog.addEventListener('click', (event) => {
-			if (event.target === dialog || event.target === scroller) close();
+			if (event.target === dialog || event.target === scroller) leave();
 		});
-		window.addEventListener('popstate', close);
+		// Escape.
+		dialog.addEventListener('cancel', (event) => {
+			event.preventDefault();
+			leave();
+		});
 		dialog.addEventListener('close', () => {
 			picture.removeAttribute('src');
-			if (history.state?.imageZoom) history.back();
+			document.documentElement.classList.remove('image-zoom-open');
 		});
 	}
 </script>
@@ -81,6 +141,7 @@
 		overflow: auto;
 		display: flex;
 		-webkit-overflow-scrolling: touch;
+		user-select: none;
 		overscroll-behavior: contain;
 	}
 	.image-zoom-scroll img {
@@ -98,14 +159,18 @@
 	dialog.image-zoom.is-zoomed .image-zoom-scroll img {
 		max-width: none;
 		max-height: none;
-		width: max(100%, 1100px);
-		cursor: zoom-out;
+		width: max(160%, 1100px);
+		cursor: grab;
 	}
-	.image-zoom-close {
+	.image-zoom-bar {
 		position: absolute;
 		top: 0.75rem;
 		right: 0.75rem;
 		z-index: 1;
+		display: flex;
+		gap: 0.5rem;
+	}
+	.image-zoom-bar button {
 		padding: 0.5rem 0.9rem;
 		border: 1px solid rgba(214, 220, 235, 0.4);
 		border-radius: 999px;
@@ -124,5 +189,8 @@
 	}
 	a.img-link {
 		cursor: zoom-in;
+	}
+	html.image-zoom-open {
+		overflow: hidden;
 	}
 </style>
