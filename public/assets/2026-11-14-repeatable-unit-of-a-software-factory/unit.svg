@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400" role="img" aria-labelledby="unitTitle unitDesc">
+  <title id="unitTitle">The repeatable unit: a skeleton solved once, a spec you bring, and gates that decide when the agent is done</title>
+  <desc id="unitDesc">Three boxes left to right, then a band beneath. Solved once: the skeleton, the same for every API, holding the router and request validation, the test harness, the Terraform, the CI pipeline and the gates themselves. You bring: the spec, which is two files that check each other, feature files saying what the API does and an OpenAPI contract saying what it looks like. The agent fills in: only what no command can derive, the body of each step and each operation, after task scaffold has generated the types, the route table and a typed stub for every operation and sentence. An arrow runs from the spec into the agent's box. Beneath all three, a green band of deterministic gates run by one command, task ci, the same on a laptop and in CI: lint the contract, check the versioning, run every scenario against the built Lambda on AWS Emulator with each response held to the contract, then fuzz it. A grey arrow runs from the agent down into the gates, and a dashed red arrow loops from the gates back up to the agent labelled red, exactly what is missing. A green arrow leaves the bottom of the gates labelled green, it ships.</desc>
+  <defs>
+    <style>
+      .h { font-family: 'Lora', Georgia, Cambria, serif; font-size: 14px; font-weight: 700; fill: rgb(34, 41, 57); }
+      .sub { font-family: 'Atkinson', system-ui, sans-serif; font-size: 11px; fill: rgb(96, 115, 159); }
+      .body { font-family: 'Atkinson', system-ui, sans-serif; font-size: 11px; fill: rgb(34, 41, 57); }
+      .muted { font-family: 'Atkinson', system-ui, sans-serif; font-size: 10.5px; fill: rgb(96, 115, 159); }
+      .mono { font-family: 'JetBrains Mono', Menlo, Consolas, monospace; font-size: 10.5px; fill: rgb(34, 41, 57); }
+      .pill { font-family: 'JetBrains Mono', Menlo, Consolas, monospace; font-size: 10px; font-weight: 700; fill: #fff; }
+      .lblRed { font-family: 'JetBrains Mono', Menlo, Consolas, monospace; font-size: 10px; font-weight: 700; fill: #b54343; }
+      .lblGreen { font-family: 'JetBrains Mono', Menlo, Consolas, monospace; font-size: 10px; font-weight: 700; fill: #1ea672; }
+      .once { fill: #fff; stroke: rgb(96, 115, 159); stroke-width: 1.5; }
+      .onceHead { fill: rgb(96, 115, 159); }
+      .spec { fill: #fee5d9; stroke: #e16e3c; stroke-width: 1.5; }
+      .specHead { fill: #e16e3c; }
+      .agent { fill: #fff; stroke: #2337ff; stroke-width: 1.5; }
+      .agentHead { fill: #2337ff; }
+      .gate { fill: rgb(216, 241, 225); stroke: #1ea672; stroke-width: 1.5; }
+      .gateHead { fill: #1ea672; }
+      .step { fill: #fff; stroke: rgb(229, 233, 240); }
+      .flow { stroke: rgb(96, 115, 159); fill: none; stroke-width: 1.8; }
+      .flowRed { stroke: #b54343; fill: none; stroke-width: 1.8; stroke-dasharray: 4 3; }
+      .flowGreen { stroke: #1ea672; fill: none; stroke-width: 1.8; }
+    </style>
+    <marker id="uGrey" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="rgb(96, 115, 159)"/></marker>
+    <marker id="uRed" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b54343"/></marker>
+    <marker id="uGreen" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1ea672"/></marker>
+  </defs>
+
+  <rect width="720" height="400" fill="#f8f9fb"/>
+  <text x="20" y="32" class="h">Bring your own business logic</text>
+  <text x="20" y="50" class="sub">The skeleton is built once. The spec is yours. The agent only writes what no command can.</text>
+
+  <!-- Solved once -->
+  <rect x="20" y="70" width="206" height="150" rx="6" class="once"/>
+  <rect x="20" y="70" width="206" height="20" rx="6" class="onceHead"/>
+  <text x="123" y="84" text-anchor="middle" class="pill">SOLVED ONCE</text>
+  <text x="32" y="110" class="body">The skeleton. Same for every API.</text>
+  <text x="32" y="130" class="muted">Router and request validation</text>
+  <text x="32" y="146" class="muted">Test harness and local stack</text>
+  <text x="32" y="162" class="muted">Terraform and CI</text>
+  <text x="32" y="178" class="muted">The gates themselves</text>
+  <text x="32" y="204" class="mono">skeleton.lock</text>
+
+  <!-- You bring -->
+  <rect x="257" y="70" width="206" height="150" rx="6" class="spec"/>
+  <rect x="257" y="70" width="206" height="20" rx="6" class="specHead"/>
+  <text x="360" y="84" text-anchor="middle" class="pill">YOU BRING</text>
+  <text x="269" y="110" class="body">The spec. Two files, one truth.</text>
+  <text x="269" y="130" class="muted">What it does, in plain words</text>
+  <text x="269" y="146" class="mono">specs/features/*.feature</text>
+  <text x="269" y="168" class="muted">What it looks like</text>
+  <text x="269" y="184" class="mono">specs/openapi.yaml</text>
+  <text x="269" y="206" class="muted">Each checks the other.</text>
+
+  <!-- Agent -->
+  <rect x="494" y="70" width="206" height="150" rx="6" class="agent"/>
+  <rect x="494" y="70" width="206" height="20" rx="6" class="agentHead"/>
+  <text x="597" y="84" text-anchor="middle" class="pill">THE AGENT FILLS IN</text>
+  <text x="506" y="110" class="body">Only what can't be generated.</text>
+  <text x="506" y="130" class="mono">task scaffold</text>
+  <text x="506" y="146" class="muted">writes types, routes and a typed</text>
+  <text x="506" y="162" class="muted">stub per operation and sentence.</text>
+  <text x="506" y="184" class="muted">The agent writes the bodies.</text>
+  <text x="506" y="204" class="muted">Nothing else.</text>
+
+  <path d="M463,145 L490,145" class="flow" marker-end="url(#uGrey)"/>
+
+  <!-- Gates -->
+  <rect x="20" y="262" width="680" height="90" rx="6" class="gate"/>
+  <rect x="20" y="262" width="680" height="20" rx="6" class="gateHead"/>
+  <text x="360" y="276" text-anchor="middle" class="pill">DETERMINISTIC GATES · task ci · THE SAME ON A LAPTOP AND IN CI</text>
+
+  <rect x="32" y="294" width="148" height="46" rx="4" class="step"/>
+  <text x="42" y="312" class="body">Lint the contract</text>
+  <text x="42" y="328" class="muted">Spectral, house rules</text>
+
+  <rect x="188" y="294" width="148" height="46" rx="4" class="step"/>
+  <text x="198" y="312" class="body">Version the change</text>
+  <text x="198" y="328" class="muted">what breaks consumers</text>
+
+  <rect x="344" y="294" width="188" height="46" rx="4" class="step"/>
+  <text x="354" y="312" class="body">Run every scenario</text>
+  <text x="354" y="328" class="muted">built Lambda on AWS Emulator</text>
+
+  <rect x="540" y="294" width="148" height="46" rx="4" class="step"/>
+  <text x="550" y="312" class="body">Fuzz it</text>
+  <text x="550" y="328" class="muted">Schemathesis, fixed seed</text>
+
+  <!-- Loop back and ship -->
+  <path d="M597,220 L597,258" class="flow" marker-end="url(#uGrey)"/>
+  <path d="M640,262 L640,224" class="flowRed" marker-end="url(#uRed)"/>
+  <text x="396" y="246" class="lblRed">RED: exactly what is missing</text>
+  <path d="M360,352 L360,378" class="flowGreen" marker-end="url(#uGreen)"/>
+  <text x="372" y="374" class="lblGreen">GREEN: it ships</text>
+</svg>
