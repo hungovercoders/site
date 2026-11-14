@@ -11,7 +11,7 @@ image:
 ---
 
 
-It was my birthday over the weekend and whilst my body was completely destroyed by whiskey and vermouth... my mind craved sustenance and my soul penance. Therefore I looked at the preparation guidelines for the [databricks analyst associate certification](https://www.databricks.com/learn/certification/data-analyst-associate) and thought "we got this!". Within 48 hours my mind was full to the brim, my soul ready to redeem some of the reprehensible activities of the weekend by passing the exam and then sharing this approach with you. Here goes...
+This is how I passed the [databricks analyst associate certification](https://www.databricks.com/learn/certification/data-analyst-associate), starting the weekend of my birthday with a body destroyed by whiskey and vermouth. My mind craved sustenance and my soul penance, so I looked at the preparation guidelines and thought "we got this!". Within 48 hours my mind was full to the brim, my soul ready to redeem some of the reprehensible activities of the weekend by passing the exam and then sharing this approach with you. Here goes...
 
 ## Pre-Requisites
 

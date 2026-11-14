@@ -14,7 +14,7 @@ image:
 ---
 
 
-Being an impatient hungovercoder due to the constant headaches the night before often brings upon me, I need to make sure I find out as early as possible whether my deployment pipeline is working. For years I have committed my code and waited for some proprietary tooling embedded within Azure devops or github actions to tell me the answer... I have changed my ways and have now brought the scripts for deployment into my codebase that I can simulate easily locally in my cloud developer environment AND then use the exact same scripts for my deployment pipeline! Read on fellow hungovercoder and find out how to shift left with scripts...
+I have brought my deployment scripts into my codebase, so I can run them locally and then use the exact same scripts in my deployment pipeline. Being an impatient hungovercoder due to the constant headaches the night before often brings upon me, I need to make sure I find out as early as possible whether my deployment pipeline is working. For years I have committed my code and waited for some proprietary tooling embedded within Azure devops or github actions to tell me the answer... I have changed my ways and have now brought the scripts for deployment into my codebase that I can simulate easily locally in my cloud developer environment AND then use the exact same scripts for my deployment pipeline! Read on fellow hungovercoder and find out how to shift left with scripts...
 
 ## Shifting Left with Scripts
 
