@@ -14,7 +14,7 @@ image:
   path: /assets/2026-11-14-repeatable-unit-of-a-software-factory/link.png
 ---
 
-I wanted a template for AWS Lambda APIs that solves whatever it can once, so that AI only ever writes the business logic and the new AWS Emulator proves it before it goes anywhere near an account. It was an itch I needed to scratch, and I built all of it on my phone walking around Bute Park, when I should have been looking at the trees or at least making sure my dog hadn't legged it after a squirrel. Making an API from first principles every time is a burden, and an agent will cheerfully carry it for you, a little differently on every repo. [Last week](/blog/2026-11-07-slopstopper-steward-course-and-friends/) I wrote about the gates on my software factory. This week is the thing that goes down the line. The skeleton is already built and the spec is two files. Read on fellow hungovercoder and bring your own business logic.
+I wanted a template for AWS Lambda APIs that solves whatever it can once, so that AI only ever writes the business logic and the new AWS Emulator proves it before it goes anywhere near an account. It was an itch I needed to scratch, so I built all of it on my phone walking around Bute Park, when I should have been looking at the trees or at least making sure my dog hadn't legged it after a squirrel. [Last week](/blog/2026-11-07-slopstopper-steward-course-and-friends/) I wrote about the gates on my software factory, and this is the thing that goes down the line. Read on fellow hungovercoder and bring your own business logic.
 
 This post is the guided path through [template-aws-api](https://github.com/hungovercoders/template-aws-api). The sources are at the bottom. Everything in it is pre-publication and demos at the moment, so take it as a pattern worth nicking and not a product.
 
@@ -33,7 +33,7 @@ The spec is the only part that makes your API yours. Commands generate everythin
 
 Underneath all of that sits the skeleton. It's everything every API needs and nobody should write twice. That's the routing, the request validation, the error bodies, the test harness, the Terraform and the pipeline.
 
-The skeleton is the same for all your APIs, so don't ask AI to build it again. A lock file records every skeleton file and the first gate fails if one changes, so an agent can't quietly rewrite the router to get a green tick.
+Making an API from first principles every time is a burden, and an agent will cheerfully carry it for you, a little differently on every repo. The skeleton is the same for all your APIs, so don't ask AI to build it again. A lock file records every skeleton file and the first gate fails if one changes, so an agent can't quietly rewrite the router to get a green tick.
 
 ## Two Specs Marking Each Other's Homework
 
