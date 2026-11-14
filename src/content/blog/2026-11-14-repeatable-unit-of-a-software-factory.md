@@ -67,7 +67,11 @@ That `@operation:create_beer` tag is the join. A gate fails if an operation has 
 
 A second gate goes one level down. After the scenarios have run, it fails if the contract documents a response that no scenario ever received, so a 404 can't sit in the contract with nobody saying when it happens. That gate went in while this post was being written, and its first run found one in the template's own example. The contract promised a 400 for retiring a beer and no scenario showed it. The fix was a scenario and not a line of code.
 
-The contract earns its keep four times over. The router validates every incoming request against it, so nobody hand-writes a 400. Terraform reads it to create one API Gateway route per operation. Every response in every scenario is checked against it for status, content type and body. Then Schemathesis generates requests from it, valid and daft alike, and checks the answers. The same two files are the instructions for building the API and the tests that prove it got built.
+The contract earns its keep four times over.
+
+![One box on the left, the contract, specs/openapi.yaml, written once. Four arrows fan out from it to four boxes on the right, one for each job it does. The router validates every request against it, so nobody hand-writes a 400. Terraform reads it and creates one API Gateway route per operation. The scenarios check every response against it for status, content type and body. Schemathesis generates requests from it, valid and daft alike, and checks the answers.](/assets/2026-11-14-repeatable-unit-of-a-software-factory/contract.svg)
+
+The same two files are the instructions for building the API and the tests that prove it got built.
 
 ## Let the Commands Go First
 
@@ -118,21 +122,23 @@ I was super excited when I saw Terraform deploy to it. There's no second definit
 
 Here's the bit that nearly went out wrong. The first version of this template tested the Lambda behind a small stand-in for API Gateway, because the agent had told me the emulator couldn't invoke a function. I asked it to actually try. It could. What was failing was one line our own build added to the bundle. With the line gone the stand-in went in the bin, and now nothing stands in for AWS in the tests.
 
-It isn't all of AWS though. The emulated authoriser checks a token's shape, issuer and audience but not its signature. IAM isn't enforced the way AWS enforces it, and the emulator's own guide says not to test security on it. Moving the tests onto it found a real difference on day one as well. A cancelled DynamoDB transaction reached the function looking different from the same error in plain Node, and a name clash came back as a 500 until the code stopped caring which SDK it was running on.
+![A pipeline left to right. A test, which is a scenario step or a fuzzed request, sends a request into a green band labelled AWS Emulator, built by terraform apply and gone when the run ends. Inside the band the request passes through four boxes in turn. API Gateway, with one route per operation from the contract. The authoriser, which checks a token's shape, issuer and audience. The Lambda, which is the built bundle, the file that gets deployed. DynamoDB, the table Terraform made. Below the band a dashed red arrow labelled not proven here leads down to a grey box, only a real deploy proves token signatures, IAM permissions and anything the emulator gets wrong.](/assets/2026-11-14-repeatable-unit-of-a-software-factory/request-path.svg)
+
+The box at the bottom is the honest bit. The emulator's own guide says not to test security on it. Moving the tests onto it found a real difference on day one as well. A cancelled DynamoDB transaction reached the function looking different from the same error in plain Node, and a name clash came back as a 500 until the code stopped caring which SDK it was running on.
 
 It also sends anonymous usage stats to AWS by default. Set `EMULATOR_TELEMETRY=off` if you'd rather it kept quiet.
 
-The whole run takes a couple of minutes on a GitHub runner, and it's the same `task ci` on a laptop. The quick checks don't wait for it. A pre-push hook runs the ones that need nothing started, in a few seconds, and only the ones the repo is ready for. Isolated and portable is what gives me confidence in a pull request to main before anything touches production.
+The whole run takes a couple of minutes on a GitHub runner, and it's the same `task ci` on a laptop. Isolated and portable is what gives me confidence in a pull request to main before anything touches production.
 
 ## Red on Purpose
 
 The repo has three branches and two of them fail CI deliberately.
 
-- `main` is the template. It's red because there's no spec yet.
-- `example/spec` adds a spec for a beer catalogue. It's red because nothing's implemented, and the failure lists the six operations still to write.
-- `example/implementation` is the same spec delivered, and it's green.
+![Three cards left to right joined by arrows. First, main, the template. CI is red because there is no spec yet, and the pre-push hook checks the skeleton and the docs. An arrow labelled write-spec leads to the second card, example/spec, the spec added. CI is red because nothing is implemented, and the hook also checks the spec gates. An arrow labelled implement-api leads to the third card, example/implementation, the spec delivered. CI is green, and the hook also checks the unit tests and the types.](/assets/2026-11-14-repeatable-unit-of-a-software-factory/branches.svg)
 
 A template with a red build looks broken. It's the gate doing its job, and the diff between the branches shows you what a spec looks like and what implementing one adds.
+
+The quick checks don't wait for CI. A pre-push hook runs the ones that need nothing started, in a few seconds, and the skills switch more of them on as the repo moves from one stage to the next.
 
 ## Proving It on a Fresh Agent
 
