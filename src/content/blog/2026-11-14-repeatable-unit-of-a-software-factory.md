@@ -106,7 +106,7 @@ The agent's whole job is the body. Two skills hold the process. `/write-spec` wo
 
 ## A Throwaway AWS on the Runner
 
-In the past I'd have needed LocalStack for this bit. Then the [AWS Emulator](https://github.com/aws/aws-emulator) came out last Wednesday, 11 November, and made it all a good deal easier. It's one program from AWS that answers the AWS APIs on a local HTTPS port. No account, no fee, and it forgets everything when it stops.
+In the past I'd have needed LocalStack for this bit. Then the [AWS Emulator](https://github.com/aws/aws-emulator) [came out last Wednesday](https://aws.amazon.com/blogs/aws/test-your-applications-against-aws-locally-with-aws-emulator/), 11 November, and made it all a good deal easier. It's one program from AWS that answers the AWS APIs on a local HTTPS port. No account, no fee, and it forgets everything when it stops.
 
 The template applies the project's real Terraform to it.
 
@@ -164,7 +164,7 @@ It fits how I like to work all the same. It's small, it's yours, it's in source 
 
 This post is the guided path. These are the sources.
 
-- The [AWS Emulator repo](https://github.com/aws/aws-emulator) and its [user guide](https://docs.aws.amazon.com/emulator/latest/userguide/what-is-service.html), for what it emulates and how to point an SDK at it.
+- The AWS Emulator [launch post](https://aws.amazon.com/blogs/aws/test-your-applications-against-aws-locally-with-aws-emulator/), its [repo](https://github.com/aws/aws-emulator) and its [user guide](https://docs.aws.amazon.com/emulator/latest/userguide/what-is-service.html), for what it emulates and how to point an SDK at it.
 - [template-aws-api](https://github.com/hungovercoders/template-aws-api), and the two diffs worth reading, [what a spec looks like](https://github.com/hungovercoders/template-aws-api/compare/main...example/spec) and [what implementing one adds](https://github.com/hungovercoders/template-aws-api/compare/example/spec...example/implementation).
 - [Cucumber](https://github.com/cucumber/cucumber-js) for the feature files, [Spectral](https://github.com/stoplightio/spectral) for linting the contract, [Schemathesis](https://schemathesis.readthedocs.io) for the fuzzing and [oasdiff](https://github.com/oasdiff/oasdiff) for spotting breaking changes.
 - [Last week's post](/blog/2026-11-07-slopstopper-steward-course-and-friends/) on the gates, and the [2024 one](/blog/2024-12-22-create-a-cracker-of-an-open-api-contract-with-vs-code-spectral-prism-and-schemathesis/) where the contract tooling started.
