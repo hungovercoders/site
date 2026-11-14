@@ -109,18 +109,20 @@ The template downloads a pinned version and checks AWS's signature on it. It unp
 <video autoplay loop muted playsinline>
   <source src="/assets/2026-11-14-repeatable-unit-of-a-software-factory/green-run.mp4" type="video/mp4">
   <source src="/assets/2026-11-14-repeatable-unit-of-a-software-factory/green-run.webm" type="video/webm">
-  <img src="/assets/2026-11-14-repeatable-unit-of-a-software-factory/green-run.gif" alt="A terminal recording of the end of task ci, taken from the GitHub Actions log of the example implementation branch. Terraform creates the Lambda function, the alarms and one API Gateway route per operation on the AWS Emulator and reports Apply complete, 23 added. Cucumber then passes 53 scenarios and 290 steps, the responses check confirms every documented response of the 6 operations was returned to a scenario, and Schemathesis reports 411 generated test cases, 411 passed, no issues found">
+  <img src="/assets/2026-11-14-repeatable-unit-of-a-software-factory/green-run.gif" alt="A terminal recording of the end of task ci, taken from the GitHub Actions log of the example implementation branch. Terraform creates the Lambda function, the alarms and one API Gateway route per operation on the AWS Emulator and reports Apply complete, 23 added, with the API ready on the emulator's own execute-api address. Cucumber then passes 53 scenarios and 290 steps, the responses check confirms every documented response of the 6 operations was returned to a scenario, and Schemathesis, pointed at the same emulator address, reports 396 generated test cases, 396 passed, no issues found">
 </video>
 
-That's the tail of a real run, lifted from the GitHub Actions log. Twenty-three resources, fifty-three scenarios, then four hundred and eleven fuzzed requests.
+That's the tail of a real run, lifted from the GitHub Actions log. Twenty-three resources, fifty-three scenarios, then three hundred and ninety-six fuzzed requests, every one of them through the emulator's own API Gateway to the Lambda and on to its DynamoDB.
 
 I was super excited when I saw Terraform deploy to it. There's no second definition of the table for the tests to drift away from.
 
-Here's the bit the launch posts don't lead with. The emulator will take your Lambda and your API Gateway definitions, but it can't invoke a function yet. Its own issue list says so. The feature and fuzz runs therefore call the built bundle, the very file that gets deployed, through a small stand-in that makes the same event API Gateway would. DynamoDB is the emulator's. It's a real limit, and the template's testing guide has a table of which layers match production and which don't.
+Here's the bit that nearly went out wrong. The first version of this template tested the Lambda behind a small stand-in for API Gateway, because the agent had told me the emulator couldn't invoke a function. I asked it to actually try. It could. What was failing was one line our own build added to the bundle. With the line gone the stand-in went in the bin, and now nothing stands in for AWS in the tests.
+
+It isn't all of AWS though. The emulated authoriser checks a token's shape, issuer and audience but not its signature. IAM isn't enforced the way AWS enforces it, and the emulator's own guide says not to test security on it. Moving the tests onto it found a real difference on day one as well. A cancelled DynamoDB transaction reached the function looking different from the same error in plain Node, and a name clash came back as a 500 until the code stopped caring which SDK it was running on.
 
 It also sends anonymous usage stats to AWS by default. Set `EMULATOR_TELEMETRY=off` if you'd rather it kept quiet.
 
-The whole run takes about a minute on a GitHub runner, and it's the same `task ci` on a laptop. Isolated and portable is what gives me confidence in a pull request to main before anything touches production.
+The whole run takes a couple of minutes on a GitHub runner, and it's the same `task ci` on a laptop. The quick checks don't wait for it. A pre-push hook runs the ones that need nothing started, in a few seconds, and only the ones the repo is ready for. Isolated and portable is what gives me confidence in a pull request to main before anything touches production.
 
 ## Red on Purpose
 
@@ -148,7 +150,7 @@ Whether a change like that is breaking is still a person's call. The gate makes 
 
 I'd use the pattern now. Human-readable specs that are also the tests are a big part of why, and so is knowing a pull request has been through the lot before I read it.
 
-This particular template isn't proven yet. It has never been deployed to a real AWS account. The alarms and the JWT authoriser have only ever been applied to the emulator, the deploy role has only been validated, and the emulator can't tell you whether API Gateway, IAM and the Lambda runtime behave. Only a deploy can. The emulator is days old as well, so the version is pinned.
+This particular template isn't proven yet. It has never been deployed to a real AWS account. The alarms have only ever been applied to the emulator, the deploy role has only been validated, and the emulator doesn't check token signatures or IAM. Only a deploy can. The emulator is days old as well, so the version is pinned.
 
 It fits how I like to work all the same. It's small, it's yours, it's in source control, and the checking happens at the keyboard and on the pull request and not three weeks downstream.
 
