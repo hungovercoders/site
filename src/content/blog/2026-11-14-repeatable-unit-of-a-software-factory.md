@@ -128,7 +128,9 @@ The box at the bottom is the honest bit. The emulator's own guide says not to te
 
 It also sends anonymous usage stats to AWS by default. Set `EMULATOR_TELEMETRY=off` if you'd rather it kept quiet.
 
-The whole run takes a couple of minutes on a GitHub runner, and it's the same `task ci` on a laptop. Isolated and portable is what gives me confidence in a pull request to main before anything touches production.
+And it's quick for what it's doing. On a GitHub runner the whole of `task ci` took two minutes and twenty-one seconds. In that time it downloaded the emulator and checked its signature, ran every lint and unit test, stood up twenty-three resources with Terraform, ran fifty-three scenarios in twenty-four seconds and fuzzed the API with three hundred and ninety-six requests in forty-seven. All of that was against a full stack that didn't exist when the run started and was gone when it finished. Mega confidence, fast.
+
+It's the same `task ci` on a laptop. Isolated and portable is what gives me confidence in a pull request to main before anything touches production.
 
 ## Red on Purpose
 
