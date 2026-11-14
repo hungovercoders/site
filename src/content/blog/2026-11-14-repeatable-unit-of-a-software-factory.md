@@ -27,9 +27,11 @@ This post is the guided path through [template-aws-api](https://github.com/hungo
 
 ## Where the Unit Sits
 
-![Three boxes left to right, then a band beneath. Solved once: the skeleton, the same for every API, holding the router and request validation, the test harness, the Terraform, the CI pipeline and the gates themselves. You bring: the spec, two files that check each other, feature files saying what the API does and an OpenAPI contract saying what it looks like. The agent fills in: only what no command can derive, the body of each step and each operation, after task scaffold has generated the types, the route table and a typed stub for every operation and sentence. Beneath all three, a green band of deterministic gates run by one command, task ci, the same on a laptop and in CI: lint the contract, version the change, run every scenario against the built Lambda on AWS Emulator, then fuzz it. A dashed red arrow loops from the gates back to the agent saying exactly what is missing, and a green arrow leaves the gates when it ships](/assets/2026-11-14-repeatable-unit-of-a-software-factory/unit.svg)
+![A pipeline of four boxes left to right, sitting on a wide band. First, you bring the spec: feature files saying what the API does and an OpenAPI contract saying what it looks like. An arrow leads to the second box, commands generate: types and routes, a stub per operation and a step per sentence, from task scaffold. An arrow leads to the third box, the agent writes: only the bodies of each operation and each step, nothing else. An arrow leads to the fourth box, gates decide: task ci lints the contract, versions the change, runs every scenario and fuzzes it. A dashed red arrow loops from the gates back to the agent, labelled red, exactly what is missing. A green arrow leaves the gates, labelled green, it ships. An orange arrow runs from the spec underneath the middle boxes straight into the gates, labelled the same two files are also the tests. Beneath everything is a band labelled solved once, the skeleton, the same for every API, holding the router and validation, the test harness on AWS Emulator, the Terraform and CI, and the gates themselves, locked by skeleton.lock.](/assets/2026-11-14-repeatable-unit-of-a-software-factory/unit.svg)
 
-Start on the left of that picture. The skeleton is everything every API needs and nobody should write twice. That's the routing, the request validation, the error bodies, the test harness, the Terraform and the pipeline. The spec is the only part that makes your API yours. The agent fills in what's left, and the gates tell it when it has finished. Same input, same verdict, exactly as last week.
+Read it left to right. The spec is the only part that makes your API yours. Commands generate everything that can be worked out from it, the agent writes what's left, and the gates tell it when it has finished. The orange line is the bit I like most. The two files you wrote to describe the API are the same two files that test it. Same input, same verdict, exactly as last week.
+
+Underneath all of that sits the skeleton. It's everything every API needs and nobody should write twice. That's the routing, the request validation, the error bodies, the test harness, the Terraform and the pipeline.
 
 The skeleton is the same for all your APIs, so don't ask AI to build it again. A lock file records every skeleton file and the first gate fails if one changes, so an agent can't quietly rewrite the router to get a green tick.
 
@@ -130,17 +132,17 @@ The repo has three branches and two of them fail CI deliberately.
 
 A template with a red build looks broken. It's the gate doing its job, and the diff between the branches shows you what a spec looks like and what implementing one adds.
 
-## The Agent in Shot
+## Proving It on a Fresh Agent
 
-I didn't type this. Claude Code built it in one session with me steering, and its own sandbox wouldn't run the emulator, so every feature run and every fuzz run happened on GitHub Actions and it had to wait for the tick like the rest of us.
+I didn't type this template. Claude Code built it in one session with me steering. Its sandbox wouldn't run the emulator, so every feature and fuzz run happened on GitHub Actions and it had to wait for the tick like the rest of us.
 
-A skill written by an agent and tested by the same agent proves very little. So a fresh one that had never seen the answer was pointed at the spec and told to follow the skill and nothing else. CI went green on its first push. A second fresh agent did the same after the skill had changed.
+That leaves a fair question. An agent that writes a skill and then follows it already knows the answer, so its green build proves very little. So a fresh agent that had never seen the build was given the example spec and the `/implement-api` skill and nothing else. CI went green on its first push. A second fresh agent did the same after the skill had changed.
 
-Then a harder test. One agent changed the spec of the finished API from a written brief, a second caught the code up, and that was green first time too. It also found a hole. One requirement changed a rule without changing the contract's shape (an average rating would only show after three ratings) and the compatibility gate saw nothing at all. A change every consumer would notice went out as a minor version. The gate now reads the feature files as well and lists every existing scenario that changed.
+The harder test was changing an API that was already finished. One agent changed the spec from a written brief and a second caught the code up. That was green first time too, and it found a hole. One of the changes was to a rule and not to the contract's shape. An average rating would now only show after three ratings. The compatibility gate saw nothing at all, so a change every consumer would notice was passed as a minor version. The gate now reads the feature files as well and lists every existing scenario that changed.
 
 ![Terminal output of task spec:compat on the changed spec, going from 2.0.0 to 2.1.0. No breaking contract changes, but under Existing behaviour changed it lists three changed scenarios and one removed, The first rating sets the average, and says that if a consumer can observe this it needs a new major version and that is a person's decision](/assets/2026-11-14-repeatable-unit-of-a-software-factory/compat.png)
 
-That one's the agent's lesson, found by a test and not by a consumer.
+Whether a change like that is breaking is still a person's call. The gate makes sure somebody has to make it.
 
 ## Would I Build on It
 
