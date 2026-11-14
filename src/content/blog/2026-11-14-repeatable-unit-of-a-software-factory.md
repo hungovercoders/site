@@ -108,7 +108,7 @@ The agent's whole job is the body. Two skills hold the process. `/write-spec` wo
 
 In the past I'd have needed LocalStack for this bit. Then the [AWS Emulator](https://github.com/aws/aws-emulator) came out last Wednesday, 11 November, and made it all a good deal easier. It's one program from AWS that answers the AWS APIs on a local HTTPS port. No account, no fee, and it forgets everything when it stops.
 
-The template downloads a pinned version and checks AWS's signature on it. It unpacks into the repo, so nothing is installed system-wide. Then it applies the project's real Terraform to the emulator.
+The template applies the project's real Terraform to it.
 
 <video autoplay loop muted playsinline>
   <source src="/assets/2026-11-14-repeatable-unit-of-a-software-factory/green-run.mp4" type="video/mp4">
@@ -116,7 +116,7 @@ The template downloads a pinned version and checks AWS's signature on it. It unp
   <img src="/assets/2026-11-14-repeatable-unit-of-a-software-factory/green-run.gif" alt="A terminal recording of the end of task ci, taken from the GitHub Actions log of the example implementation branch. Terraform creates the Lambda function, the alarms and one API Gateway route per operation on the AWS Emulator and reports Apply complete, 23 added, with the API ready on the emulator's own execute-api address. Cucumber then passes 53 scenarios and 290 steps, the responses check confirms every documented response of the 6 operations was returned to a scenario, and Schemathesis, pointed at the same emulator address, reports 396 generated test cases, 396 passed, no issues found">
 </video>
 
-That's the tail of a real run, lifted from the GitHub Actions log. Twenty-three resources, fifty-three scenarios, then three hundred and ninety-six fuzzed requests, every one of them through the emulator's own API Gateway to the Lambda and on to its DynamoDB.
+That's the tail of a real run, lifted from the GitHub Actions log. Every request in it went through the emulator's own API Gateway to the Lambda and on to its DynamoDB.
 
 I was super excited when I saw Terraform deploy to it. There's no second definition of the table for the tests to drift away from.
 
@@ -125,8 +125,6 @@ Here's the bit that nearly went out wrong. The first version of this template te
 ![A pipeline left to right. A test, which is a scenario step or a fuzzed request, sends a request into a green band labelled AWS Emulator, built by terraform apply and gone when the run ends. Inside the band the request passes through four boxes in turn. API Gateway, with one route per operation from the contract. The authoriser, which checks a token's shape, issuer and audience. The Lambda, which is the built bundle, the file that gets deployed. DynamoDB, the table Terraform made. Below the band a dashed red arrow labelled not proven here leads down to a grey box, only a real deploy proves token signatures, IAM permissions and anything the emulator gets wrong.](/assets/2026-11-14-repeatable-unit-of-a-software-factory/request-path.svg)
 
 The box at the bottom is the honest bit. The emulator's own guide says not to test security on it. Moving the tests onto it found a real difference on day one as well. A cancelled DynamoDB transaction reached the function looking different from the same error in plain Node, and a name clash came back as a 500 until the code stopped caring which SDK it was running on.
-
-It also sends anonymous usage stats to AWS by default. Set `EMULATOR_TELEMETRY=off` if you'd rather it kept quiet.
 
 And it's quick for what it's doing. On a GitHub runner the whole of `task ci` took two minutes and twenty-one seconds. In that time it downloaded the emulator and checked its signature, ran every lint and unit test, stood up twenty-three resources with Terraform, ran fifty-three scenarios in twenty-four seconds and fuzzed the API with three hundred and ninety-six requests in forty-seven. All of that was against a full stack that didn't exist when the run started and was gone when it finished. Mega confidence, fast.
 
@@ -146,9 +144,9 @@ The quick checks don't wait for CI. A pre-push hook runs the ones that need noth
 
 I didn't type this template. Claude Code built it in one session with me steering. Its sandbox wouldn't run the emulator, so every feature and fuzz run happened on GitHub Actions and it had to wait for the tick like the rest of us.
 
-That leaves a fair question. An agent that writes a skill and then follows it already knows the answer, so its green build proves very little. So a fresh agent that had never seen the build was given the example spec and the `/implement-api` skill and nothing else. CI went green on its first push. A second fresh agent did the same after the skill had changed.
+That leaves a fair question. An agent that writes a skill and then follows it already knows the answer, so its green build proves very little. So a fresh agent that had never seen the build was given the example spec and the `/implement-api` skill and nothing else. CI went green on its first push.
 
-The harder test was changing an API that was already finished. One agent changed the spec from a written brief and a second caught the code up. That was green first time too, and it found a hole. One of the changes was to a rule and not to the contract's shape. An average rating would now only show after three ratings. The compatibility gate saw nothing at all, so a change every consumer would notice was passed as a minor version. The gate now reads the feature files as well and lists every existing scenario that changed.
+The harder test was changing an API that was already finished. One agent changed the spec from a written brief and a second caught the code up. That was green first time too, and it found a hole. One of the changes was to a rule and not to the contract's shape. The compatibility gate saw nothing at all, so a change every consumer would notice was passed as a minor version. The gate now reads the feature files as well and lists every existing scenario that changed.
 
 ![Terminal output of task spec:compat on the changed spec, going from 2.0.0 to 2.1.0. No breaking contract changes, but under Existing behaviour changed it lists three changed scenarios and one removed, The first rating sets the average, and says that if a consumer can observe this it needs a new major version and that is a person's decision](/assets/2026-11-14-repeatable-unit-of-a-software-factory/compat.png)
 
