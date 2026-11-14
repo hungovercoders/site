@@ -63,6 +63,8 @@ post:
 
 That `@operation:create_beer` tag is the join. A gate fails if an operation has no scenario, or a scenario names an operation that isn't in the contract, so neither file can wander off on its own.
 
+A second gate goes one level down. After the scenarios have run, it fails if the contract documents a response that no scenario ever received, so a 404 can't sit in the contract with nobody saying when it happens. That gate went in while this post was being written, and its first run found one in the template's own example. The contract promised a 400 for retiring a beer and no scenario showed it. The fix was a scenario and not a line of code.
+
 The contract earns its keep four times over. The router validates every incoming request against it, so nobody hand-writes a 400. Terraform reads it to create one API Gateway route per operation. Every response in every scenario is checked against it for status, content type and body. Then Schemathesis generates requests from it, valid and daft alike, and checks the answers. The same two files are the instructions for building the API and the tests that prove it got built.
 
 ## Let the Commands Go First
@@ -105,10 +107,10 @@ The template downloads a pinned version and checks AWS's signature on it. It unp
 <video autoplay loop muted playsinline>
   <source src="/assets/2026-11-14-repeatable-unit-of-a-software-factory/green-run.mp4" type="video/mp4">
   <source src="/assets/2026-11-14-repeatable-unit-of-a-software-factory/green-run.webm" type="video/webm">
-  <img src="/assets/2026-11-14-repeatable-unit-of-a-software-factory/green-run.gif" alt="A terminal recording of the end of task ci, taken from the GitHub Actions log of the example implementation branch. Terraform creates the Lambda function, the alarms and one API Gateway route per operation on the AWS Emulator and reports Apply complete, 23 added. Cucumber then passes 50 scenarios and 278 steps, and Schemathesis reports 411 generated test cases, 411 passed, no issues found">
+  <img src="/assets/2026-11-14-repeatable-unit-of-a-software-factory/green-run.gif" alt="A terminal recording of the end of task ci, taken from the GitHub Actions log of the example implementation branch. Terraform creates the Lambda function, the alarms and one API Gateway route per operation on the AWS Emulator and reports Apply complete, 23 added. Cucumber then passes 53 scenarios and 290 steps, the responses check confirms every documented response of the 6 operations was returned to a scenario, and Schemathesis reports 411 generated test cases, 411 passed, no issues found">
 </video>
 
-That's the tail of a real run, lifted from the GitHub Actions log. Twenty-three resources, fifty scenarios, then four hundred and eleven fuzzed requests.
+That's the tail of a real run, lifted from the GitHub Actions log. Twenty-three resources, fifty-three scenarios, then four hundred and eleven fuzzed requests.
 
 I was super excited when I saw Terraform deploy to it. There's no second definition of the table for the tests to drift away from.
 
