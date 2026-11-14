@@ -13,7 +13,7 @@ image:
   path: /assets/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/link.png
 ---
 
-Time to increment to the next level now we have completed [part 1](/blog/2026-09-13-delightful-local-data-engineering-with-duckdb-and-harlequin), which tantalised us with a better future of non-hair tearing data engineering development on our local machines. These next steps will allow you to bring environmental awareness and pipeline testing to your setup - with duckdb and dbt!
+Time to turn our craft beer pipeline from [part 1](/blog/2026-09-13-delightful-local-data-engineering-with-duckdb-and-harlequin) into a tested, environment-aware dbt project on DuckDB that still runs happily on a laptop. Part 1 tantalised us with a better future of non-hair tearing data engineering development on our local machines. These next steps will allow you to bring environmental awareness and pipeline testing to your setup - with duckdb and dbt!
 
 ## Pre-Requisites
 

@@ -10,7 +10,7 @@ image:
 ---
 
 
-Being a hungover coder it can be difficult to remember all the ideas you've had or which ones you are currently working on... I've therefore invested in [github projects](https://docs.github.com/en/issues/planning-and-tracking-with-projects/learning-about-projects/quickstart-for-projects) and organised all my work (at least for now). One of the constraints of the github projects is that even if you link a repo, the issues or bugs are not automatically added to your project board. Below are three ways to ensure issues are automatically added to the board of your choosing!
+Github projects don't automatically add a linked repo's issues or bugs to your project board, so here are three ways to make sure they are. Being a hungover coder it can be difficult to remember all the ideas you've had or which ones you are currently working on... I've therefore invested in [github projects](https://docs.github.com/en/issues/planning-and-tracking-with-projects/learning-about-projects/quickstart-for-projects) and organised all my work (at least for now). One of the constraints of the github projects is that even if you link a repo, the issues or bugs are not automatically added to your project board. Below are three ways to ensure issues are automatically added to the board of your choosing!
 
 ## Prerequisites
 
