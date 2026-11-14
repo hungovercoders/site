@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 312" role="img" aria-labelledby="request-pathT request-pathD">
+  <title id="request-pathT">The path of a test request through AWS Emulator, and what only a real deploy proves</title>
+  <desc id="request-pathD">A pipeline left to right. A test, which is a scenario step or a fuzzed request, sends a request into a green band labelled AWS Emulator, built by terraform apply and gone when the run ends. Inside the band the request passes through four boxes in turn. API Gateway, with one route per operation from the contract. The authoriser, which checks a token's shape, issuer and audience. The Lambda, which is the built bundle, the file that gets deployed. DynamoDB, the table Terraform made. Below the band a dashed red arrow labelled not proven here leads down to a grey box, only a real deploy proves token signatures, IAM permissions and anything the emulator gets wrong.</desc>
+  <defs>
+    <style>
+      .h { font-family: 'Lora', Georgia, Cambria, serif; font-size: 14px; font-weight: 700; fill: rgb(34, 41, 57); }
+      .sub { font-family: 'Atkinson', system-ui, sans-serif; font-size: 11px; fill: rgb(96, 115, 159); }
+      .body { font-family: 'Atkinson', system-ui, sans-serif; font-size: 11px; fill: rgb(34, 41, 57); }
+      .muted { font-family: 'Atkinson', system-ui, sans-serif; font-size: 10.5px; fill: rgb(96, 115, 159); }
+      .mono { font-family: 'JetBrains Mono', Menlo, Consolas, monospace; font-size: 10.5px; fill: rgb(34, 41, 57); }
+      .pill { font-family: 'JetBrains Mono', Menlo, Consolas, monospace; font-size: 10px; font-weight: 700; fill: #fff; }
+      .lblRed { font-family: 'JetBrains Mono', Menlo, Consolas, monospace; font-size: 10px; font-weight: 700; fill: #b54343; }
+      .lblGreen { font-family: 'JetBrains Mono', Menlo, Consolas, monospace; font-size: 10px; font-weight: 700; fill: #1ea672; }
+      .lblOrange { font-family: 'JetBrains Mono', Menlo, Consolas, monospace; font-size: 10px; font-weight: 700; fill: #e16e3c; }
+      .cmd { fill: #e9deff; stroke: #7350dc; stroke-width: 1.5; }
+      .cmdHead { fill: #7350dc; }
+      .flowOrange { stroke: #e16e3c; fill: none; stroke-width: 1.8; }
+      .bad { fill: #fff; stroke: #b54343; stroke-width: 1.5; }
+      .badHead { fill: #b54343; }
+      .good { fill: #fff; stroke: #1ea672; stroke-width: 1.5; }
+      .goodHead { fill: #1ea672; }
+      .once { fill: #fff; stroke: rgb(96, 115, 159); stroke-width: 1.5; }
+      .onceHead { fill: rgb(96, 115, 159); }
+      .spec { fill: #fee5d9; stroke: #e16e3c; stroke-width: 1.5; }
+      .specHead { fill: #e16e3c; }
+      .agent { fill: #fff; stroke: #2337ff; stroke-width: 1.5; }
+      .agentHead { fill: #2337ff; }
+      .gate { fill: rgb(216, 241, 225); stroke: #1ea672; stroke-width: 1.5; }
+      .gateHead { fill: #1ea672; }
+      .step { fill: #fff; stroke: rgb(229, 233, 240); }
+      .flow { stroke: rgb(96, 115, 159); fill: none; stroke-width: 1.8; }
+      .flowRed { stroke: #b54343; fill: none; stroke-width: 1.8; stroke-dasharray: 4 3; }
+      .flowGreen { stroke: #1ea672; fill: none; stroke-width: 1.8; }
+    </style>
+    <marker id="uGrey" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="rgb(96, 115, 159)"/></marker>
+    <marker id="uRed" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b54343"/></marker>
+    <marker id="uGreen" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1ea672"/></marker>
+      <marker id="uOrange" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#e16e3c"/></marker>
+  </defs>
+  <rect width="720" height="312" fill="#f8f9fb"/>
+  <text x="20" y="32" class="h">What a test request goes through</text>
+  <text x="20" y="50" class="sub">Nothing stands in for AWS. Every box in the band is the emulator's own.</text>
+  <rect x="146" y="70" width="548" height="132" rx="8" class="gate"/>
+  <rect x="146" y="70" width="548" height="20" rx="8" class="gateHead"/>
+  <text x="420" y="84" text-anchor="middle" class="pill">AWS EMULATOR · BUILT BY terraform apply · GONE WHEN THE RUN ENDS</text>
+  <rect x="20" y="102" width="120" height="88" rx="6" class="spec"/>
+  <rect x="20" y="102" width="120" height="20" rx="6" class="specHead"/>
+  <text x="80.0" y="116" text-anchor="middle" class="pill">THE TEST</text>
+  <text x="31" y="140" class="muted">A scenario step</text>
+  <text x="31" y="156" class="muted">or a fuzzed request</text>
+  <rect x="156" y="102" width="120" height="88" rx="6" class="good"/>
+  <rect x="156" y="102" width="120" height="20" rx="6" class="goodHead"/>
+  <text x="216.0" y="116" text-anchor="middle" class="pill">API GATEWAY</text>
+  <text x="167" y="140" class="muted">One route per</text>
+  <text x="167" y="156" class="muted">operation, from</text>
+  <text x="167" y="172" class="muted">the contract</text>
+  <rect x="292" y="102" width="120" height="88" rx="6" class="good"/>
+  <rect x="292" y="102" width="120" height="20" rx="6" class="goodHead"/>
+  <text x="352.0" y="116" text-anchor="middle" class="pill">AUTHORISER</text>
+  <text x="303" y="140" class="muted">Checks token shape,</text>
+  <text x="303" y="156" class="muted">issuer and audience</text>
+  <rect x="428" y="102" width="120" height="88" rx="6" class="good"/>
+  <rect x="428" y="102" width="120" height="20" rx="6" class="goodHead"/>
+  <text x="488.0" y="116" text-anchor="middle" class="pill">LAMBDA</text>
+  <text x="439" y="140" class="muted">The built bundle,</text>
+  <text x="439" y="156" class="muted">the file that</text>
+  <text x="439" y="172" class="muted">gets deployed</text>
+  <rect x="564" y="102" width="120" height="88" rx="6" class="good"/>
+  <rect x="564" y="102" width="120" height="20" rx="6" class="goodHead"/>
+  <text x="624.0" y="116" text-anchor="middle" class="pill">DYNAMODB</text>
+  <text x="575" y="140" class="muted">The table</text>
+  <text x="575" y="156" class="muted">Terraform made</text>
+  <path d="M140,146 H154" class="flow" marker-end="url(#uGrey)"/>
+  <path d="M276,146 H290" class="flow" marker-end="url(#uGrey)"/>
+  <path d="M412,146 H426" class="flow" marker-end="url(#uGrey)"/>
+  <path d="M548,146 H562" class="flow" marker-end="url(#uGrey)"/>
+  <path d="M420,202 V236" class="flowRed" marker-end="url(#uRed)"/>
+  <text x="430" y="223" class="lblRed">not proven here</text>
+  <rect x="146" y="238" width="548" height="54" rx="6" class="once"/>
+  <rect x="146" y="238" width="548" height="20" rx="6" class="onceHead"/>
+  <text x="420.0" y="252" text-anchor="middle" class="pill">ONLY A REAL DEPLOY PROVES</text>
+  <text x="157" y="276" class="body">Token signatures, IAM permissions, and anything the emulator gets wrong</text>
+</svg>

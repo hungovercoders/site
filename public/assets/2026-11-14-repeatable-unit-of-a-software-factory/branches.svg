@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 208" role="img" aria-labelledby="branchesT branchesD">
+  <title id="branchesT">The three branches of the template and the stage each is at</title>
+  <desc id="branchesD">Three cards left to right joined by arrows. First, main, the template. CI is red because there is no spec yet, and the pre-push hook checks the skeleton and the docs. An arrow labelled write-spec leads to the second card, example/spec, the spec added. CI is red because nothing is implemented, and the hook also checks the spec gates. An arrow labelled implement-api leads to the third card, example/implementation, the spec delivered. CI is green, and the hook also checks the unit tests and the types.</desc>
+  <defs>
+    <style>
+      .h { font-family: 'Lora', Georgia, Cambria, serif; font-size: 14px; font-weight: 700; fill: rgb(34, 41, 57); }
+      .sub { font-family: 'Atkinson', system-ui, sans-serif; font-size: 11px; fill: rgb(96, 115, 159); }
+      .body { font-family: 'Atkinson', system-ui, sans-serif; font-size: 11px; fill: rgb(34, 41, 57); }
+      .muted { font-family: 'Atkinson', system-ui, sans-serif; font-size: 10.5px; fill: rgb(96, 115, 159); }
+      .mono { font-family: 'JetBrains Mono', Menlo, Consolas, monospace; font-size: 10.5px; fill: rgb(34, 41, 57); }
+      .pill { font-family: 'JetBrains Mono', Menlo, Consolas, monospace; font-size: 10px; font-weight: 700; fill: #fff; }
+      .lblRed { font-family: 'JetBrains Mono', Menlo, Consolas, monospace; font-size: 10px; font-weight: 700; fill: #b54343; }
+      .lblGreen { font-family: 'JetBrains Mono', Menlo, Consolas, monospace; font-size: 10px; font-weight: 700; fill: #1ea672; }
+      .lblOrange { font-family: 'JetBrains Mono', Menlo, Consolas, monospace; font-size: 10px; font-weight: 700; fill: #e16e3c; }
+      .cmd { fill: #e9deff; stroke: #7350dc; stroke-width: 1.5; }
+      .cmdHead { fill: #7350dc; }
+      .flowOrange { stroke: #e16e3c; fill: none; stroke-width: 1.8; }
+      .bad { fill: #fff; stroke: #b54343; stroke-width: 1.5; }
+      .badHead { fill: #b54343; }
+      .good { fill: #fff; stroke: #1ea672; stroke-width: 1.5; }
+      .goodHead { fill: #1ea672; }
+      .once { fill: #fff; stroke: rgb(96, 115, 159); stroke-width: 1.5; }
+      .onceHead { fill: rgb(96, 115, 159); }
+      .spec { fill: #fee5d9; stroke: #e16e3c; stroke-width: 1.5; }
+      .specHead { fill: #e16e3c; }
+      .agent { fill: #fff; stroke: #2337ff; stroke-width: 1.5; }
+      .agentHead { fill: #2337ff; }
+      .gate { fill: rgb(216, 241, 225); stroke: #1ea672; stroke-width: 1.5; }
+      .gateHead { fill: #1ea672; }
+      .step { fill: #fff; stroke: rgb(229, 233, 240); }
+      .flow { stroke: rgb(96, 115, 159); fill: none; stroke-width: 1.8; }
+      .flowRed { stroke: #b54343; fill: none; stroke-width: 1.8; stroke-dasharray: 4 3; }
+      .flowGreen { stroke: #1ea672; fill: none; stroke-width: 1.8; }
+    </style>
+    <marker id="uGrey" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="rgb(96, 115, 159)"/></marker>
+    <marker id="uRed" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b54343"/></marker>
+    <marker id="uGreen" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1ea672"/></marker>
+      <marker id="uOrange" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#e16e3c"/></marker>
+  </defs>
+  <rect width="720" height="208" fill="#f8f9fb"/>
+  <text x="20" y="32" class="h">Three branches, three stages</text>
+  <text x="20" y="50" class="sub">CI always runs every gate. The pre-push hook runs the fast ones the repo is ready for.</text>
+  <rect x="20" y="70" width="206" height="100" rx="6" class="bad"/>
+  <rect x="20" y="70" width="206" height="20" rx="6" class="badHead"/>
+  <text x="123.0" y="84" text-anchor="middle" class="pill">CI RED · NO SPEC YET</text>
+  <text x="31" y="108" class="mono">main</text>
+  <text x="31" y="124" class="body">The template</text>
+  <text x="31" y="140" class="muted">Hook checks</text>
+  <text x="31" y="156" class="muted">skeleton, docs</text>
+  <rect x="257" y="70" width="206" height="100" rx="6" class="bad"/>
+  <rect x="257" y="70" width="206" height="20" rx="6" class="badHead"/>
+  <text x="360.0" y="84" text-anchor="middle" class="pill">CI RED · NOTHING IMPLEMENTED</text>
+  <text x="268" y="108" class="mono">example/spec</text>
+  <text x="268" y="124" class="body">The spec, added</text>
+  <text x="268" y="140" class="muted">Hook checks</text>
+  <text x="268" y="156" class="muted">+ the spec gates</text>
+  <rect x="494" y="70" width="206" height="100" rx="6" class="good"/>
+  <rect x="494" y="70" width="206" height="20" rx="6" class="goodHead"/>
+  <text x="597.0" y="84" text-anchor="middle" class="pill">CI GREEN</text>
+  <text x="505" y="108" class="mono">example/implementation</text>
+  <text x="505" y="124" class="body">The spec, delivered</text>
+  <text x="505" y="140" class="muted">Hook checks</text>
+  <text x="505" y="156" class="muted">+ unit tests, types</text>
+  <path d="M226,120 H255" class="flow" marker-end="url(#uGrey)"/>
+  <text x="241" y="192" text-anchor="middle" class="mono">/write-spec</text>
+  <path d="M463,120 H492" class="flow" marker-end="url(#uGrey)"/>
+  <text x="478" y="192" text-anchor="middle" class="mono">/implement-api</text>
+</svg>

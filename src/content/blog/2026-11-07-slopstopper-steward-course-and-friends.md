@@ -26,7 +26,7 @@ The agent is the generator. Creative, chatty, and you get a different answer eve
 
 On Lantern, the demo repo the CLI writes for you, the loop runs like this. The entry-files check goes red because the README has grown a whole manual, the report says by how much, the manual moves into `docs/` where it belongs, and the check goes green.
 
-<video autoplay loop muted playsinline>
+<video autoplay loop muted playsinline controls>
   <source src="/assets/2026-11-07-slopstopper-steward-course-and-friends/triage.mp4" type="video/mp4">
   <source src="/assets/2026-11-07-slopstopper-steward-course-and-friends/triage.webm" type="video/webm">
   <img src="/assets/2026-11-07-slopstopper-steward-course-and-friends/triage.gif" alt="The triage loop in a terminal: slopstopper run hygiene:entry-files fails on the Lantern demo because README.md is 800 tokens against a budget of 600, the report under .ss/reports is read, the oversized section is moved into docs, and the same check passes with README.md at 225 tokens">
@@ -72,7 +72,7 @@ pipx install slopstopper-cli
 slopstopper demo        # writes slopstopper-demo/, a two-page status page called Lantern
 ```
 
-<video autoplay loop muted playsinline>
+<video autoplay loop muted playsinline controls>
   <source src="/assets/2026-11-07-slopstopper-steward-course-and-friends/demo.mp4" type="video/mp4">
   <source src="/assets/2026-11-07-slopstopper-steward-course-and-friends/demo.webm" type="video/webm">
   <img src="/assets/2026-11-07-slopstopper-steward-course-and-friends/demo.gif" alt="slopstopper demo writing twenty-three files to slopstopper-demo and listing the ten checks that fail on it on purpose, each with the command to run and the finding it will report">

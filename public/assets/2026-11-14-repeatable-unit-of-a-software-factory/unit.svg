@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 365" role="img" aria-labelledby="unitTitle unitDesc">
+  <title id="unitTitle">The repeatable unit: you bring a spec, commands and the agent build from it, the gates test against it, all on a skeleton solved once</title>
+  <desc id="unitDesc">A pipeline of four boxes left to right, sitting on a wide band. First, you bring the spec: feature files saying what the API does and an OpenAPI contract saying what it looks like. An arrow leads to the second box, commands generate: types and routes, a stub per operation and a step per sentence, from task scaffold. An arrow leads to the third box, the agent writes: only the bodies of each operation and each step, nothing else. An arrow leads to the fourth box, gates decide: task ci lints the contract, versions the change, runs every scenario and fuzzes it. A dashed red arrow loops from the gates back to the agent, labelled red, exactly what is missing. A green arrow leaves the gates, labelled green, it ships. An orange arrow runs from the spec underneath the middle boxes straight into the gates, labelled the same two files are also the tests. Beneath everything is a band labelled solved once, the skeleton, the same for every API, holding the router and validation, the test harness on AWS Emulator, the Terraform and CI, and the gates themselves, locked by skeleton.lock.</desc>
+  <defs>
+    <style>
+      .h { font-family: 'Lora', Georgia, Cambria, serif; font-size: 14px; font-weight: 700; fill: rgb(34, 41, 57); }
+      .sub { font-family: 'Atkinson', system-ui, sans-serif; font-size: 11px; fill: rgb(96, 115, 159); }
+      .body { font-family: 'Atkinson', system-ui, sans-serif; font-size: 11px; fill: rgb(34, 41, 57); }
+      .muted { font-family: 'Atkinson', system-ui, sans-serif; font-size: 10.5px; fill: rgb(96, 115, 159); }
+      .mono { font-family: 'JetBrains Mono', Menlo, Consolas, monospace; font-size: 10.5px; fill: rgb(34, 41, 57); }
+      .pill { font-family: 'JetBrains Mono', Menlo, Consolas, monospace; font-size: 10px; font-weight: 700; fill: #fff; }
+      .lblRed { font-family: 'JetBrains Mono', Menlo, Consolas, monospace; font-size: 10px; font-weight: 700; fill: #b54343; }
+      .lblGreen { font-family: 'JetBrains Mono', Menlo, Consolas, monospace; font-size: 10px; font-weight: 700; fill: #1ea672; }
+      .lblOrange { font-family: 'JetBrains Mono', Menlo, Consolas, monospace; font-size: 10px; font-weight: 700; fill: #e16e3c; }
+      .cmd { fill: #e9deff; stroke: #7350dc; stroke-width: 1.5; }
+      .cmdHead { fill: #7350dc; }
+      .flowOrange { stroke: #e16e3c; fill: none; stroke-width: 1.8; }
+      .once { fill: #fff; stroke: rgb(96, 115, 159); stroke-width: 1.5; }
+      .onceHead { fill: rgb(96, 115, 159); }
+      .spec { fill: #fee5d9; stroke: #e16e3c; stroke-width: 1.5; }
+      .specHead { fill: #e16e3c; }
+      .agent { fill: #fff; stroke: #2337ff; stroke-width: 1.5; }
+      .agentHead { fill: #2337ff; }
+      .gate { fill: rgb(216, 241, 225); stroke: #1ea672; stroke-width: 1.5; }
+      .gateHead { fill: #1ea672; }
+      .step { fill: #fff; stroke: rgb(229, 233, 240); }
+      .flow { stroke: rgb(96, 115, 159); fill: none; stroke-width: 1.8; }
+      .flowRed { stroke: #b54343; fill: none; stroke-width: 1.8; stroke-dasharray: 4 3; }
+      .flowGreen { stroke: #1ea672; fill: none; stroke-width: 1.8; }
+    </style>
+    <marker id="uGrey" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="rgb(96, 115, 159)"/></marker>
+    <marker id="uRed" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b54343"/></marker>
+    <marker id="uGreen" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1ea672"/></marker>
+      <marker id="uOrange" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#e16e3c"/></marker>
+  </defs>
+
+  <rect width="720" height="365" fill="#f8f9fb"/>
+  <text x="20" y="32" class="h">Bring your own business logic</text>
+  <text x="20" y="50" class="sub">You write the spec. Commands and the agent build from it. The gates test against it.</text>
+
+  <rect x="20" y="95" width="140" height="120" rx="6" class="spec"/>
+  <rect x="20" y="95" width="140" height="20" rx="6" class="specHead"/>
+  <text x="90" y="109" text-anchor="middle" class="pill">YOU BRING</text>
+  <text x="31" y="134" class="body">The spec</text>
+  <text x="31" y="152" class="muted">What it does</text>
+  <text x="31" y="168" class="mono">*.feature</text>
+  <text x="31" y="184" class="muted">What it looks like</text>
+  <text x="31" y="200" class="mono">openapi.yaml</text>
+
+  <rect x="186" y="95" width="140" height="120" rx="6" class="cmd"/>
+  <rect x="186" y="95" width="140" height="20" rx="6" class="cmdHead"/>
+  <text x="256" y="109" text-anchor="middle" class="pill">COMMANDS GENERATE</text>
+  <text x="197" y="134" class="body">All that can be derived</text>
+  <text x="197" y="152" class="muted">Types and routes</text>
+  <text x="197" y="168" class="muted">A stub per operation</text>
+  <text x="197" y="184" class="muted">A step per sentence</text>
+  <text x="197" y="200" class="mono">task scaffold</text>
+
+  <rect x="352" y="95" width="140" height="120" rx="6" class="agent"/>
+  <rect x="352" y="95" width="140" height="20" rx="6" class="agentHead"/>
+  <text x="422" y="109" text-anchor="middle" class="pill">THE AGENT WRITES</text>
+  <text x="363" y="134" class="body">Only the bodies</text>
+  <text x="363" y="152" class="muted">of each operation</text>
+  <text x="363" y="168" class="muted">and each step.</text>
+  <text x="363" y="184" class="muted">Nothing else.</text>
+
+  <rect x="518" y="95" width="140" height="120" rx="6" class="gate"/>
+  <rect x="518" y="95" width="140" height="20" rx="6" class="gateHead"/>
+  <text x="588" y="109" text-anchor="middle" class="pill">GATES DECIDE</text>
+  <text x="529" y="134" class="body">Same verdict every run</text>
+  <text x="529" y="152" class="muted">Lint the contract</text>
+  <text x="529" y="168" class="muted">Version the change</text>
+  <text x="529" y="184" class="muted">Run every scenario, fuzz</text>
+  <text x="529" y="200" class="mono">task ci</text>
+
+  <path d="M160,155 H184" class="flow" marker-end="url(#uGrey)"/>
+  <path d="M326,155 H350" class="flow" marker-end="url(#uGrey)"/>
+  <path d="M492,155 H516" class="flow" marker-end="url(#uGrey)"/>
+
+  <path d="M588,95 V78 H422 V93" class="flowRed" marker-end="url(#uRed)"/>
+  <text x="505" y="71" text-anchor="middle" class="lblRed">RED: exactly what is missing</text>
+
+  <path d="M90,215 V242 H588 V217" class="flowOrange" marker-end="url(#uOrange)"/>
+  <text x="339" y="235" text-anchor="middle" class="lblOrange">the same two files are also the tests</text>
+
+  <path d="M658,155 H698" class="flowGreen" marker-end="url(#uGreen)"/>
+  <text x="680" y="146" text-anchor="middle" class="lblGreen">GREEN</text>
+  <text x="680" y="171" text-anchor="middle" class="lblGreen">ships</text>
+
+  <rect x="20" y="262" width="680" height="83" rx="6" class="once"/>
+  <rect x="20" y="262" width="680" height="20" rx="6" class="onceHead"/>
+  <text x="360" y="276" text-anchor="middle" class="pill">SOLVED ONCE · THE SKELETON · THE SAME FOR EVERY API</text>
+  <rect x="30" y="292" width="158" height="42" rx="4" class="step"/>
+  <text x="40" y="309" class="body">Router and validation</text>
+  <text x="40" y="325" class="muted">requests held to contract</text>
+  <rect x="198" y="292" width="158" height="42" rx="4" class="step"/>
+  <text x="208" y="309" class="body">Test harness</text>
+  <text x="208" y="325" class="muted">stack on AWS Emulator</text>
+  <rect x="366" y="292" width="158" height="42" rx="4" class="step"/>
+  <text x="376" y="309" class="body">Terraform and CI</text>
+  <text x="376" y="325" class="muted">one pipeline, every API</text>
+  <rect x="534" y="292" width="158" height="42" rx="4" class="step"/>
+  <text x="544" y="309" class="body">The gates</text>
+  <text x="544" y="325" class="muted">locked by skeleton.lock</text>
+</svg>
