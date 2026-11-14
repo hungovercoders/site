@@ -67,11 +67,9 @@ That `@operation:create_beer` tag is the join. A gate fails if an operation has 
 
 A second gate goes one level down. After the scenarios have run, it fails if the contract documents a response that no scenario ever received, so a 404 can't sit in the contract with nobody saying when it happens. That gate went in while this post was being written, and its first run found one in the template's own example. The contract promised a 400 for retiring a beer and no scenario showed it. The fix was a scenario and not a line of code.
 
-The contract earns its keep four times over.
+The contract does four jobs.
 
 ![One box on the left, the contract, specs/openapi.yaml, written once. Four arrows fan out from it to four boxes on the right, one for each job it does. The router validates every request against it, so nobody hand-writes a 400. Terraform reads it and creates one API Gateway route per operation. The scenarios check every response against it for status, content type and body. Schemathesis generates requests from it, valid and daft alike, and checks the answers.](/assets/2026-11-14-repeatable-unit-of-a-software-factory/contract.svg)
-
-The same two files are the instructions for building the API and the tests that prove it got built.
 
 ## Let the Commands Go First
 
@@ -144,9 +142,9 @@ The quick checks don't wait for CI. A pre-push hook runs the ones that need noth
 
 I didn't type this template. Claude Code built it in one session with me steering. Its sandbox wouldn't run the emulator, so every feature and fuzz run happened on GitHub Actions and it had to wait for the tick like the rest of us.
 
-That leaves a fair question. An agent that writes a skill and then follows it already knows the answer, so its green build proves very little. So a fresh agent that had never seen the build was given the example spec and the `/implement-api` skill and nothing else. CI went green on its first push.
+An agent that writes a skill and then follows it already knows the answer, so its green build proves little. So a fresh agent that had never seen the build was given the example spec and the `/implement-api` skill and nothing else. CI went green on its first push.
 
-The harder test was changing an API that was already finished. One agent changed the spec from a written brief and a second caught the code up. That was green first time too, and it found a hole. One of the changes was to a rule and not to the contract's shape. The compatibility gate saw nothing at all, so a change every consumer would notice was passed as a minor version. The gate now reads the feature files as well and lists every existing scenario that changed.
+The harder test was changing an API that was already finished. One agent changed the spec from a written brief and a second caught the code up. That was green first time too, and it found a hole. One of the changes was to a rule and not to the contract's shape. The compatibility gate saw nothing, so a change every consumer would notice was passed as a minor version. The gate now reads the feature files as well and lists every existing scenario that changed.
 
 ![Terminal output of task spec:compat on the changed spec, going from 2.0.0 to 2.1.0. No breaking contract changes, but under Existing behaviour changed it lists three changed scenarios and one removed, The first rating sets the average, and says that if a consumer can observe this it needs a new major version and that is a person's decision](/assets/2026-11-14-repeatable-unit-of-a-software-factory/compat.png)
 
@@ -156,13 +154,13 @@ Whether a change like that is breaking is still a person's call. The gate makes 
 
 I'd use the pattern now. Human-readable specs that are also the tests are a big part of why, and so is knowing a pull request has been through the lot before I read it.
 
-This particular template isn't proven yet. It has never been deployed to a real AWS account. The alarms have only ever been applied to the emulator, the deploy role has only been validated, and the emulator doesn't check token signatures or IAM. Only a deploy can. The emulator is days old as well, so the version is pinned.
+This template isn't proven yet. It has never been deployed to a real AWS account. The alarms have only been applied to the emulator, the deploy role has only been validated, and the emulator doesn't check token signatures or IAM. Only a deploy can. The emulator is days old as well, so the version is pinned.
 
 It fits how I like to work all the same. It's small, it's yours, it's in source control, and the checking happens at the keyboard and on the pull request and not three weeks downstream.
 
 ## Sources and Further Reading
 
-This post is the guided path. These are the sources.
+These are the sources.
 
 - The AWS Emulator [launch post](https://aws.amazon.com/blogs/aws/test-your-applications-against-aws-locally-with-aws-emulator/), its [repo](https://github.com/aws/aws-emulator) and its [user guide](https://docs.aws.amazon.com/emulator/latest/userguide/what-is-service.html), for what it emulates and how to point an SDK at it.
 - [template-aws-api](https://github.com/hungovercoders/template-aws-api), and the two diffs worth reading, [what a spec looks like](https://github.com/hungovercoders/template-aws-api/compare/main...example/spec) and [what implementing one adds](https://github.com/hungovercoders/template-aws-api/compare/example/spec...example/implementation).
