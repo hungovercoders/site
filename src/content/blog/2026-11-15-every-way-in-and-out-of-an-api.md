@@ -14,7 +14,7 @@ image:
   path: /assets/2026-11-15-every-way-in-and-out-of-an-api/link.png
 ---
 
-This blog is a bit of a cheat as it's the same AWS Lambda API template as [yesterday](/blog/2026-11-14-repeatable-unit-of-a-software-factory/), but this time with messages in on a queue, events out on EventBridge and those events kept as data in S3. I wanted one setup to represent every interface, with the events and the data contract driven by the same testable specs as the HTTP side. Yesterday's itch, the one I scratched on my phone round Bute Park, continued. That's super exciting, so read on fellow hungovercoder and bring your own business logic, in through any door you like.
+This blog is a bit of a cheat as it's the same AWS Lambda API template as [yesterday](/blog/2026-11-14-repeatable-unit-of-a-software-factory/), but this time with messages in on a queue, events out on EventBridge and those events kept as data in S3. I wanted to prove a true full stack API, and for me that includes events and data contracts, all driven by the same testable specs as the HTTP side. The itch continued, so I was at a birthday curry today sneakily battling CloudEvents. One setup can now represent every interface and that's super exciting, so read on fellow hungovercoder and bring your own business logic, in through any door you like.
 
 This post is the guided path through what was added to [template-aws-api](https://github.com/hungovercoders/template-aws-api). The sources are at the bottom. Everything in it is still pre-publication and demos, so take it as a pattern worth nicking and not a product.
 
@@ -142,7 +142,7 @@ Not every API wants a queue. The queue, the events and the data are optional com
 
 ## CloudEvents in a Borrowed Envelope
 
-This is the bit I pushed on. I asked which EventBridge had been used, the classic bus or the new one. It was the classic one, and the agent hadn't looked at the newer bus at all. Then I asked whether they were really CloudEvents if they sat in an envelope.
+The difficult bits were CloudEvents, ordering and gzip for the Data Contract CLI. The gzip one is above, and the other two are the same story. I asked which EventBridge had been used, the classic bus or the new one. It was the classic one, and the agent hadn't looked at the newer bus at all. Then I asked whether they were really CloudEvents if they sat in an envelope.
 
 Partly. The event is a proper CloudEvent on the queue and in S3. On a classic bus it has to ride inside EventBridge's own envelope, so a subscriber reads it from `detail`, and order isn't guaranteed. The new bus would carry it as it is, in order. So the agent tried it, and the emulator can't publish to it yet.
 
@@ -160,7 +160,7 @@ Yesterday the stack was twenty-three resources and fifty-three scenarios. With e
 
 ## The Verdict So Far
 
-The pattern holds, and that's what has me excited. A queue, a bus and a bucket went in without a new way of working. Each one is a contract, a scenario and a command that generates the boring half.
+A true full stack API has events and a data contract as well as HTTP, and this now has all three from one setup. A queue, a bus and a bucket went in without a new way of working. Each one is a contract, a scenario and a command that generates the boring half.
 
 It's still not proven. Nothing here has been deployed to a real AWS account, and the list of what only a deploy can show is longer now. A fresh agent hasn't yet built an API from the template with the new doors in. And subscribers on the bus get a CloudEvent in an envelope until the emulator catches up with the new one.
 
