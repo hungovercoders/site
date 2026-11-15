@@ -160,9 +160,11 @@ Yesterday the stack was twenty-three resources and fifty-three scenarios. With e
 
 ## The Verdict So Far
 
-A true full stack API has events and a data contract as well as HTTP, and this now has all three from one setup. A queue, a bus and a bucket went in without a new way of working. Each one is a contract, a scenario and a command that generates the boring half.
+I think it's worth using. A true full stack API has events and a data contract as well as HTTP, and this now has all three from one setup. The test driven specs held their own in the new formats too. A queue, a bus and a bucket went in without a new way of working. Each one is a contract, a scenario and a command that generates the boring half.
 
 It's still not proven. Nothing here has been deployed to a real AWS account, and the list of what only a deploy can show is longer now. A fresh agent hasn't yet built an API from the template with the new doors in. And subscribers on the bus get a CloudEvent in an envelope until the emulator catches up with the new one.
+
+The concept is what we should all strive for, and expect from our software.
 
 ## Sources and Further Reading
 
@@ -177,4 +179,4 @@ These are the sources.
 
 ## What Next
 
-A real deploy is the obvious one, then the new bus the day the emulator can run it. I still want the same skeleton for Cloudflare. Watch this space for more experimentation in between meals, and see the code at [github.com/hungovercoders/template-aws-api](https://github.com/hungovercoders/template-aws-api), or in case I renamed it drunkenly check out [datagriff github](https://github.com/dataGriff).
+If I were doing this again I'd explore the other options before committing to EventBridge blindly. It's cheap and lightweight, but I'd like CloudEvents and ordering to be easier. A real deploy is the obvious next step, and I still want the same skeleton for Cloudflare. Watch this space for more experimentation in between meals, and see the code at [github.com/hungovercoders/template-aws-api](https://github.com/hungovercoders/template-aws-api), or in case I renamed it drunkenly check out [datagriff github](https://github.com/dataGriff).
