@@ -1,0 +1,180 @@
+---
+title: Adding AsyncAPI, CloudEvents and a Data Contract to the Software Factory Unit
+date: 2026-11-15
+author: dataGriff
+description: The same skeleton now takes messages from a queue, publishes events and keeps them as data in S3, each described by a contract and proved by the same feature files on AWS Emulator
+tags:
+  - Software Factory
+  - AsyncAPI
+  - CloudEvents
+  - Data Contracts
+  - AWS Emulator
+  - Claude Code
+image:
+  path: /assets/2026-11-15-every-way-in-and-out-of-an-api/link.png
+---
+
+This blog is a bit of a cheat as it's the same AWS Lambda API template as [yesterday](/blog/2026-11-14-repeatable-unit-of-a-software-factory/), but this time with messages in on a queue, events out on EventBridge and those events kept as data in S3. I wanted one setup to represent every interface, with the events and the data contract driven by the same testable specs as the HTTP side. Yesterday's itch, the one I scratched on my phone round Bute Park, continued. That's super exciting, so read on fellow hungovercoder and bring your own business logic, in through any door you like.
+
+This post is the guided path through what was added to [template-aws-api](https://github.com/hungovercoders/template-aws-api). The sources are at the bottom. Everything in it is still pre-publication and demos, so take it as a pattern worth nicking and not a product.
+
+## Pre-Requisites
+
+- [Yesterday's post](/blog/2026-11-14-repeatable-unit-of-a-software-factory/), for the skeleton, the gates and why CI is red on purpose
+- [mise](https://mise.jdx.dev), to install Node, Task, Terraform and uv from one file
+- [Claude Code](https://claude.com/claude-code), or any agent that reads `AGENTS.md`
+- Linux or WSL for the native AWS Emulator, and still no AWS account
+
+## Where the Interfaces Sit
+
+![A pipeline left to right, sitting on a wide band. On the left are two orange boxes, the ways in. HTTP in and out, API callers, described by specs/openapi.yaml. Messages in, other services sending to an SQS queue, described by the receive operations of specs/asyncapi.yaml. Arrows lead from them into a green band labelled your API, one skeleton, the whole stack on AWS Emulator. Inside the band a two-way arrow joins HTTP to a blue box, operations, one function per operation, and an arrow joins the queue to a blue box, consumers, one function per message. Both write to DynamoDB, your data and the outbox in one write. An arrow labelled stream leads from the table to the forwarder, which puts each event on the bus. On the right are two orange boxes, the ways out. Events out, subscribers on an EventBridge bus, described by the send operations of specs/asyncapi.yaml. Below it, joined by an arrow labelled Firehose, events as data, analysts reading S3 with DuckDB, described by specs/datacontract.yaml. Beneath everything is a band labelled one spec, holding the feature files that say what every interface does and are also its tests.](/assets/2026-11-15-every-way-in-and-out-of-an-api/interfaces.svg)
+
+Yesterday the template had one door. Now it has four, and each has a contract. OpenAPI still covers HTTP. AsyncAPI covers a message coming in on a queue and an event going out on a bus. A data contract covers those events once they're sitting in S3.
+
+The orange boxes are all you write. The queue, its retries, the outbox, the bus, the bucket and the alarms for the lot are the skeleton's, the same for every API.
+
+## A Rating Arrives on a Queue
+
+The example is still the Beer Catalogue. A taproom's app now sends ratings as messages, and the behaviour is written the same way as before.
+
+```gherkin
+@operation:receive_beer_rating
+Scenario: A rating delivered twice counts once
+  When the taproom sends the same rating of 5 for "Morning After" twice
+  And the taproom sends a rating of 3 for "Morning After"
+  Then "Morning After" comes to have 2 ratings averaging 4
+```
+
+The shape goes in `specs/asyncapi.yaml` as a `receive` operation, and every message is a CloudEvent.
+
+```yaml
+receive_beer_rating:
+  action: receive
+  summary: Record a rating that was submitted elsewhere
+  channel:
+    $ref: "#/channels/beer_ratings"
+  messages:
+    - $ref: "#/channels/beer_ratings/messages/beer_rating_submitted"
+```
+
+It's the same `@operation` tag as the HTTP side, so the same gate applies. An operation with no scenario fails, on either contract.
+
+`task scaffold` then writes a typed stub for the message, and the agent's whole job is the body.
+
+```typescript
+export async function receive_beer_rating({ event }: MessageContext<BeerRatingSubmitted>): Promise<void> {
+  try {
+    await addRating(event.data.beer_id, event.data.score, new Date().toISOString());
+  } catch (error) {
+    // No later delivery will find the beer either.
+    if (error instanceof BeerNotFound) throw new Rejected("there is no such beer");
+    throw error;
+  }
+}
+```
+
+Counting a duplicate once isn't in that function. Neither is validating the message, retrying it, or putting it aside when it can never succeed. The skeleton does those for every consumer, and the scenario above is what proves it on the emulator's real queue.
+
+## An Event Leaves with the Write
+
+Publishing is a `send` operation in the same AsyncAPI file, and a scenario says when it happens.
+
+```gherkin
+@operation:publish_beer_created @operation:create_beer
+Scenario: Adding a beer publishes that it was created
+  When staff add the beer "Morning After", an ipa at 5.6% abv
+  Then a "created" event is published for "Morning After"
+  And the event says it is an ipa at 5.6% abv
+```
+
+In the code it's one line in the write that makes the change.
+
+```typescript
+{ item: outbox(beer_created({ beer_id: beer.id, name: beer.name, style: beer.style, abv: beer.abv }, beer.id)) },
+```
+
+That's the outbox pattern. The event is written to the table in the same transaction as the beer, so there's never an event for a write that failed or a write whose event went missing. The table's stream hands it to a forwarder, which puts it on EventBridge. The agent never calls the bus.
+
+The gates go one level down here as well. After the scenarios run, `publish:check` fails if the contract says the API publishes an event that no scenario ever saw, and `consume:check` does the same for a message nobody delivered.
+
+## Events Kept for the Morning After
+
+The third contract is for data. Every published event lands in S3 through Firehose, and `specs/datacontract.yaml` describes it in the Open Data Contract Standard.
+
+```yaml
+team:
+  name: catalogue
+servers:
+  - server: production
+    type: s3
+    location: s3://hungovercoders-beer-catalogue-events/events/
+    format: json
+slaProperties:
+  - property: retention
+    value: 2
+    unit: y
+  - property: latency
+    value: 15
+    unit: m
+```
+
+A command writes the schema half of that file from the AsyncAPI contract, so the two can't drift. A person adds what no command can know, the owner, the retention, how fresh it has to be and how sensitive each field is. Terraform then reads the same file for the bucket, its retention and its freshness alarm.
+
+The test runs the Data Contract CLI against the events the scenarios just published. The first version downloaded them to test them. My worry with downloading as a pattern was a copy of data that could one day be sensitive, so now it reads the bucket where it is and nothing is copied. When the agent ran version 1.2.10 of the CLI against gzipped files where they sat, it failed. So I went with uncompressed as the default and no workaround. Gzip can be switched on where it suits.
+
+Querying is a task too, with a view per event already defined. It's the same [DuckDB and Harlequin](/blog/2026-09-13-delightful-local-data-engineering-with-duckdb-and-harlequin/) I wrote about in September.
+
+## One Beer Through Every Door
+
+Here's all of it on a laptop-sized AWS. A beer goes in over HTTP, a rating for it arrives as a message, both events come out on the bus, and the rating is read back out of S3 with SQL.
+
+<video autoplay loop muted playsinline controls>
+  <source src="/assets/2026-11-15-every-way-in-and-out-of-an-api/in-and-out.mp4" type="video/mp4">
+  <source src="/assets/2026-11-15-every-way-in-and-out-of-an-api/in-and-out.webm" type="video/webm">
+  <img src="/assets/2026-11-15-every-way-in-and-out-of-an-api/in-and-out.gif" alt="A terminal recording against the example API on AWS Emulator. A curl request adds the beer Morning After and gets it back with no ratings. A file called rating.json holds a CloudEvent from a taproom with a score of 4 for that beer, and task queue:send puts it on the queue. A second curl request fetches the beer, which now has one rating averaging 4. task events:tail then shows two events on the bus, beer created and beer rated. Last, task data:query runs select type, beer id and score from beer_rated and returns one row, the rating, read from the events bucket in S3">
+</video>
+
+Those are real requests against the example, replayed. The `curl` commands show `$URL` and `$TOKEN` where the real values were.
+
+## Leave Out What You Don't Need
+
+Not every API wants a queue. The queue, the events and the data are optional components, so `task component:remove -- data` takes out the bucket, its gates, its docs and its tasks, and `task component:add -- data` brings them back from the template later. CI on the template removes all of them and restores all of them on every change, and expects no difference at all.
+
+## CloudEvents in a Borrowed Envelope
+
+This is the bit I pushed on. I asked which EventBridge had been used, the classic bus or the new one. It was the classic one, and the agent hadn't looked at the newer bus at all. Then I asked whether they were really CloudEvents if they sat in an envelope.
+
+Partly. The event is a proper CloudEvent on the queue and in S3. On a classic bus it has to ride inside EventBridge's own envelope, so a subscriber reads it from `detail`, and order isn't guaranteed. The new bus would carry it as it is, in order. So the agent tried it, and the emulator can't publish to it yet.
+
+A limit like that is easy to write down and forget. Every gap in the emulator that the template works around, lives with or waits for is now listed with a test, and one command runs them.
+
+![Terminal output of task emulator:gaps on AWS Emulator 1.0.365. Fourteen gaps tested and every one reported as still needed. Six are limits such as jwt-signature and firehose-metrics, three are workarounds such as queue-url-host and s3-control, and five are blocked, all starting eventsv2, including eventsv2-put-raw-events and eventsv2-ordered-delivery. The last line reads nothing to remove, every gap is still there](/assets/2026-11-15-every-way-in-and-out-of-an-api/gaps.png)
+
+The five marked blocked are the new bus. When Renovate proposes a new emulator, the same command runs on that pull request, and a gap that has closed raises an issue naming what can be removed. Run against the newest emulator release, one of the fourteen had already closed.
+
+## The Same Green Tick
+
+![Terminal output of task ci on the example implementation branch, selected lines. The spec check passes for 6 operations, the AsyncAPI check for 5 operations, 1 received and 4 published, and the data contract check for 4 events. Terraform reports Apply complete, 64 added. Cucumber passes 67 scenarios and 571 steps. The responses, consume and publish checks pass. Schemathesis reports 396 generated and 396 passed with no issues found in 83.83 seconds, and the data test reports that the data in the events bucket keeps the data contract, tested where it is](/assets/2026-11-15-every-way-in-and-out-of-an-api/ci.png)
+
+Yesterday the stack was twenty-three resources and fifty-three scenarios. With every door open it's sixty-four resources and sixty-seven scenarios, and it is still one command that builds the lot, tests it and throws it away. That run was in the agent's own sandbox, which wouldn't run the emulator at all when I wrote yesterday's post.
+
+## The Verdict So Far
+
+The pattern holds, and that's what has me excited. A queue, a bus and a bucket went in without a new way of working. Each one is a contract, a scenario and a command that generates the boring half.
+
+It's still not proven. Nothing here has been deployed to a real AWS account, and the list of what only a deploy can show is longer now. A fresh agent hasn't yet built an API from the template with the new doors in. And subscribers on the bus get a CloudEvent in an envelope until the emulator catches up with the new one.
+
+## Sources and Further Reading
+
+These are the sources.
+
+- [AsyncAPI](https://www.asyncapi.com/docs) for describing messages and events, and [CloudEvents](https://cloudevents.io) for the envelope every one of them uses.
+- The [Open Data Contract Standard](https://bitol-io.github.io/open-data-contract-standard/) and the [Data Contract CLI](https://cli.datacontract.com) that lints and tests against it.
+- The [transactional outbox pattern](https://microservices.io/patterns/data/transactional-outbox.html), and the [EventBridge user guide](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-what-is.html) for the bus.
+- The [AWS Emulator](https://github.com/aws/aws-emulator) repo and its [user guide](https://docs.aws.amazon.com/emulator/latest/userguide/what-is-service.html).
+- [template-aws-api](https://github.com/hungovercoders/template-aws-api), and [what implementing the example adds](https://github.com/hungovercoders/template-aws-api/compare/example/spec...example/implementation).
+- [Yesterday's post](/blog/2026-11-14-repeatable-unit-of-a-software-factory/) on the skeleton, and [September's](/blog/2026-09-13-delightful-local-data-engineering-with-duckdb-and-harlequin/) on DuckDB and Harlequin.
+
+## What Next
+
+A real deploy is the obvious one, then the new bus the day the emulator can run it. I still want the same skeleton for Cloudflare. Watch this space for more experimentation in between meals, and see the code at [github.com/hungovercoders/template-aws-api](https://github.com/hungovercoders/template-aws-api), or in case I renamed it drunkenly check out [datagriff github](https://github.com/dataGriff).
