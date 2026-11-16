@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 396" role="img" aria-labelledby="interfacesT interfacesD">
+  <title id="interfacesT">Every way in and out of an API built on the template, and the contract that describes each</title>
+  <desc id="interfacesD">A pipeline left to right, sitting on a wide band. On the left are two orange boxes, the ways in. HTTP in and out, API callers, described by specs/openapi.yaml. Messages in, other services sending to an SQS queue, described by the receive operations of specs/asyncapi.yaml. Arrows lead from them into a green band labelled your API, one skeleton, the whole stack on AWS Emulator. Inside the band a two-way arrow joins HTTP to a blue box, operations, one function per operation, and an arrow joins the queue to a blue box, consumers, one function per message. Both write to DynamoDB, your data and the outbox in one write. An arrow labelled stream leads from the table to the forwarder, which puts each event on the bus. On the right are two orange boxes, the ways out. Events out, subscribers on an EventBridge bus, described by the send operations of specs/asyncapi.yaml. Below it, joined by an arrow labelled Firehose, events as data, analysts reading S3 with DuckDB, described by specs/datacontract.yaml. Beneath everything is a band labelled one spec, holding the feature files that say what every interface does and are also its tests.</desc>
+  <defs>
+    <style>
+      .h { font-family: 'Lora', Georgia, Cambria, serif; font-size: 14px; font-weight: 700; fill: rgb(34, 41, 57); }
+      .sub { font-family: 'Atkinson', system-ui, sans-serif; font-size: 11px; fill: rgb(96, 115, 159); }
+      .body { font-family: 'Atkinson', system-ui, sans-serif; font-size: 11px; fill: rgb(34, 41, 57); }
+      .muted { font-family: 'Atkinson', system-ui, sans-serif; font-size: 10.5px; fill: rgb(96, 115, 159); }
+      .mono { font-family: 'JetBrains Mono', Menlo, Consolas, monospace; font-size: 9.5px; fill: rgb(34, 41, 57); }
+      .pill { font-family: 'JetBrains Mono', Menlo, Consolas, monospace; font-size: 10px; font-weight: 700; fill: #fff; }
+      .lbl { font-family: 'JetBrains Mono', Menlo, Consolas, monospace; font-size: 9.5px; font-weight: 700; fill: rgb(96, 115, 159); }
+      .spec { fill: #fee5d9; stroke: #e16e3c; stroke-width: 1.5; }
+      .specHead { fill: #e16e3c; }
+      .agent { fill: #fff; stroke: #2337ff; stroke-width: 1.5; }
+      .agentHead { fill: #2337ff; }
+      .good { fill: #fff; stroke: #1ea672; stroke-width: 1.5; }
+      .goodHead { fill: #1ea672; }
+      .gate { fill: rgb(216, 241, 225); stroke: #1ea672; stroke-width: 1.5; }
+      .gateHead { fill: #1ea672; }
+      .once { fill: #fff; stroke: rgb(96, 115, 159); stroke-width: 1.5; }
+      .onceHead { fill: rgb(96, 115, 159); }
+      .flow { stroke: rgb(96, 115, 159); fill: none; stroke-width: 1.8; }
+    </style>
+    <marker id="iGrey" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="rgb(96, 115, 159)"/></marker>
+    <marker id="iGreyBack" markerWidth="6" markerHeight="6" refX="1" refY="3" orient="auto"><path d="M6,0 L0,3 L6,6 z" fill="rgb(96, 115, 159)"/></marker>
+  </defs>
+  <rect width="720" height="396" fill="#f8f9fb"/>
+  <text x="20" y="32" class="h">Every way in and out, each with a contract</text>
+  <text x="20" y="50" class="sub">Orange is a contract you write. Blue is what the agent writes. Green is the skeleton.</text>
+  <rect x="186" y="70" width="348" height="222" rx="8" class="gate"/>
+  <rect x="186" y="70" width="348" height="20" rx="8" class="gateHead"/>
+  <text x="360" y="84" text-anchor="middle" class="pill">YOUR API · ONE SKELETON · ON AWS EMULATOR</text>
+  <rect x="20" y="100" width="140" height="78" rx="6" class="spec"/>
+  <rect x="20" y="100" width="140" height="20" rx="6" class="specHead"/>
+  <text x="90.0" y="114" text-anchor="middle" class="pill">HTTP IN AND OUT</text>
+  <text x="30" y="138" class="muted">API callers</text>
+  <text x="30" y="155" class="mono">openapi.yaml</text>
+  <rect x="20" y="202" width="140" height="78" rx="6" class="spec"/>
+  <rect x="20" y="202" width="140" height="20" rx="6" class="specHead"/>
+  <text x="90.0" y="216" text-anchor="middle" class="pill">MESSAGES IN</text>
+  <text x="30" y="240" class="muted">Services, on a queue</text>
+  <text x="30" y="257" class="mono">asyncapi · receive</text>
+  <rect x="200" y="104" width="96" height="70" rx="6" class="agent"/>
+  <rect x="200" y="104" width="96" height="20" rx="6" class="agentHead"/>
+  <text x="248.0" y="118" text-anchor="middle" class="pill">OPERATIONS</text>
+  <text x="210" y="142" class="muted">One function</text>
+  <text x="210" y="157" class="muted">per operation</text>
+  <rect x="200" y="206" width="96" height="70" rx="6" class="agent"/>
+  <rect x="200" y="206" width="96" height="20" rx="6" class="agentHead"/>
+  <text x="248.0" y="220" text-anchor="middle" class="pill">CONSUMERS</text>
+  <text x="210" y="244" class="muted">One function</text>
+  <text x="210" y="259" class="muted">per message</text>
+  <rect x="312" y="146" width="92" height="88" rx="6" class="good"/>
+  <rect x="312" y="146" width="92" height="20" rx="6" class="goodHead"/>
+  <text x="358.0" y="160" text-anchor="middle" class="pill">DYNAMODB</text>
+  <text x="322" y="184" class="muted">Your data and</text>
+  <text x="322" y="199" class="muted">the outbox,</text>
+  <text x="322" y="214" class="muted">in one write</text>
+  <rect x="444" y="146" width="78" height="88" rx="6" class="good"/>
+  <rect x="444" y="146" width="78" height="20" rx="6" class="goodHead"/>
+  <text x="483.0" y="160" text-anchor="middle" class="pill">FORWARDER</text>
+  <text x="454" y="184" class="muted">Puts each</text>
+  <text x="454" y="199" class="muted">event on</text>
+  <text x="454" y="214" class="muted">the bus</text>
+  <rect x="560" y="100" width="140" height="78" rx="6" class="spec"/>
+  <rect x="560" y="100" width="140" height="20" rx="6" class="specHead"/>
+  <text x="630.0" y="114" text-anchor="middle" class="pill">EVENTS OUT</text>
+  <text x="570" y="138" class="muted">Subscribers, on a bus</text>
+  <text x="570" y="155" class="mono">asyncapi · send</text>
+  <rect x="560" y="202" width="140" height="78" rx="6" class="spec"/>
+  <rect x="560" y="202" width="140" height="20" rx="6" class="specHead"/>
+  <text x="630.0" y="216" text-anchor="middle" class="pill">EVENTS AS DATA</text>
+  <text x="570" y="240" class="muted">Analysts, with DuckDB</text>
+  <text x="570" y="257" class="mono">datacontract.yaml</text>
+  <path d="M164,139 L196,139" class="flow" marker-end="url(#iGrey)" marker-start="url(#iGreyBack)"/>
+  <path d="M160,241 L198,241" class="flow" marker-end="url(#iGrey)"/>
+  <path d="M296,139 C306,139 300,172 310,177" class="flow" marker-end="url(#iGrey)"/>
+  <path d="M296,241 C306,241 300,208 310,203" class="flow" marker-end="url(#iGrey)"/>
+  <path d="M404,190 L442,190" class="flow" marker-end="url(#iGrey)"/>
+  <text x="423" y="182" text-anchor="middle" class="lbl">stream</text>
+  <path d="M522,176 C542,170 540,139 558,139" class="flow" marker-end="url(#iGrey)"/>
+  <path d="M630,178 L630,200" class="flow" marker-end="url(#iGrey)"/>
+  <text x="640" y="193" class="lbl">Firehose</text>
+  <rect x="20" y="312" width="680" height="64" rx="8" class="once"/>
+  <rect x="20" y="312" width="680" height="20" rx="8" class="onceHead"/>
+  <text x="360" y="326" text-anchor="middle" class="pill">ONE SPEC · THE SAME FILES ARE THE TESTS</text>
+  <text x="34" y="350" class="body">specs/features/*.feature say what every interface does, and run against all of it.</text>
+  <text x="34" y="366" class="muted">A message sent, an event published and a row landed in S3 are each a step in a scenario.</text>
+</svg>
