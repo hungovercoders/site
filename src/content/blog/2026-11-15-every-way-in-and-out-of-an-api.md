@@ -33,6 +33,8 @@ Yesterday the template had one door. Now it has four, and each has a contract. O
 
 The orange boxes are all you write. The queue, its retries, the outbox, the bus, the bucket and the alarms for the lot are the skeleton's, the same for every API.
 
+So it's still BDD and contract driven. You bring feature files and contracts, and the same two skills do the rest. `/write-spec` now asks what arrives on the queue, what other services need to be told and whether the events should be kept, and writes the scenarios and the contracts with you. `/implement-api` reads them and writes a consumer per message and one line per event.
+
 ## A Rating Arrives on a Queue
 
 The example is still the Beer Catalogue. A taproom's app now sends ratings as messages, and the behaviour is written the same way as before.
@@ -120,7 +122,7 @@ slaProperties:
 
 A command writes the schema half of that file from the AsyncAPI contract, so the two can't drift. A person adds what no command can know, the owner, the retention, how fresh it has to be and how sensitive each field is. Terraform then reads the same file for the bucket, its retention and its freshness alarm.
 
-The test runs the Data Contract CLI against the events the scenarios just published. The first version downloaded them to test them. My worry with downloading as a pattern was a copy of data that could one day be sensitive, so now it reads the bucket where it is and nothing is copied. When the agent ran version 1.2.10 of the CLI against gzipped files where they sat, it failed. So I went with uncompressed as the default and no workaround. Gzip can be switched on where it suits.
+The data contract has no scenarios of its own. Its test runs the Data Contract CLI against the events the scenarios just published, so the event scenarios do double duty. The first version downloaded them to test them. My worry with downloading as a pattern was a copy of data that could one day be sensitive, so now it reads the bucket where it is and nothing is copied. When the agent ran version 1.2.10 of the CLI against gzipped files where they sat, it failed. So I went with uncompressed as the default and no workaround. Gzip can be switched on where it suits.
 
 Querying is a task too, with a view per event already defined. It's the same [DuckDB and Harlequin](/blog/2026-09-13-delightful-local-data-engineering-with-duckdb-and-harlequin/) I wrote about in September.
 
