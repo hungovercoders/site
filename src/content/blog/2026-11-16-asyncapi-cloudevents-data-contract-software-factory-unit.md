@@ -35,16 +35,13 @@ On Saturday the template had one interface. Now it has four, and each has a cont
 
 The orange boxes are all you write. The queue, its retries, the outbox, the bus, the bucket and the alarms for the lot are the skeleton's, the same for every API.
 
-So it's still BDD and contract driven. You bring feature files and contracts, and the same two skills do the rest. `/write-spec` now asks what arrives on the queue, what other services need to be told and whether the events should be kept, and writes the scenarios and the contracts with you. `/implement-api` reads them and writes a consumer per message and one line per event.
+So it's still BDD and contract driven. You bring feature files and contracts, and the same two skills do the rest. `/write-spec` now asks what arrives on the queue, what other services need to be told and whether the events should be kept, and writes the scenarios and the contracts with you. Not every API is simple, so it also asks what else yours calls or is called by, a payment provider or another team's service say, and whether there's a skill worth adding for each. `/implement-api` reads the lot and writes a consumer per message and one line per event.
 
-The other half of the pattern holds too. Use a deterministic tool wherever one exists, and keep the agent for what's left. For the new interfaces, commands write these before the agent writes a line.
+The other half of the pattern holds too. Use a deterministic tool wherever one exists, and keep the agent for what's left.
 
-- A typed stub for every message the API receives, from `task scaffold`.
-- A typed function for every event it publishes, from `task generate`. It refuses data the contract doesn't describe.
-- An example of every message and event, from `task asyncapi:examples`.
-- The schema half of the data contract, from `task data:generate`.
+![A grid read left to right. Three rows, one for each new interface: a message in, an event out, and events as data. Four columns joined by arrows show who does what for each. First, in orange, you write. For a message, a receive operation and a scenario. For an event, a send operation and a scenario. For the data, the owner, retention and sensitivity. Second, in purple, commands generate. A typed stub and an example message. A typed function and an example event. The schema, from the AsyncAPI contract. Third, in blue and much the smallest share, the agent writes. The consumer's body and its steps. An outbox(event) line and its steps. For the data, nothing. Fourth, in green, gates prove. The scenario, on the real queue. The scenario reads the bus. data:test on what landed in S3. A note underneath says purple and green give the same answer every time, and blue is the only part that does not.](/assets/2026-11-16-asyncapi-cloudevents-data-contract-software-factory-unit/who-does-what.svg)
 
-Gates then decide when it's done, with the same answer every time. That closes the loop. The feature files and contracts are the context the agent reads, and reading is the part nobody can predict. The same files are then the tests that judge what it wrote, and those give one verdict.
+That closes the loop. The feature files and contracts are the context the agent reads, and reading is the part nobody can predict. The same files are then the tests that judge what it wrote, and those give one verdict.
 
 ## A Rating Arrives on a Queue
 

@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 312" role="img" aria-labelledby="whoT whoD">
+  <title id="whoT">Who does what for each new interface, and how little of it is the agent</title>
+  <desc id="whoD">A grid read left to right. Three rows, one for each new interface: a message in, an event out, and events as data. Four columns joined by arrows show who does what for each. First, in orange, you write. For a message, a receive operation and a scenario. For an event, a send operation and a scenario. For the data, the owner, retention and sensitivity. Second, in purple, commands generate. A typed stub and an example message. A typed function and an example event. The schema, from the AsyncAPI contract. Third, in blue and much the smallest share, the agent writes. The consumer's body and its steps. An outbox(event) line and its steps. For the data, nothing. Fourth, in green, gates prove. The scenario, on the real queue. The scenario reads the bus. data:test on what landed in S3. A note underneath says purple and green give the same answer every time, and blue is the only part that does not.</desc>
+  <defs>
+    <style>
+      .h { font-family: 'Lora', Georgia, Cambria, serif; font-size: 14px; font-weight: 700; fill: rgb(34, 41, 57); }
+      .sub { font-family: 'Atkinson', system-ui, sans-serif; font-size: 11px; fill: rgb(96, 115, 159); }
+      .body { font-family: 'Atkinson', system-ui, sans-serif; font-size: 10.5px; fill: rgb(34, 41, 57); }
+      .mono { font-family: 'JetBrains Mono', Menlo, Consolas, monospace; font-size: 9.5px; fill: rgb(34, 41, 57); }
+      .pill { font-family: 'JetBrains Mono', Menlo, Consolas, monospace; font-size: 9.5px; font-weight: 700; fill: #fff; }
+      .lbl { font-family: 'JetBrains Mono', Menlo, Consolas, monospace; font-size: 9.5px; font-weight: 700; fill: rgb(96, 115, 159); }
+      .spec { fill: #fee5d9; stroke: #e16e3c; stroke-width: 1.5; }
+      .specHead { fill: #e16e3c; }
+      .cmd { fill: #e9deff; stroke: #7350dc; stroke-width: 1.5; }
+      .cmdHead { fill: #7350dc; }
+      .agent { fill: #fff; stroke: #2337ff; stroke-width: 1.5; }
+      .agentHead { fill: #2337ff; }
+      .gate { fill: #d8f1e1; stroke: #1ea672; stroke-width: 1.5; }
+      .gateHead { fill: #1ea672; }
+      .rule { stroke: rgb(229, 233, 240); stroke-width: 1; fill: none; }
+      .flow { stroke: rgb(96, 115, 159); fill: none; stroke-width: 1.8; }
+    </style>
+    <marker id="wGrey" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="rgb(96, 115, 159)"/></marker>
+  </defs>
+  <rect width="720" height="312" fill="#f8f9fb"/>
+  <text x="20" y="32" class="h">Who does what for each new interface</text>
+  <text x="20" y="50" class="sub">Purple and green give the same answer every time. Blue is the only part that doesn't.</text>
+  <rect x="120" y="70" width="132" height="206" rx="6" class="spec"/>
+  <rect x="120" y="70" width="132" height="20" rx="6" class="specHead"/>
+  <text x="186" y="84" text-anchor="middle" class="pill">YOU WRITE</text>
+  <text x="130" y="118" class="body">A receive operation</text>
+  <text x="130" y="133" class="body">and a scenario</text>
+  <text x="130" y="182" class="body">A send operation</text>
+  <text x="130" y="197" class="body">and a scenario</text>
+  <text x="130" y="246" class="body">Owner, retention</text>
+  <text x="130" y="261" class="body">and sensitivity</text>
+  <path d="M128,148 L244,148" class="rule"/>
+  <path d="M128,212 L244,212" class="rule"/>
+  <rect x="266" y="70" width="132" height="206" rx="6" class="cmd"/>
+  <rect x="266" y="70" width="132" height="20" rx="6" class="cmdHead"/>
+  <text x="332" y="84" text-anchor="middle" class="pill">COMMANDS GENERATE</text>
+  <text x="276" y="118" class="body">A typed stub and</text>
+  <text x="276" y="133" class="body">an example message</text>
+  <text x="276" y="182" class="body">A typed function</text>
+  <text x="276" y="197" class="body">and an example event</text>
+  <text x="276" y="246" class="body">The schema, from the</text>
+  <text x="276" y="261" class="body">AsyncAPI contract</text>
+  <path d="M274,148 L390,148" class="rule"/>
+  <path d="M274,212 L390,212" class="rule"/>
+  <rect x="412" y="70" width="132" height="206" rx="6" class="agent"/>
+  <rect x="412" y="70" width="132" height="20" rx="6" class="agentHead"/>
+  <text x="478" y="84" text-anchor="middle" class="pill">THE AGENT WRITES</text>
+  <text x="422" y="118" class="body">The consumer's body</text>
+  <text x="422" y="133" class="body">and its steps</text>
+  <text x="422" y="182" class="body">An outbox(event) line</text>
+  <text x="422" y="197" class="body">and its steps</text>
+  <text x="422" y="246" class="body">Nothing</text>
+  <path d="M420,148 L536,148" class="rule"/>
+  <path d="M420,212 L536,212" class="rule"/>
+  <rect x="558" y="70" width="132" height="206" rx="6" class="gate"/>
+  <rect x="558" y="70" width="132" height="20" rx="6" class="gateHead"/>
+  <text x="624" y="84" text-anchor="middle" class="pill">GATES PROVE</text>
+  <text x="568" y="118" class="body">The scenario, on</text>
+  <text x="568" y="133" class="body">the real queue</text>
+  <text x="568" y="182" class="body">The scenario</text>
+  <text x="568" y="197" class="body">reads the bus</text>
+  <text x="568" y="246" class="body">data:test on what</text>
+  <text x="568" y="261" class="body">landed in S3</text>
+  <path d="M566,148 L682,148" class="rule"/>
+  <path d="M566,212 L682,212" class="rule"/>
+  <text x="20" y="125" class="lbl">MESSAGE IN</text>
+  <text x="20" y="189" class="lbl">EVENT OUT</text>
+  <text x="20" y="253" class="lbl">EVENTS AS DATA</text>
+  <path d="M253,80 L264,80" class="flow" marker-end="url(#wGrey)"/>
+  <path d="M399,80 L410,80" class="flow" marker-end="url(#wGrey)"/>
+  <path d="M545,80 L556,80" class="flow" marker-end="url(#wGrey)"/>
+  <text x="20" y="298" class="sub">The agent's share is a function, a line and the steps that test them. For the data, nothing.</text>
+</svg>
