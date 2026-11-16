@@ -45,6 +45,7 @@
 # CRITICAL: edit before uncommenting. These are defaults, not law.
 
 /*
+  Strict-Transport-Security: max-age=15552000
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
