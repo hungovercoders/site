@@ -14,7 +14,7 @@ image:
   path: /assets/2026-11-16-asyncapi-cloudevents-data-contract-software-factory-unit/link.png
 ---
 
-I wanted to prove a true full stack API on my AWS Lambda template, and for me that includes messages in on a queue, events out on EventBridge and a data contract over those events in S3, all driven by the same testable specs as the HTTP side. They were the natural next steps after [Saturday's post](/blog/2026-11-14-repeatable-unit-of-a-software-factory/) and I was busting to try them. The work started at a birthday curry yesterday, where I was sneakily battling CloudEvents, and ended this evening watching The X-Files. Coincidentally it was [the one in series two about the soldiers who can't sleep](https://en.wikipedia.org/wiki/Sleepless_(The_X-Files)). One setup can now represent every interface and that's super exciting, so read on fellow hungovercoder and bring your own business logic.
+I wanted to prove a true full stack API on my BDD and contract driven Lambda template, where the feature files and contracts you write are also the tests, and the whole stack is built and proved locally on AWS Emulator. For me full stack includes messages in on a queue, events out on EventBridge and a data contract over those events in S3, and I wanted every one of them driven by the same testable specs as the HTTP side. They were the natural next steps after [Saturday's post](/blog/2026-11-14-repeatable-unit-of-a-software-factory/) and I was busting to try them. The work started at a birthday curry yesterday, where I was sneakily battling CloudEvents, and ended this evening watching The X-Files. Coincidentally it was [the one in series two about the soldiers who can't sleep](https://en.wikipedia.org/wiki/Sleepless_(The_X-Files)). One setup can now represent every interface and that's super exciting, so read on fellow hungovercoder and bring your own business logic.
 
 This post is the guided path through what was added to [template-aws-api](https://github.com/hungovercoders/template-aws-api). The sources are at the bottom. Everything in it is still pre-publication and demos, so take it as a pattern worth nicking.
 
@@ -34,6 +34,15 @@ On Saturday the template had one interface. Now it has four, and each has a cont
 The orange boxes are all you write. The queue, its retries, the outbox, the bus, the bucket and the alarms for the lot are the skeleton's, the same for every API.
 
 So it's still BDD and contract driven. You bring feature files and contracts, and the same two skills do the rest. `/write-spec` now asks what arrives on the queue, what other services need to be told and whether the events should be kept, and writes the scenarios and the contracts with you. `/implement-api` reads them and writes a consumer per message and one line per event.
+
+The other half of the pattern holds too. Use a deterministic tool wherever one exists, and keep the agent for what's left. For the new interfaces, commands write these before the agent writes a line.
+
+- A typed stub for every message the API receives, from `task scaffold`.
+- A typed function for every event it publishes, from `task generate`. It refuses data the contract doesn't describe.
+- An example of every message and event, from `task asyncapi:examples`.
+- The schema half of the data contract, from `task data:generate`.
+
+Gates then decide when it's done, with the same answer every time.
 
 ## A Rating Arrives on a Queue
 
