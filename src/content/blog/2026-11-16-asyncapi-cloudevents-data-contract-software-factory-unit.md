@@ -14,7 +14,7 @@ image:
   path: /assets/2026-11-16-asyncapi-cloudevents-data-contract-software-factory-unit/link.png
 ---
 
-This blog is a bit of a cheat as it's the same AWS Lambda API template as [Saturday's](/blog/2026-11-14-repeatable-unit-of-a-software-factory/), but this time with messages in on a queue, events out on EventBridge and those events kept as data in S3. I wanted to prove a true full stack API, and for me that includes events and data contracts, all driven by the same testable specs as the HTTP side. The itch continued. The work started at a birthday curry yesterday, where I was sneakily battling CloudEvents, and ended this evening watching The X-Files. One setup can now represent every interface and that's super exciting, so read on fellow hungovercoder and bring your own business logic, in through any door you like.
+This blog is a bit of a cheat as it's the same AWS Lambda API template as [Saturday's](/blog/2026-11-14-repeatable-unit-of-a-software-factory/), but this time with messages in on a queue, events out on EventBridge and those events kept as data in S3. I wanted to prove a true full stack API, and for me that includes events and data contracts, all driven by the same testable specs as the HTTP side. The itch continued. The work started at a birthday curry yesterday, where I was sneakily battling CloudEvents, and ended this evening watching The X-Files. One setup can now represent every interface and that's super exciting, so read on fellow hungovercoder and bring your own business logic.
 
 This post is the guided path through what was added to [template-aws-api](https://github.com/hungovercoders/template-aws-api). The sources are at the bottom. Everything in it is still pre-publication and demos, so take it as a pattern worth nicking.
 
@@ -29,7 +29,7 @@ This post is the guided path through what was added to [template-aws-api](https:
 
 ![A pipeline left to right, sitting on a wide band. On the left are two orange boxes, the ways in. HTTP in and out, API callers, described by specs/openapi.yaml. Messages in, other services sending to an SQS queue, described by the receive operations of specs/asyncapi.yaml. Arrows lead from them into a green band labelled your API, one skeleton, the whole stack on AWS Emulator. Inside the band a two-way arrow joins HTTP to a blue box, operations, one function per operation, and an arrow joins the queue to a blue box, consumers, one function per message. Both write to DynamoDB, your data and the outbox in one write. An arrow labelled stream leads from the table to the forwarder, which puts each event on the bus. On the right are two orange boxes, the ways out. Events out, subscribers on an EventBridge bus, described by the send operations of specs/asyncapi.yaml. Below it, joined by an arrow labelled Firehose, events as data, analysts reading S3 with DuckDB, described by specs/datacontract.yaml. Beneath everything is a band labelled one spec, holding the feature files that say what every interface does and are also its tests.](/assets/2026-11-16-asyncapi-cloudevents-data-contract-software-factory-unit/interfaces.svg)
 
-On Saturday the template had one door. Now it has four, and each has a contract. OpenAPI still covers HTTP. AsyncAPI covers a message coming in on a queue and an event going out on a bus. A data contract covers those events once they're sitting in S3.
+On Saturday the template had one interface. Now it has four, and each has a contract. OpenAPI still covers HTTP. AsyncAPI covers a message coming in on a queue and an event going out on a bus. A data contract covers those events once they're sitting in S3.
 
 The orange boxes are all you write. The queue, its retries, the outbox, the bus, the bucket and the alarms for the lot are the skeleton's, the same for every API.
 
@@ -126,7 +126,7 @@ The data contract has no scenarios of its own. Its test runs the Data Contract C
 
 Querying is a task too, with a view per event already defined. It's the same [DuckDB and Harlequin](/blog/2026-09-13-delightful-local-data-engineering-with-duckdb-and-harlequin/) I wrote about in September.
 
-## One Beer Through Every Door
+## One Beer Through Every Interface
 
 Here's all of it on a laptop-sized AWS. A beer goes in over HTTP, a rating for it arrives as a message, both events come out on the bus, and the rating is read back out of S3 with SQL.
 
@@ -160,15 +160,15 @@ The five marked blocked are the new bus. When the emulator version moves, the sa
 
 ![Terminal output of task ci on the example implementation branch, selected lines. The spec check passes for 6 operations, the AsyncAPI check for 5 operations, 1 received and 4 published, and the data contract check for 4 events. Terraform reports Apply complete, 64 added. Cucumber passes 67 scenarios and 571 steps. The responses, consume and publish checks pass. Schemathesis reports 396 generated and 396 passed with no issues found in 83.83 seconds, and the data test reports that the data in the events bucket keeps the data contract, tested where it is](/assets/2026-11-16-asyncapi-cloudevents-data-contract-software-factory-unit/ci.png)
 
-On Saturday the stack was twenty-three resources and fifty-three scenarios. With every door open it's sixty-four resources and sixty-seven scenarios, and it is still one command that builds the lot, tests it and throws it away. That run was in the agent's own sandbox, which wouldn't run the emulator at all when I wrote Saturday's post.
+On Saturday the stack was twenty-three resources and fifty-three scenarios. With every interface in it's sixty-four resources and sixty-seven scenarios, and it is still one command that builds the lot, tests it and throws it away. That run was in the agent's own sandbox, which wouldn't run the emulator at all when I wrote Saturday's post.
 
 It isn't as quick as it was. On Saturday `task ci` took two minutes and twenty-one seconds on a GitHub runner. With a queue, a bus, a stream and a bucket to stand up, the stack alone now takes about two minutes, and the whole CI job on the last run took four minutes and fifty-nine seconds.
 
 ## The Verdict So Far
 
-I think it's worth using, and I'm happy enough with the stack now. SQS, EventBridge, Firehose, S3 and DuckDB, with a contract on every door, and all of it works locally. A true full stack API has events and a data contract as well as HTTP, and this now has all three from one setup. The test driven specs held their own in the new formats too. A queue, a bus and a bucket went in without a new way of working. Each one is a contract, a scenario and a command that generates the boring half.
+I think it's worth using, and I'm happy enough with the stack now. SQS, EventBridge, Firehose, S3 and DuckDB, with a contract on every interface, and all of it works locally. A true full stack API has events and a data contract as well as HTTP, and this now has all three from one setup. The test driven specs held their own in the new formats too. A queue, a bus and a bucket went in without a new way of working. Each one is a contract, a scenario and a command that generates the boring half.
 
-It's still not proven. Nothing here has been deployed to a real AWS account, and the list of what only a deploy can show is longer now. A fresh agent hasn't yet built an API from the template with the new doors in. And subscribers on the bus get a CloudEvent in an envelope, in no promised order. The new bus might fix that once the emulator can run it, or something other than EventBridge might.
+It's still not proven. Nothing here has been deployed to a real AWS account, and the list of what only a deploy can show is longer now. A fresh agent hasn't yet built an API from the template with the new interfaces in. And subscribers on the bus get a CloudEvent in an envelope, in no promised order. The new bus might fix that once the emulator can run it, or something other than EventBridge might.
 
 The concept is what we should all strive for, and expect from our software.
 
