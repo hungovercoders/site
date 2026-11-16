@@ -44,7 +44,7 @@ The other half of the pattern holds too. Use a deterministic tool wherever one e
 - An example of every message and event, from `task asyncapi:examples`.
 - The schema half of the data contract, from `task data:generate`.
 
-Gates then decide when it's done, with the same answer every time.
+Gates then decide when it's done, with the same answer every time. That closes the loop. The feature files and contracts are the context the agent reads, and reading is the part nobody can predict. The same files are then the tests that judge what it wrote, and those give one verdict.
 
 ## A Rating Arrives on a Queue
 
@@ -88,6 +88,8 @@ export async function receive_beer_rating({ event }: MessageContext<BeerRatingSu
 
 Counting a duplicate once isn't in that function. Neither is validating the message, retrying it, or putting it aside when it can never succeed. The skeleton does those for every consumer, and the scenario above is what proves it on the emulator's real queue.
 
+The test is the scenario. Cucumber puts the message on the queue and waits for what it should cause, and the message is checked against its schema in the AsyncAPI contract before the function ever sees it.
+
 ## An Event Leaves with the Write
 
 Publishing is a `send` operation in the same AsyncAPI file, and a scenario says when it happens.
@@ -107,6 +109,8 @@ In the code it's one line in the write that makes the change.
 ```
 
 That's the outbox pattern. The event is written to the table in the same transaction as the beer, so there's never an event for a write that failed or a write whose event went missing. The table's stream hands it to a forwarder, which puts it on EventBridge. The agent never calls the bus.
+
+The test is the scenario again. It reads what actually reached the bus, and every event published during a run is checked against its schema in the contract, whether or not a step looked at it.
 
 The gates go one level down here as well. After the scenarios run, `publish:check` fails if the contract says the API publishes an event that no scenario ever saw, and `consume:check` does the same for a message nobody delivered.
 
@@ -211,6 +215,7 @@ The concept is what we should all strive for, and expect from our software.
 These are the sources.
 
 - [AsyncAPI](https://www.asyncapi.com/docs) for describing messages and events, and [CloudEvents](https://cloudevents.io) for the envelope every one of them uses.
+- AsyncAPI's own [parser](https://github.com/asyncapi/parser-js), [diff](https://github.com/asyncapi/diff) and [Modelina](https://github.com/asyncapi/modelina) for validating the contract, spotting breaking changes and generating types, and [Ajv](https://ajv.js.org) for checking every message and event against its schema.
 - The [Open Data Contract Standard](https://bitol-io.github.io/open-data-contract-standard/) and the [Data Contract CLI](https://cli.datacontract.com) that lints and tests against it.
 - The [transactional outbox pattern](https://microservices.io/patterns/data/transactional-outbox.html), and the [EventBridge user guide](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-what-is.html) for the bus.
 - The [AWS Emulator](https://github.com/aws/aws-emulator) repo and its [user guide](https://docs.aws.amazon.com/emulator/latest/userguide/what-is-service.html).
