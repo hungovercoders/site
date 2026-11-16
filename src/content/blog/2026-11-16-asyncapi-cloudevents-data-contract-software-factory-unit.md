@@ -187,9 +187,9 @@ Partly. The event is a proper CloudEvent on the queue and in S3. On a classic bu
 
 A limit like that is easy to write down and forget. Every gap in the emulator that the template works around, lives with or waits for is now listed with a test, and one command runs them.
 
-![Terminal output of task emulator:gaps on AWS Emulator 1.0.365. Fourteen gaps tested and every one reported as still needed. Six are limits such as jwt-signature and firehose-metrics, three are workarounds such as queue-url-host and s3-control, and five are blocked, all starting eventsv2, including eventsv2-put-raw-events and eventsv2-ordered-delivery. The last line reads nothing to remove, every gap is still there](/assets/2026-11-16-asyncapi-cloudevents-data-contract-software-factory-unit/gaps.png)
+![Terminal output of task emulator:gaps on AWS Emulator 1.0.365. Sixteen gaps tested and every one reported as still needed. Eight are limits such as jwt-signature and firehose-metrics, three are workarounds such as queue-url-host and s3-control, and five are blocked, all starting eventsv2, including eventsv2-put-raw-events and eventsv2-ordered-delivery. The last line reads nothing to remove, every gap is still there](/assets/2026-11-16-asyncapi-cloudevents-data-contract-software-factory-unit/gaps.png)
 
-The five marked blocked are the new bus. When the emulator version moves, the same command runs on that pull request and reports. Once the new version is on `main`, a gap that has closed raises an issue naming what can be removed. Run against the newest emulator release, one of the fourteen had already closed.
+The five marked blocked are the new bus. When the emulator version moves, the same command runs on that pull request and reports. Once the new version is on `main`, a gap that has closed raises an issue naming what can be removed. Run against the newest emulator release, one of them had already closed.
 
 ## The Same Green Tick
 
