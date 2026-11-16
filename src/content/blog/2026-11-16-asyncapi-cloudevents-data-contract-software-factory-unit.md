@@ -1,6 +1,6 @@
 ---
 title: Adding AsyncAPI, CloudEvents and a Data Contract to the Software Factory Unit
-date: 2026-11-15
+date: 2026-11-16
 author: dataGriff
 description: The same skeleton now takes messages from a queue, publishes events and keeps them as data in S3, each described by a contract and proved by the same feature files on AWS Emulator
 tags:
@@ -11,25 +11,25 @@ tags:
   - AWS Emulator
   - Claude Code
 image:
-  path: /assets/2026-11-15-asyncapi-cloudevents-data-contract-software-factory-unit/link.png
+  path: /assets/2026-11-16-asyncapi-cloudevents-data-contract-software-factory-unit/link.png
 ---
 
-This blog is a bit of a cheat as it's the same AWS Lambda API template as [yesterday](/blog/2026-11-14-repeatable-unit-of-a-software-factory/), but this time with messages in on a queue, events out on EventBridge and those events kept as data in S3. I wanted to prove a true full stack API, and for me that includes events and data contracts, all driven by the same testable specs as the HTTP side. The itch continued through a birthday curry today, where I was sneakily battling CloudEvents. One setup can now represent every interface and that's super exciting, so read on fellow hungovercoder and bring your own business logic, in through any door you like.
+This blog is a bit of a cheat as it's the same AWS Lambda API template as [Saturday's](/blog/2026-11-14-repeatable-unit-of-a-software-factory/), but this time with messages in on a queue, events out on EventBridge and those events kept as data in S3. I wanted to prove a true full stack API, and for me that includes events and data contracts, all driven by the same testable specs as the HTTP side. The itch continued. The work started at a birthday curry yesterday, where I was sneakily battling CloudEvents, and ended this evening watching The X-Files. One setup can now represent every interface and that's super exciting, so read on fellow hungovercoder and bring your own business logic, in through any door you like.
 
 This post is the guided path through what was added to [template-aws-api](https://github.com/hungovercoders/template-aws-api). The sources are at the bottom. Everything in it is still pre-publication and demos, so take it as a pattern worth nicking.
 
 ## Pre-Requisites
 
-- [Yesterday's post](/blog/2026-11-14-repeatable-unit-of-a-software-factory/), for the skeleton, the gates and why CI is red on purpose
+- [Saturday's post](/blog/2026-11-14-repeatable-unit-of-a-software-factory/), for the skeleton, the gates and why CI is red on purpose
 - [mise](https://mise.jdx.dev), to install Node, Task, Terraform and uv from one file
 - [Claude Code](https://claude.com/claude-code), or any agent that reads `AGENTS.md`
 - Linux or WSL for the native AWS Emulator, and still no AWS account
 
 ## Where the Interfaces Sit
 
-![A pipeline left to right, sitting on a wide band. On the left are two orange boxes, the ways in. HTTP in and out, API callers, described by specs/openapi.yaml. Messages in, other services sending to an SQS queue, described by the receive operations of specs/asyncapi.yaml. Arrows lead from them into a green band labelled your API, one skeleton, the whole stack on AWS Emulator. Inside the band a two-way arrow joins HTTP to a blue box, operations, one function per operation, and an arrow joins the queue to a blue box, consumers, one function per message. Both write to DynamoDB, your data and the outbox in one write. An arrow labelled stream leads from the table to the forwarder, which puts each event on the bus. On the right are two orange boxes, the ways out. Events out, subscribers on an EventBridge bus, described by the send operations of specs/asyncapi.yaml. Below it, joined by an arrow labelled Firehose, events as data, analysts reading S3 with DuckDB, described by specs/datacontract.yaml. Beneath everything is a band labelled one spec, holding the feature files that say what every interface does and are also its tests.](/assets/2026-11-15-asyncapi-cloudevents-data-contract-software-factory-unit/interfaces.svg)
+![A pipeline left to right, sitting on a wide band. On the left are two orange boxes, the ways in. HTTP in and out, API callers, described by specs/openapi.yaml. Messages in, other services sending to an SQS queue, described by the receive operations of specs/asyncapi.yaml. Arrows lead from them into a green band labelled your API, one skeleton, the whole stack on AWS Emulator. Inside the band a two-way arrow joins HTTP to a blue box, operations, one function per operation, and an arrow joins the queue to a blue box, consumers, one function per message. Both write to DynamoDB, your data and the outbox in one write. An arrow labelled stream leads from the table to the forwarder, which puts each event on the bus. On the right are two orange boxes, the ways out. Events out, subscribers on an EventBridge bus, described by the send operations of specs/asyncapi.yaml. Below it, joined by an arrow labelled Firehose, events as data, analysts reading S3 with DuckDB, described by specs/datacontract.yaml. Beneath everything is a band labelled one spec, holding the feature files that say what every interface does and are also its tests.](/assets/2026-11-16-asyncapi-cloudevents-data-contract-software-factory-unit/interfaces.svg)
 
-Yesterday the template had one door. Now it has four, and each has a contract. OpenAPI still covers HTTP. AsyncAPI covers a message coming in on a queue and an event going out on a bus. A data contract covers those events once they're sitting in S3.
+On Saturday the template had one door. Now it has four, and each has a contract. OpenAPI still covers HTTP. AsyncAPI covers a message coming in on a queue and an event going out on a bus. A data contract covers those events once they're sitting in S3.
 
 The orange boxes are all you write. The queue, its retries, the outbox, the bus, the bucket and the alarms for the lot are the skeleton's, the same for every API.
 
@@ -131,9 +131,9 @@ Querying is a task too, with a view per event already defined. It's the same [Du
 Here's all of it on a laptop-sized AWS. A beer goes in over HTTP, a rating for it arrives as a message, both events come out on the bus, and the rating is read back out of S3 with SQL.
 
 <video autoplay loop muted playsinline controls>
-  <source src="/assets/2026-11-15-asyncapi-cloudevents-data-contract-software-factory-unit/in-and-out.mp4" type="video/mp4">
-  <source src="/assets/2026-11-15-asyncapi-cloudevents-data-contract-software-factory-unit/in-and-out.webm" type="video/webm">
-  <img src="/assets/2026-11-15-asyncapi-cloudevents-data-contract-software-factory-unit/in-and-out.gif" alt="A terminal recording against the example API on AWS Emulator. A curl request adds the beer Morning After and gets it back with no ratings. A file called rating.json holds a CloudEvent from a taproom with a score of 4 for that beer, and task queue:send puts it on the queue. A second curl request fetches the beer, which now has one rating averaging 4. task events:tail then shows two events on the bus, beer created and beer rated. Last, task data:query runs select type, beer id and score from beer_rated and returns one row, the rating, read from the events bucket in S3">
+  <source src="/assets/2026-11-16-asyncapi-cloudevents-data-contract-software-factory-unit/in-and-out.mp4" type="video/mp4">
+  <source src="/assets/2026-11-16-asyncapi-cloudevents-data-contract-software-factory-unit/in-and-out.webm" type="video/webm">
+  <img src="/assets/2026-11-16-asyncapi-cloudevents-data-contract-software-factory-unit/in-and-out.gif" alt="A terminal recording against the example API on AWS Emulator. A curl request adds the beer Morning After and gets it back with no ratings. A file called rating.json holds a CloudEvent from a taproom with a score of 4 for that beer, and task queue:send puts it on the queue. A second curl request fetches the beer, which now has one rating averaging 4. task events:tail then shows two events on the bus, beer created and beer rated. Last, task data:query runs select type, beer id and score from beer_rated and returns one row, the rating, read from the events bucket in S3">
 </video>
 
 Those are real requests against the example, replayed. The `curl` commands show `$URL` and `$TOKEN` where the real values were.
@@ -152,21 +152,21 @@ Partly. The event is a proper CloudEvent on the queue and in S3. On a classic bu
 
 A limit like that is easy to write down and forget. Every gap in the emulator that the template works around, lives with or waits for is now listed with a test, and one command runs them.
 
-![Terminal output of task emulator:gaps on AWS Emulator 1.0.365. Fourteen gaps tested and every one reported as still needed. Six are limits such as jwt-signature and firehose-metrics, three are workarounds such as queue-url-host and s3-control, and five are blocked, all starting eventsv2, including eventsv2-put-raw-events and eventsv2-ordered-delivery. The last line reads nothing to remove, every gap is still there](/assets/2026-11-15-asyncapi-cloudevents-data-contract-software-factory-unit/gaps.png)
+![Terminal output of task emulator:gaps on AWS Emulator 1.0.365. Fourteen gaps tested and every one reported as still needed. Six are limits such as jwt-signature and firehose-metrics, three are workarounds such as queue-url-host and s3-control, and five are blocked, all starting eventsv2, including eventsv2-put-raw-events and eventsv2-ordered-delivery. The last line reads nothing to remove, every gap is still there](/assets/2026-11-16-asyncapi-cloudevents-data-contract-software-factory-unit/gaps.png)
 
 The five marked blocked are the new bus. When the emulator version moves, the same command runs on that pull request and reports. Once the new version is on `main`, a gap that has closed raises an issue naming what can be removed. Run against the newest emulator release, one of the fourteen had already closed.
 
 ## The Same Green Tick
 
-![Terminal output of task ci on the example implementation branch, selected lines. The spec check passes for 6 operations, the AsyncAPI check for 5 operations, 1 received and 4 published, and the data contract check for 4 events. Terraform reports Apply complete, 64 added. Cucumber passes 67 scenarios and 571 steps. The responses, consume and publish checks pass. Schemathesis reports 396 generated and 396 passed with no issues found in 83.83 seconds, and the data test reports that the data in the events bucket keeps the data contract, tested where it is](/assets/2026-11-15-asyncapi-cloudevents-data-contract-software-factory-unit/ci.png)
+![Terminal output of task ci on the example implementation branch, selected lines. The spec check passes for 6 operations, the AsyncAPI check for 5 operations, 1 received and 4 published, and the data contract check for 4 events. Terraform reports Apply complete, 64 added. Cucumber passes 67 scenarios and 571 steps. The responses, consume and publish checks pass. Schemathesis reports 396 generated and 396 passed with no issues found in 83.83 seconds, and the data test reports that the data in the events bucket keeps the data contract, tested where it is](/assets/2026-11-16-asyncapi-cloudevents-data-contract-software-factory-unit/ci.png)
 
-Yesterday the stack was twenty-three resources and fifty-three scenarios. With every door open it's sixty-four resources and sixty-seven scenarios, and it is still one command that builds the lot, tests it and throws it away. That run was in the agent's own sandbox, which wouldn't run the emulator at all when I wrote yesterday's post.
+On Saturday the stack was twenty-three resources and fifty-three scenarios. With every door open it's sixty-four resources and sixty-seven scenarios, and it is still one command that builds the lot, tests it and throws it away. That run was in the agent's own sandbox, which wouldn't run the emulator at all when I wrote Saturday's post.
 
-It isn't as quick as it was. Yesterday `task ci` took two minutes and twenty-one seconds on a GitHub runner. With a queue, a bus, a stream and a bucket to stand up, the stack alone now takes about two minutes, and the whole CI job on the last run took four minutes and fifty-nine seconds.
+It isn't as quick as it was. On Saturday `task ci` took two minutes and twenty-one seconds on a GitHub runner. With a queue, a bus, a stream and a bucket to stand up, the stack alone now takes about two minutes, and the whole CI job on the last run took four minutes and fifty-nine seconds.
 
 ## The Verdict So Far
 
-I think it's worth using. A true full stack API has events and a data contract as well as HTTP, and this now has all three from one setup. The test driven specs held their own in the new formats too. A queue, a bus and a bucket went in without a new way of working. Each one is a contract, a scenario and a command that generates the boring half.
+I think it's worth using, and I'm happy enough with the stack now. SQS, EventBridge, Firehose, S3 and DuckDB, with a contract on every door, and all of it works locally. A true full stack API has events and a data contract as well as HTTP, and this now has all three from one setup. The test driven specs held their own in the new formats too. A queue, a bus and a bucket went in without a new way of working. Each one is a contract, a scenario and a command that generates the boring half.
 
 It's still not proven. Nothing here has been deployed to a real AWS account, and the list of what only a deploy can show is longer now. A fresh agent hasn't yet built an API from the template with the new doors in. And subscribers on the bus get a CloudEvent in an envelope, in no promised order. The new bus might fix that once the emulator can run it, or something other than EventBridge might.
 
@@ -181,7 +181,7 @@ These are the sources.
 - The [transactional outbox pattern](https://microservices.io/patterns/data/transactional-outbox.html), and the [EventBridge user guide](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-what-is.html) for the bus.
 - The [AWS Emulator](https://github.com/aws/aws-emulator) repo and its [user guide](https://docs.aws.amazon.com/emulator/latest/userguide/what-is-service.html).
 - [template-aws-api](https://github.com/hungovercoders/template-aws-api), and [what implementing the example adds](https://github.com/hungovercoders/template-aws-api/compare/example/spec...example/implementation).
-- [Yesterday's post](/blog/2026-11-14-repeatable-unit-of-a-software-factory/) on the skeleton, and [September's](/blog/2026-09-13-delightful-local-data-engineering-with-duckdb-and-harlequin/) on DuckDB and Harlequin.
+- [Saturday's post](/blog/2026-11-14-repeatable-unit-of-a-software-factory/) on the skeleton, and [September's](/blog/2026-09-13-delightful-local-data-engineering-with-duckdb-and-harlequin/) on DuckDB and Harlequin.
 
 ## What Next
 
