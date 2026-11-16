@@ -110,7 +110,6 @@ servers:
   - server: production
     type: s3
     location: s3://hungovercoders-beer-catalogue-events/events/
-    format: json
 slaProperties:
   - property: retention
     value: 2
@@ -120,7 +119,31 @@ slaProperties:
     unit: m
 ```
 
-A command writes the schema half of that file from the AsyncAPI contract, so the two can't drift. A person adds what no command can know, the owner, the retention, how fresh it has to be and how sensitive each field is. Terraform then reads the same file for the bucket, its retention and its freshness alarm.
+That half is a person's. It says who owns the data, where it lives, how long it's kept and how fresh it has to be, and Terraform reads the same file for the bucket, its retention and its freshness alarm.
+
+The other half is the schema, one object per event. Here's the rating, cut down to its score.
+
+```yaml
+schema:
+  - name: beer_rated
+    physicalName: com.hungovercoders.beer_catalogue.beer.rated.v1
+    quality:
+      - metric: rowCount
+        mustBeGreaterThan: 0
+    properties:
+      # the CloudEvent's own attributes, then
+      - name: data
+        properties:
+          - name: score
+            classification: public
+            logicalType: integer
+            required: true
+            logicalTypeOptions:
+              minimum: 1
+              maximum: 5
+```
+
+A command writes the type, the limits and whether a field is required from the AsyncAPI contract, so the two can't drift. A person adds the `classification`, which is how sensitive each field is, and any `quality` rule the data has to keep.
 
 The data contract has no scenarios of its own. Its test runs the Data Contract CLI against the events the scenarios just published, so the event scenarios do double duty. The first version downloaded them to test them. My worry with downloading as a pattern was a copy of data that could one day be sensitive, so now it reads the bucket where it is and nothing is copied. When the agent ran version 1.2.10 of the CLI against gzipped files where they sat, it failed. So I went with uncompressed as the default and no workaround. Gzip can be switched on where it suits.
 
