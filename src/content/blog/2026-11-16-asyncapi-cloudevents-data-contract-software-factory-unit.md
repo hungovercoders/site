@@ -203,7 +203,9 @@ It isn't as quick as it was. On Saturday `task ci` took two minutes and twenty-o
 
 I think it's worth using, and I'm happy enough with the stack now. SQS, EventBridge, Firehose, S3 and DuckDB, with a contract on every interface, and all of it works locally. A true full stack API has events and a data contract as well as HTTP, and this now has all three from one setup. The test driven specs held their own in the new formats too. A queue, a bus and a bucket went in without a new way of working. Each one is a contract, a scenario and a command that generates the boring half.
 
-It's still not proven. Nothing here has been deployed to a real AWS account, and the list of what only a deploy can show is longer now. A fresh agent hasn't yet built an API from the template with the new interfaces in. And subscribers on the bus get a CloudEvent in an envelope, in no promised order. The new bus might fix that once the emulator can run it, or something other than EventBridge might.
+The skills hold up on their own too. A fresh agent that had never seen the build was given the spec and the `/implement-api` skill and nothing else. It built the lot, the queue consumer, the four events and the data test included, and no full run failed because of its code. One scenario caught a real bug on the way, a made-up page marker that came back as a 500 on the emulator, and it fixed that before its first full run.
+
+What's left is a real AWS account. Nothing here has been deployed to one, and the list of what only a deploy can show is longer now. And subscribers on the bus get a CloudEvent in an envelope, in no promised order. The new bus might fix that once the emulator can run it, or something other than EventBridge might.
 
 The concept is what we should all strive for, and expect from our software.
 
