@@ -2,7 +2,7 @@
 title: Local Install of Spark, Python and Pyspark on Windows
 date: 2023-04-14
 author: dataGriff
-description: This is you can install python, spark and pyspark locally on a windows machine
+description: This is how you can install python, spark and pyspark locally on a windows machine
 tags:
 - spark
 - python

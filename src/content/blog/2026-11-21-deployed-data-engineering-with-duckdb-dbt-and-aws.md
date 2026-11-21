@@ -23,17 +23,17 @@ If you are joining here, [part 1](/blog/2026-09-13-delightful-local-data-enginee
 - [Part 2](/blog/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt) completed, with a green `dbt build`
 - [uv](https://docs.astral.sh/uv/), Docker, Terraform and the AWS CLI
 - [AWS Emulator](https://github.com/aws/aws-emulator), which one of the scripts below installs for you
-- An AWS account, for the real AWS half
+- An AWS account that still has its default VPC, for the real AWS half
 
 ## Three Environments
 
-![Three columns read left to right. On the left are three cards saying where the events live and what starts the build in each environment: my laptop, with events in data/raw/events, docker run and the local target; AWS Emulator, with events in s3 on 127.0.0.1, docker run and the emulator target; and AWS, with events in s3 in eu-west-2, a Fargate task and the s3 target. An arrow leads from each into one blue card in the middle, the beer_sales dbt build, which lists the raw events source, stg_events, fct_daily_event_summary and daily_event_summary_export, with the same SQL and the same tests. Three arrows lead out of it to three cards on the right saying where the summary lands: data/daily_event_summary.parquet on the laptop, the beer-sales-local bucket on the emulator, and the bucket in eu-west-2 on AWS. A dark band underneath names the only settings that change: DBT_TARGET, EVENTS_LOCATION and SUMMARY_LOCATION.](/assets/2026-11-21-deployed-data-engineering-with-duckdb-dbt-and-aws/three-environments.svg)
+![Three columns read left to right. On the left are three cards saying where the events live and what starts the build in each environment: my laptop, with events in data/raw/events, docker run and the local target; AWS Emulator, with events in s3 on 127.0.0.1, started by dbt build or docker run, and the emulator target; and AWS, with events in s3 in eu-west-2, running as a Fargate task with the s3 target. An arrow leads from each into one blue card in the middle, the beer_sales dbt build, which lists the raw events and the beers seed, stg_events, fct_daily_event_summary and daily_event_summary_export, with the same SQL and the same tests. Three arrows lead out of it to three cards on the right saying where the summary lands: data/daily_event_summary.parquet on the laptop, the beer-sales-local bucket on the emulator, and the bucket in eu-west-2 on AWS. A dark band underneath names the settings dbt is given in each: DBT_TARGET, EVENTS_LOCATION and SUMMARY_LOCATION.](/assets/2026-11-21-deployed-data-engineering-with-duckdb-dbt-and-aws/three-environments.svg)
 
-The only things that change from one environment to the next are where the parquet lives and who starts the container. The emulator sits in the middle because a wrong bucket path or a typo in the Terraform costs nothing to find there.
+The emulator sits in the middle because a wrong bucket path or a typo in the Terraform costs nothing to find there.
 
 ## A Container and No Server
 
-I wanted the cheapest thing that could run this in production and also run locally, and that is a container. DuckDB is embedded, so there is no database server to look after. Production is a program that starts, runs `dbt build` and stops. From the repo root, one level above `beer_sales`, add a Dockerfile:
+I wanted the cheapest thing that could run this in production and also run locally, and that is a container. DuckDB is embedded, so there is no database server to look after. Production is a program that starts, runs `dbt build` and stops. From the repo root, one level above `beer_sales`, add a Dockerfile, and a `.dockerignore` listing `.venv`, `data` and `**/*.duckdb` so none of them end up in the image:
 
 ```dockerfile
 FROM python:3.12-slim
@@ -68,7 +68,7 @@ select *
 from {{ ref('fct_daily_event_summary') }}
 ```
 
-This model is one more step on the end of the pipeline. It takes the daily summary mart from part 2 and writes it out as one parquet file, which is the thing another tool or another DuckDB can pick up. The mart stays a table, so the tests and the harlequin queries from part 2 carry on working.
+This model is one more step on the end of the pipeline. It takes the daily summary mart from part 2 and writes it out as one parquet file. Another tool or another DuckDB can pick that up. The mart stays a table, so the tests and the harlequin queries from part 2 carry on working.
 
 Once deployed, DuckDB does the work inside the container and writes the result straight to S3. The container is the compute and the bucket is the storage, and the duckdb file in between is scratch space that nobody needs to keep.
 
@@ -119,13 +119,13 @@ My own machine turned out not to have it installed:
 zsh: command not found: aws-emulator
 ```
 
-From here on I wrapped the commands in sh files and ran those. They are in the `scripts` folder of [the repo](https://github.com/hungovercoders/learn.harlequin), and the part each one runs is shown where it is used. The first installs and starts the emulator, in a terminal of its own:
+From here on I wrapped the commands in sh files and ran those. They are in the `scripts` folder of [the repo](https://github.com/hungovercoders/learn.harlequin), and I show the main part of each where I use it. The first installs and starts the emulator, in a terminal of its own:
 
 ```bash
 scripts/emulator.sh start
 ```
 
-It uses an `aws-emulator` already on your PATH. Without one, on a Debian-style Linux or WSL it downloads a pinned version and checks AWS's signature on it, and anywhere else it runs the emulator in Docker. dbt then needs a second target in `profiles.yml`:
+It uses an `aws-emulator` already on your PATH. Without one, on a Debian-style Linux or WSL it downloads a pinned version and checks AWS's signature on it, and on macOS or Windows it runs the emulator in Docker. dbt then needs a second target in `profiles.yml`:
 
 ```yaml
     emulator:
@@ -150,9 +150,9 @@ It uses an `aws-emulator` already on your PATH. Without one, on a Debian-style L
 
 `httpfs` reads and writes `s3://` paths, and `credential_chain` finds credentials the way the AWS CLI does, so there are no keys in the file.
 
-The infrastructure is one Terraform file, `infra/main.tf`, written for real AWS and applied to the emulator unchanged. This is what it stands up:
+The infrastructure is one Terraform file, `infra/main.tf`, written for real AWS and applied to the emulator unchanged. This is what it describes:
 
-![A flow that reads left to right. On the left a schedule card, EventBridge Scheduler at 06:00 UTC daily, has an arrow labelled starts into a blue Fargate task card in the middle that runs uv run dbt build, with DuckDB doing the work inside the container against the s3 target. Above the task an ECR repository card holding the beer-sales image has an arrow down into the task labelled pulls. On the right a green S3 bucket card holds raw/events and summary; an arrow labelled reads runs from the bucket to the task and a green arrow labelled writes runs from the task back to the bucket. Below the task, a grey arrow labelled logs leads to a CloudWatch Logs card for the /ecs/beer-sales log group. A red arrow labelled fails leads down from the task to an EventBridge rule card, which matches a task that stopped with an exit code other than 0 or never started, then on to an SNS topic card called beer-sales-alerts, then to an email card saying the job failed.](/assets/2026-11-21-deployed-data-engineering-with-duckdb-dbt-and-aws/aws-deployment.svg)
+![A flow that reads left to right. On the left a schedule card, EventBridge Scheduler at 06:00 UTC daily or a run by hand, has an arrow labelled starts into a blue Fargate task card in the middle that runs dbt build, with DuckDB doing the work inside the container against the s3 target. Above the task an ECR repository card holding the beer-sales image has an arrow down into the task labelled pulls. On the right a green S3 bucket card holds raw/events and summary; an arrow labelled reads runs from the bucket to the task and a green arrow labelled writes runs from the task back to the bucket. Below the task, a grey arrow labelled logs leads to a CloudWatch Logs card for the /ecs/beer-sales log group. A red arrow labelled fails leads down from the task to an EventBridge rule card, which matches a task that stopped with an exit code other than 0 or never started, then on to an SNS topic card called beer-sales-alerts, then to an email card saying the job failed.](/assets/2026-11-21-deployed-data-engineering-with-duckdb-dbt-and-aws/aws-deployment.svg)
 
 The task's role is allowed to read the events and write the summary, with no delete and no other bucket named.
 
@@ -637,7 +637,7 @@ Apply complete! Resources: 19 added, 0 changed, 0 destroyed.
 Done. PASS=10 WARN=0 ERROR=0 SKIP=0 NO-OP=0 REUSED=0 TOTAL=10
 ```
 
-That is nineteen resources and a green build against a bucket, with the SQL from part 2 untouched. The container runs against the emulator as well, once the image is built again to pick up the new target and is given the emulator's certificate and credentials. This form of the command is for Linux, where `--network host` reaches the emulator:
+That is nineteen resources and a green build against a bucket, with the SQL from part 2 untouched. The container runs against the emulator as well. Build the image again to pick up the new target, and give it the emulator's certificate and credentials. I ran this form on Linux, where `--network host` reaches the emulator:
 
 ```bash
 docker build -t beer-sales .
@@ -662,7 +662,7 @@ One thing in the Terraform had to give, and one problem went away with a newer e
 aws_s3_bucket.data: Still creating... [01m30s elapsed]
 ```
 
-Both make the same bucket. The plain one uses the standard AWS provider, which hangs on the emulator. My API template's notes put that down to a tags call through S3 Control, which the emulator does not serve. The `awscc` one goes through Cloud Control, which it does. The price is no `force_destroy`, so the bucket has to be emptied before Terraform can delete it.
+Both make the same bucket. The plain one uses the standard AWS provider, which hangs on the emulator. My API template's [notes](https://github.com/hungovercoders/template-aws-api/blob/main/docs/testing.md) put that down to a tags call through S3 Control, which the emulator does not serve. The [`awscc` one](https://registry.terraform.io/providers/hashicorp/awscc/latest/docs/resources/s3_bucket) goes through Cloud Control, which it does. The price is no `force_destroy`, so the bucket has to be emptied before Terraform can delete it.
 
 On emulator 1.0.365 the security group's outbound rule failed like this:
 
@@ -710,7 +710,7 @@ A third target, and it is the emulator one with the emulator taken out:
           region: "{{ env_var('AWS_REGION', 'eu-west-2') }}"
 ```
 
-On my laptop `credential_chain` finds my login and inside Fargate it finds the task's role. The Terraform is the same file the emulator took.
+On a laptop `credential_chain` finds your AWS login, and inside Fargate it finds the task's role. The Terraform is the same file the emulator took.
 
 A second sh file wraps the real account. Log in to AWS first. `deploy` applies the Terraform, which stops to ask for a `yes`, then pushes the image and uploads the events. `run` starts the task, waits for it and prints its log. Use your own address for the alert, and confirm the subscription email AWS sends or it has nowhere to go:
 
@@ -808,7 +808,7 @@ The repo now pins Terraform in `mise.toml`. With that in place the first run aga
 
 ![The dbt build log from the Fargate task, with ten of ten steps passing against the s3 target, followed by daily_event_summary.parquet listed in the bucket's summary folder and the task stopping with exit code 0](/assets/2026-11-21-deployed-data-engineering-with-duckdb-dbt-and-aws/fargate_run.png)
 
-It passed ten of ten with `target='s3'`. The image pulled, the role was allowed what it needed and the summary landed in the bucket. The first capture I took had my real account number sitting in the bucket name, so the script now swaps it for `123456789012` on the way out. The console capture further down had its bucket name and security group id swapped by hand.
+It passed ten of ten with `target='s3'`. The image pulled, the role was allowed what it needed and the summary landed in the bucket. The first capture I took had my real account number sitting in the bucket name, so the script now swaps it for `123456789012` on the way out. The console capture and the alert email further down had their identifiers swapped by hand.
 
 Every run in this post was started by hand. The schedule is the one piece it does not show firing.
 
@@ -854,13 +854,13 @@ break_it() {
 
 ![The dbt build log from a Fargate task where the seed loads seven beers instead of eight, the relationships test on the mart fails with 2572 results, the export model still runs, and the task stops with exit code 1](/assets/2026-11-21-deployed-data-engineering-with-duckdb-dbt-and-aws/fargate_fail.png)
 
+The summary file in that capture is timed 18:43:35, the second the failing run finished. The export still ran, as it did on the laptop.
+
 A minute later this was in my inbox:
 
 ![The alert email from AWS Notifications, timed 18:44, reading: The beer-sales dbt job failed. Stop code: EssentialContainerExited. Reason: Essential container in task exited. Task: an ECS task ARN in eu-west-2. Logs are in the /ecs/beer-sales log group](/assets/2026-11-21-deployed-data-engineering-with-duckdb-dbt-and-aws/failure_email.png)
 
-The summary file in that capture is timed 18:43:35, the second the failing run finished. That is the `SKIP=0` from earlier, on a real account.
-
-Afterwards `scripts/aws.sh fix` ships the good image again, so the 06:00 run does not fail every morning.
+Afterwards `scripts/aws.sh fix` ships the good image again, so the 06:00 UTC run does not fail every morning.
 
 ## One Query in Three Places
 
@@ -974,7 +974,7 @@ fi
 
 </details>
 
-The three environments it compares are the three targets in one file:
+The three environments it compares were built by the three targets in one file:
 
 <details>
 <summary>All of <code>beer_sales/profiles.yml</code></summary>
@@ -1056,7 +1056,7 @@ It took three targets in `profiles.yml` and three variables to choose between th
 
 I wanted to know why this wasn't Airflow. The container is the thing that runs and Airflow decides when things run, so Airflow would still be launching this image. With one job on one schedule, and dbt ordering the work inside `dbt build`, there is nothing left to orchestrate. That changes when several jobs depend on each other.
 
-If I did it again I'd use a script runner like Taskfile, as I usually do, in place of the sh files. I'd also have a GitHub Action for CI that runs against the emulator and then deploys. That's my next post in this series. The post after that one automates the whole process from an ODCS data contract with skills.
+If I did it again I'd use a script runner like Taskfile, as I usually do, in place of the sh files. I'd also have a GitHub Action for CI that runs against the emulator and then deploys. That's my next post in this series. I'll likely follow that with one that automates the whole process from an ODCS data contract with skills.
 
 ## Sources and Further Reading
 

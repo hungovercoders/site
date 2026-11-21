@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420" role="img" aria-labelledby="envTitle envDesc">
   <title id="envTitle">One dbt project in three environments</title>
-  <desc id="envDesc">Three columns read left to right. On the left are three cards saying where the events live and what starts the build in each environment: my laptop, with events in data/raw/events, docker run and the local target; AWS Emulator, with events in s3 on 127.0.0.1, docker run and the emulator target; and AWS, with events in s3 in eu-west-2, a Fargate task and the s3 target. An arrow leads from each into one blue card in the middle, the beer_sales dbt build, which lists the raw events source, stg_events, fct_daily_event_summary and daily_event_summary_export, with the same SQL and the same tests. Three arrows lead out of it to three cards on the right saying where the summary lands: data/daily_event_summary.parquet on the laptop, the beer-sales-local bucket on the emulator, and the bucket in eu-west-2 on AWS. A dark band underneath names the only settings that change: DBT_TARGET, EVENTS_LOCATION and SUMMARY_LOCATION.</desc>
+  <desc id="envDesc">Three columns read left to right. On the left are three cards saying where the events live and what starts the build in each environment: my laptop, with events in data/raw/events, docker run and the local target; AWS Emulator, with events in s3 on 127.0.0.1, started by dbt build or docker run, and the emulator target; and AWS, with events in s3 in eu-west-2, running as a Fargate task with the s3 target. An arrow leads from each into one blue card in the middle, the beer_sales dbt build, which lists the raw events and the beers seed, stg_events, fct_daily_event_summary and daily_event_summary_export, with the same SQL and the same tests. Three arrows lead out of it to three cards on the right saying where the summary lands: data/daily_event_summary.parquet on the laptop, the beer-sales-local bucket on the emulator, and the bucket in eu-west-2 on AWS. A dark band underneath names the settings dbt is given in each: DBT_TARGET, EVENTS_LOCATION and SUMMARY_LOCATION.</desc>
   <defs>
     <style>
       .h { font-family: 'Lora', Georgia, Cambria, serif; font-size: 15px; font-weight: 700; fill: rgb(34, 41, 57); }
@@ -35,14 +35,14 @@
   <rect x="20" y="164" width="200" height="20" rx="6" fill="#7350dc"/>
   <text x="30" y="178" class="pill">AWS EMULATOR</text>
   <text x="30" y="204" class="label">s3:// on 127.0.0.1</text>
-  <text x="30" y="221" class="body">started by docker run</text>
+  <text x="30" y="221" class="body">dbt build, or docker run</text>
   <text x="30" y="237" class="label">target: emulator</text>
 
   <rect x="20" y="264" width="200" height="84" rx="6" class="card"/>
   <rect x="20" y="264" width="200" height="20" rx="6" fill="#e16e3c"/>
   <text x="30" y="278" class="pill">AWS</text>
   <text x="30" y="304" class="label">s3:// in eu-west-2</text>
-  <text x="30" y="321" class="body">started by a Fargate task</text>
+  <text x="30" y="321" class="body">runs as a Fargate task</text>
   <text x="30" y="337" class="label">target: s3</text>
 
   <path d="M 220 106 L 268 170" class="arrow" marker-end="url(#envArrow)"/>
@@ -53,7 +53,7 @@
   <rect x="270" y="126" width="200" height="160" rx="6" fill="#dbe4ff" stroke="#2337ff" stroke-width="1.5"/>
   <rect x="270" y="126" width="200" height="22" rx="6" fill="#2337ff"/>
   <text x="280" y="141" class="pill">BEER_SALES · DBT BUILD</text>
-  <text x="282" y="172" class="label">source: raw events</text>
+  <text x="282" y="172" class="label">raw events + beers seed</text>
   <text x="282" y="196" class="label">stg_events</text>
   <text x="282" y="220" class="label">fct_daily_event_summary</text>
   <text x="282" y="244" class="label">daily_event_summary_export</text>
@@ -84,6 +84,6 @@
 
   <!-- what changes -->
   <rect x="20" y="366" width="680" height="34" rx="4" fill="#000d8a"/>
-  <text x="34" y="387" class="band">The only settings that change:</text>
-  <text x="212" y="387" class="bandCode">DBT_TARGET · EVENTS_LOCATION · SUMMARY_LOCATION</text>
+  <text x="34" y="387" class="band">The settings dbt is given:</text>
+  <text x="196" y="387" class="bandCode">DBT_TARGET · EVENTS_LOCATION · SUMMARY_LOCATION</text>
 </svg>
