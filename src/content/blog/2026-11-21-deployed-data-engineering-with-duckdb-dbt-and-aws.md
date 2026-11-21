@@ -66,7 +66,7 @@ IO Error: Cannot open file "../data/exports/daily_event_summary.parquet": No suc
 
 ## A Container and No Server
 
-I asked for the cheapest thing that could run this in production and also run locally, and the answer was a container. DuckDB is embedded, so there is no database server to look after. Production is a program that starts, runs `dbt build` and stops. In the repo root add a Dockerfile:
+I wanted the cheapest thing that could run this in production and also run locally, and that is a container. DuckDB is embedded, so there is no database server to look after. Production is a program that starts, runs `dbt build` and stops. In the repo root add a Dockerfile:
 
 ```dockerfile
 FROM python:3.12-slim
@@ -103,7 +103,7 @@ The exit code of `1` is what sends an email later on. The other thing to read is
 
 ## A Throwaway AWS
 
-[AWS Emulator](https://github.com/aws/aws-emulator) is one program from AWS that answers the AWS APIs on a local port, and it [came out on 11 November](https://aws.amazon.com/blogs/aws/test-your-applications-against-aws-locally-with-aws-emulator/). I used it for the [software factory template](https://github.com/hungovercoders/template-aws-api) and asked for everything here to be deployed to it as well.
+[AWS Emulator](https://github.com/aws/aws-emulator) is one program from AWS that answers the AWS APIs on a local port, and it [came out on 11 November](https://aws.amazon.com/blogs/aws/test-your-applications-against-aws-locally-with-aws-emulator/). I used it for the [software factory template](https://github.com/hungovercoders/template-aws-api) and wanted everything here deployed to it as well.
 
 My own machine turned out not to have it installed:
 
@@ -163,7 +163,7 @@ aws_s3_bucket.data: Still creating... [01m30s elapsed]
 
 And on emulator 1.0.365 the security group's outbound rule failed with `InvalidPermission.Duplicate`. On 1.0.545 it applies.
 
-I also asked for the job itself to run there, and Claude Code tried three ways in from its sandbox:
+I also wanted the job itself to run there, and Claude Code tried three ways in from its sandbox:
 
 ```txt
 docker push to the emulator's ECR
@@ -275,7 +275,7 @@ Three environments from one dbt setup took three targets in `profiles.yml` and t
 
 The facts to weigh are these. [Fargate bills](https://aws.amazon.com/fargate/pricing/) while a task runs and not while it doesn't, and there is no server to patch. Against that, the image downloads duckdb's extensions each time it starts, the duckdb file is gone after every run, and it is one job.
 
-I asked why this wasn't Airflow. The container is the thing that runs and Airflow decides when things run, so Airflow would still be launching this image. With one job on one schedule, and dbt ordering the work inside `dbt build`, there is nothing left to orchestrate. That changes when several jobs depend on each other.
+I wanted to know why this wasn't Airflow. The container is the thing that runs and Airflow decides when things run, so Airflow would still be launching this image. With one job on one schedule, and dbt ordering the work inside `dbt build`, there is nothing left to orchestrate. That changes when several jobs depend on each other.
 
 I'll likely have to follow this up with two more posts. One automates the deploy with GitHub Actions, and the other automates the whole process from an ODCS data contract with skills.
 
