@@ -23,29 +23,17 @@ If you are joining here, [part 1](/blog/2026-09-13-delightful-local-data-enginee
 - [Part 2](/blog/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt) completed, with a green `dbt build`
 - [uv](https://docs.astral.sh/uv/), Docker, Terraform and the AWS CLI
 - [AWS Emulator](https://github.com/aws/aws-emulator), which one of the scripts below installs for you
-- An AWS account, for the last step only
+- An AWS account, for the real AWS half
 
 ## Three Environments
 
-```txt
-laptop      data/raw/events/
-emulator    s3:// on 127.0.0.1
-AWS         s3:// in eu-west-2
-                  |
-        source('raw','events')
-                  |
-             stg_events
-                  |
-      fct_daily_event_summary
-                  |
-     daily_event_summary_export
-```
+![Three columns read left to right. On the left are three cards saying where the events live and what starts the build in each environment: my laptop, with events in data/raw/events, docker run and the local target; AWS Emulator, with events in s3 on 127.0.0.1, docker run and the emulator target; and AWS, with events in s3 in eu-west-2, a Fargate task and the s3 target. An arrow leads from each into one blue card in the middle, the beer_sales dbt build, which lists the raw events source, stg_events, fct_daily_event_summary and daily_event_summary_export, with the same SQL and the same tests. Three arrows lead out of it to three cards on the right saying where the summary lands: data/daily_event_summary.parquet on the laptop, the beer-sales-local bucket on the emulator, and the bucket in eu-west-2 on AWS. A dark band underneath names the only settings that change: DBT_TARGET, EVENTS_LOCATION and SUMMARY_LOCATION.](/assets/2026-11-21-deployed-data-engineering-with-duckdb-dbt-and-aws/three-environments.svg)
 
 The only things that change from one environment to the next are where the parquet lives and who starts the container. The emulator sits in the middle because a wrong bucket path or a typo in the Terraform costs nothing to find there.
 
 ## A Container and No Server
 
-I wanted the cheapest thing that could run this in production and also run locally, and that is a container. DuckDB is embedded, so there is no database server to look after. Production is a program that starts, runs `dbt build` and stops. In the repo root add a Dockerfile:
+I wanted the cheapest thing that could run this in production and also run locally, and that is a container. DuckDB is embedded, so there is no database server to look after. Production is a program that starts, runs `dbt build` and stops. From the repo root, one level above `beer_sales`, add a Dockerfile:
 
 ```dockerfile
 FROM python:3.12-slim
@@ -59,19 +47,13 @@ ENV DBT_PROFILES_DIR=/app/beer_sales
 CMD ["uv", "run", "--frozen", "dbt", "build"]
 ```
 
-Build it:
-
-```bash
-docker build -t beer-sales .
-```
-
-Run it as it stands and the results land in `beers.duckdb` inside the container, then go in the bin with it when the job stops. So there is one change to make to the pipeline before running anything.
+A run of that leaves its results in `beers.duckdb` inside the container, and they go in the bin with it when the job stops. So there is one change to make to the pipeline before building anything.
 
 ## Export the Summary
 
 Part 2 gave us two kinds of model. A view stores the query, and a table stores the results inside `beers.duckdb`. That file was the persistence we wanted on a laptop, and it is the one the container throws away.
 
-dbt-duckdb has a third kind for this, the [external materialisation](https://github.com/duckdb/dbt-duckdb). dbt runs the `select`, writes the rows to a file outside the database, and leaves a view behind that reads the file back, so anything downstream can still `ref()` it. Add `models/exports/daily_event_summary_export.sql`:
+dbt-duckdb has a third kind for this, the [external materialisation](https://github.com/duckdb/dbt-duckdb). dbt runs the `select`, writes the rows to a file outside the database, and leaves a view behind that reads the file back, so anything downstream can still `ref()` it. Add `beer_sales/models/exports/daily_event_summary_export.sql`:
 
 ```sql
 {{
@@ -90,7 +72,7 @@ This model is one more step on the end of the pipeline. It takes the daily summa
 
 Once deployed, DuckDB does the work inside the container and writes the result straight to S3. The container is the compute and the bucket is the storage, and the duckdb file in between is scratch space that nobody needs to keep.
 
-`SUMMARY_LOCATION` decides where the file goes. It is the same trick as `EVENTS_LOCATION`, pointing the other way. Left unset the file lands next to our raw data, and in AWS it is an `s3://` path. After a local build this is the view dbt left in `beers.duckdb`:
+`SUMMARY_LOCATION` decides where the file goes. It is the same trick as `EVENTS_LOCATION`, pointing the other way. Left unset the file lands next to our raw data, and in AWS it is an `s3://` path. After a `dbt build` in `beer_sales`, this is the view dbt left in `beers.duckdb`:
 
 ```sql
 CREATE VIEW beer_sales.daily_event_summary_export AS
@@ -106,9 +88,10 @@ IO Error: Cannot open file "../data/exports/daily_event_summary.parquet": No suc
 
 ## On the Laptop
 
-Run the container with the local data mounted in:
+From the repo root, build the image and run it with the local data mounted in:
 
 ```bash
+docker build -t beer-sales .
 docker run --rm -v "$(pwd)/data:/app/data" beer-sales
 ```
 
@@ -116,7 +99,7 @@ docker run --rm -v "$(pwd)/data:/app/data" beer-sales
 Done. PASS=10 WARN=0 ERROR=0 SKIP=0 NO-OP=0 REUSED=0 TOTAL=10
 ```
 
-That is the production job running on a laptop. Take Dutty off the beer list, as we did in part 2, and the same container hands back this:
+That is the production job running on a laptop. Take Dutty off the beer list, as we did in part 2, build the image again, and it hands back this:
 
 ```txt
 Done. PASS=9 WARN=0 ERROR=1 SKIP=0 NO-OP=0 REUSED=0 TOTAL=10
@@ -124,11 +107,11 @@ $ echo $?
 1
 ```
 
-The exit code of `1` is what sends an email later on. The other thing to read is `SKIP=0`. The export ran even though a test on the mart failed, because that test depends on the seed as well as the mart and dbt did not hold the export back for it. A rogue beer fails the job and its numbers still reach the summary file.
+The exit code of `1` is what sends an email later on. The other thing to read is `SKIP=0`. The export ran even though a test on the mart failed, because that test depends on the seed as well as the mart and dbt did not hold the export back for it. A rogue beer fails the job and its numbers still reach the summary file. Put Dutty back and build once more before carrying on.
 
 ## A Throwaway AWS
 
-[AWS Emulator](https://github.com/aws/aws-emulator) is one program from AWS that answers the AWS APIs on a local port, and it [came out on 11 November](https://aws.amazon.com/blogs/aws/test-your-applications-against-aws-locally-with-aws-emulator/). I used it for the [software factory template](https://github.com/hungovercoders/template-aws-api) and wanted everything here deployed to it as well.
+[AWS Emulator](https://github.com/aws/aws-emulator) is one program from AWS that answers the AWS APIs on a local port, and it [came out on 11 November](https://aws.amazon.com/blogs/aws/test-your-applications-against-aws-locally-with-aws-emulator/). My [software factory template](https://github.com/hungovercoders/template-aws-api) uses it, and I wanted everything here deployed to it as well.
 
 My own machine turned out not to have it installed:
 
@@ -136,13 +119,13 @@ My own machine turned out not to have it installed:
 zsh: command not found: aws-emulator
 ```
 
-From here on I wrapped the commands in sh files and ran those, and each one is shown in full where it is used. The first installs and starts the emulator, in a terminal of its own:
+From here on I wrapped the commands in sh files and ran those. They are in the `scripts` folder of [the repo](https://github.com/hungovercoders/learn.harlequin), and the part each one runs is shown where it is used. The first installs and starts the emulator, in a terminal of its own:
 
 ```bash
 scripts/emulator.sh start
 ```
 
-It uses an `aws-emulator` already on your PATH. Without one, on Linux and WSL it downloads a pinned version and checks AWS's signature on it, and anywhere else it runs the emulator in Docker. dbt then needs a second target in `profiles.yml`:
+It uses an `aws-emulator` already on your PATH. Without one, on a Debian-style Linux or WSL it downloads a pinned version and checks AWS's signature on it, and anywhere else it runs the emulator in Docker. dbt then needs a second target in `profiles.yml`:
 
 ```yaml
     emulator:
@@ -167,15 +150,11 @@ It uses an `aws-emulator` already on your PATH. Without one, on Linux and WSL it
 
 `httpfs` reads and writes `s3://` paths, and `credential_chain` finds credentials the way the AWS CLI does, so there are no keys in the file.
 
-The infrastructure is one Terraform file, `infra/main.tf`, written for real AWS and applied to the emulator unchanged. It makes:
+The infrastructure is one Terraform file, `infra/main.tf`, written for real AWS and applied to the emulator unchanged. This is what it stands up:
 
-- An S3 bucket, with raw events in and the summary out
-- An ECR repository for the image
-- An ECS cluster and a Fargate task definition
-- A task role whose policy grants reading the events and writing the summary, with no delete and no other bucket named
-- A log group for the `dbt build` output
-- A schedule that starts the task at 06:00 UTC every day
-- An SNS topic and a rule for failures
+![A flow that reads left to right. On the left a schedule card, EventBridge Scheduler at 06:00 UTC daily, has an arrow labelled starts into a blue Fargate task card in the middle that runs uv run dbt build, with DuckDB doing the work inside the container against the s3 target. Above the task an ECR repository card holding the beer-sales image has an arrow down into the task labelled pulls. On the right a green S3 bucket card holds raw/events and summary; an arrow labelled reads runs from the bucket to the task and a green arrow labelled writes runs from the task back to the bucket. Below the task, a grey arrow labelled logs leads to a CloudWatch Logs card for the /ecs/beer-sales log group. A red arrow labelled fails leads down from the task to an EventBridge rule card, which matches a task that stopped with an exit code other than 0 or never started, then on to an SNS topic card called beer-sales-alerts, then to an email card saying the job failed.](/assets/2026-11-21-deployed-data-engineering-with-duckdb-dbt-and-aws/aws-deployment.svg)
+
+The task's role is allowed to read the events and write the summary, with no delete and no other bucket named.
 
 <details>
 <summary>All of <code>infra/main.tf</code></summary>
@@ -658,9 +637,10 @@ Apply complete! Resources: 19 added, 0 changed, 0 destroyed.
 Done. PASS=10 WARN=0 ERROR=0 SKIP=0 NO-OP=0 REUSED=0 TOTAL=10
 ```
 
-That is nineteen resources and a green build against a bucket, with the SQL from part 2 untouched. The container runs against the emulator as well, given its certificate and credentials:
+That is nineteen resources and a green build against a bucket, with the SQL from part 2 untouched. The container runs against the emulator as well, once the image is built again to pick up the new target and is given the emulator's certificate and credentials. This form of the command is for Linux, where `--network host` reaches the emulator:
 
 ```bash
+docker build -t beer-sales .
 docker run --rm --network host \
   -e DBT_TARGET=emulator -e AWS_REGION=us-east-1 \
   -e AWS_CA_BUNDLE=/emulator/ca.pem \
@@ -676,21 +656,23 @@ Done. PASS=10 WARN=0 ERROR=0 SKIP=0 NO-OP=0 REUSED=0 TOTAL=10
 
 ### What the Emulator Would Not Do
 
-Two things in the Terraform had to give. A plain `aws_s3_bucket` never finished creating, so the bucket is an `awscc_s3_bucket`, which works on both:
+One thing in the Terraform had to give, and one problem went away with a newer emulator. A plain `aws_s3_bucket` never finished creating, so the bucket is an `awscc_s3_bucket`, which works on both:
 
 ```txt
 aws_s3_bucket.data: Still creating... [01m30s elapsed]
 ```
 
-Both make the same bucket. The plain one uses the standard AWS provider, which also reads the bucket's tags through an API the emulator does not answer. The `awscc` one goes through Cloud Control, which the emulator does answer. The price is no `force_destroy`, so the bucket has to be emptied before Terraform can delete it.
+Both make the same bucket. The plain one uses the standard AWS provider, which hangs on the emulator. My API template's notes put that down to a tags call through S3 Control, which the emulator does not serve. The `awscc` one goes through Cloud Control, which it does. The price is no `force_destroy`, so the bucket has to be emptied before Terraform can delete it.
 
-And on emulator 1.0.365 the security group's outbound rule failed. On 1.0.545 it applies:
+On emulator 1.0.365 the security group's outbound rule failed like this:
 
 ```txt
 Error: updating Security Group egress rules: operation error EC2:
 AuthorizeSecurityGroupEgress, api error InvalidPermission.Duplicate:
 the specified rule "peer: 0.0.0.0/0, ALL, ALLOW" already exists
 ```
+
+On 1.0.545 the same Terraform applies.
 
 I also wanted the job itself to run there, and Claude Code tried three ways in from its sandbox:
 
@@ -706,7 +688,7 @@ $ aws lambda invoke ...  # a python3.12 function returning sys.version and os.ge
 OSError(38, 'a Lambda function in this emulator has no host filesystem to reach')
 ```
 
-The emulator answers the AWS APIs. It does not run what is inside an image, and its [README](https://github.com/aws/aws-emulator) says not to test security on it. So Docker brings the compute and the emulator brings the S3.
+The emulator answers the AWS APIs. It does not run what is inside an image, and its [README](https://github.com/aws/aws-emulator) says not to test security on it. So the emulator stands in for S3 and takes the Terraform, and the container still needs Docker to run it.
 
 ## The Real Thing
 
@@ -730,7 +712,7 @@ A third target, and it is the emulator one with the emulator taken out:
 
 On my laptop `credential_chain` finds my login and inside Fargate it finds the task's role. The Terraform is the same file the emulator took.
 
-A second sh file wraps the real account. `deploy` applies the Terraform, pushes the image and uploads the events, and `run` starts the task, waits for it and prints its log:
+A second sh file wraps the real account. Log in to AWS first. `deploy` applies the Terraform, which stops to ask for a `yes`, then pushes the image and uploads the events. `run` starts the task, waits for it and prints its log. Use your own address for the alert, and confirm the subscription email AWS sends or it has nowhere to go:
 
 ```bash
 export ALERT_EMAIL=me@example.com
@@ -756,8 +738,10 @@ deploy() {
   tf init -input=false
   tf apply "${VARS[@]}"
   push_image
-  rm -rf data/raw/events
-  uv run python scripts/generate_fake_events.py
+  # The same events as the laptop and the emulator, so all three can be compared.
+  if [ ! -d data/raw/events ]; then
+    uv run python scripts/generate_fake_events.py
+  fi
   aws s3 sync data/raw/events "s3://$(out bucket)/raw/events/" --delete --only-show-errors
   echo
   echo "Deployed. Bucket: $(out bucket)" | scrub
@@ -824,7 +808,7 @@ The repo now pins Terraform in `mise.toml`. With that in place the first run aga
 
 ![The dbt build log from the Fargate task, with ten of ten steps passing against the s3 target, followed by daily_event_summary.parquet listed in the bucket's summary folder and the task stopping with exit code 0](/assets/2026-11-21-deployed-data-engineering-with-duckdb-dbt-and-aws/fargate_run.png)
 
-It passed ten of ten with `target='s3'`. The image pulled, the role was allowed what it needed and the summary landed in the bucket. The first capture I took had my real account number sitting in the bucket name, so the script now swaps it for `123456789012` on the way out. The console capture further down had the same swap made by hand.
+It passed ten of ten with `target='s3'`. The image pulled, the role was allowed what it needed and the summary landed in the bucket. The first capture I took had my real account number sitting in the bucket name, so the script now swaps it for `123456789012` on the way out. The console capture further down had its bucket name and security group id swapped by hand.
 
 Every run in this post was started by hand. The schedule is the one piece it does not show firing.
 
@@ -876,9 +860,16 @@ A minute later this was in my inbox:
 
 The summary file in that capture is timed 18:43:35, the second the failing run finished. That is the `SKIP=0` from earlier, on a real account.
 
+Afterwards `scripts/aws.sh fix` ships the good image again, so the 06:00 run does not fail every morning.
+
 ## One Query in Three Places
 
-I wanted one picture of all three environments answering the same query. `scripts/three_environments.sh` asks the summary file which beers are paying the bills, on the laptop, in the emulator's bucket and in the real one, then compares the answers:
+I wanted one picture of all three environments answering the same query. `scripts/three_environments.sh` asks the summary file which beers are paying the bills, on the laptop, in the emulator's bucket and in the real one, then compares the answers. It wants the emulator still running and a shell logged in to the real account:
+
+```bash
+scripts/three_environments.sh
+```
+
 
 <details>
 <summary>All of <code>scripts/three_environments.sh</code></summary>
@@ -983,19 +974,31 @@ fi
 
 </details>
 
-![The output of scripts/three_environments.sh: the beer revenue query run against the summary file on the laptop, in the AWS Emulator bucket and in the real S3 bucket in eu-west-2, each returning the same eight rows with Clwb Tropica top at 887 purchases and 33624.22 revenue, ending with the line Same answer in all 3 environments](/assets/2026-11-21-deployed-data-engineering-with-duckdb-dbt-and-aws/three_environments.png)
+<video autoplay loop muted playsinline controls>
+  <source src="/assets/2026-11-21-deployed-data-engineering-with-duckdb-dbt-and-aws/same-answer-in-three-environments.mp4" type="video/mp4">
+  <source src="/assets/2026-11-21-deployed-data-engineering-with-duckdb-dbt-and-aws/same-answer-in-three-environments.webm" type="video/webm">
+  <img src="/assets/2026-11-21-deployed-data-engineering-with-duckdb-dbt-and-aws/same-answer-in-three-environments.gif" alt="A terminal recording of scripts/three_environments.sh. The beer revenue query runs against the summary file on the laptop, in the AWS Emulator bucket on 127.0.0.1 and in the real S3 bucket in eu-west-2. Each returns the same eight rows, with Clwb Tropica top at 887 purchases and 33624.22 revenue, and the last line reads Same answer in all 3 environments">
+</video>
 
 All three return eight beers with the same purchases and the same revenue to the penny, with hsql from part 1 doing the asking.
 
+## Tidy Up
+
+One command empties the bucket and takes everything down, and Ctrl+C stops the emulator:
+
+```bash
+scripts/aws.sh destroy
+```
+
 ## Who Did What
 
-I didn't type this. Claude Code wrote the Terraform, the Dockerfile and the scripts in a cloud session with me steering, and its sandbox is where the emulator got taken apart. The real account was mine. The deploy, the runs and the captures came from my own terminal.
+I didn't type this. Claude Code wrote the Terraform, the Dockerfile and the scripts in a cloud session with me steering, and its sandbox is where the emulator got taken apart. The real account was mine. The deploy and the runs came from my own terminal, and the captures are mine with account details swapped for stand-ins.
 
 ## Would I Use It
 
-It's a bit messy still, but the emulator is great for getting more production like testing done locally. It's a shame I can't register a container in its registry and do everything in an emulated environment, and no other service fitted either.
+It's a bit messy still, but the emulator is great for getting more production like testing done locally. It's a shame a container can't be registered in its registry so that everything runs in an emulated environment, and no other service fitted either.
 
-Three environments from one dbt setup took three targets in `profiles.yml` and three variables to choose between them: `DBT_TARGET`, `EVENTS_LOCATION` and `SUMMARY_LOCATION`.
+It took three targets in `profiles.yml` and three variables to choose between them: `DBT_TARGET`, `EVENTS_LOCATION` and `SUMMARY_LOCATION`. The emulator wants its certificate and credentials on top.
 
 [Fargate bills](https://aws.amazon.com/fargate/pricing/) while a task runs and not while it doesn't, and there is no server to patch. Against that, the image downloads duckdb's extensions each time it starts, the duckdb file is gone after every run, and it is one job. Each run also overwrites the one summary file, so there is no history to go back to. A real setup would write a dated file per run.
 

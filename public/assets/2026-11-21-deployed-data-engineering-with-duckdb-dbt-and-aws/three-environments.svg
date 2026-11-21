@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420" role="img" aria-labelledby="envTitle envDesc">
+  <title id="envTitle">One dbt project in three environments</title>
+  <desc id="envDesc">Three columns read left to right. On the left are three cards saying where the events live and what starts the build in each environment: my laptop, with events in data/raw/events, docker run and the local target; AWS Emulator, with events in s3 on 127.0.0.1, docker run and the emulator target; and AWS, with events in s3 in eu-west-2, a Fargate task and the s3 target. An arrow leads from each into one blue card in the middle, the beer_sales dbt build, which lists the raw events source, stg_events, fct_daily_event_summary and daily_event_summary_export, with the same SQL and the same tests. Three arrows lead out of it to three cards on the right saying where the summary lands: data/daily_event_summary.parquet on the laptop, the beer-sales-local bucket on the emulator, and the bucket in eu-west-2 on AWS. A dark band underneath names the only settings that change: DBT_TARGET, EVENTS_LOCATION and SUMMARY_LOCATION.</desc>
+  <defs>
+    <style>
+      .h { font-family: 'Lora', Georgia, Cambria, serif; font-size: 15px; font-weight: 700; fill: rgb(34, 41, 57); }
+      .col { font-family: 'Atkinson', system-ui, sans-serif; font-size: 11px; fill: rgb(96, 115, 159); }
+      .label { font-family: 'JetBrains Mono', Menlo, Consolas, monospace; font-size: 11px; fill: rgb(34, 41, 57); }
+      .body { font-family: 'Atkinson', system-ui, sans-serif; font-size: 11px; fill: rgb(96, 115, 159); }
+      .pill { font-family: 'JetBrains Mono', Menlo, Consolas, monospace; font-size: 10px; font-weight: 700; fill: #fff; }
+      .band { font-family: 'Atkinson', system-ui, sans-serif; font-size: 11px; fill: rgb(214, 220, 235); }
+      .bandCode { font-family: 'JetBrains Mono', Menlo, Consolas, monospace; font-size: 11px; font-weight: 700; fill: #fff; }
+      .card { fill: #fff; stroke: rgb(229, 233, 240); }
+      .arrow { stroke: rgb(96, 115, 159); fill: none; stroke-width: 1.5; }
+      .arrowAccent { stroke: #2337ff; fill: none; stroke-width: 1.8; }
+    </style>
+    <marker id="envArrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="rgb(96, 115, 159)"/></marker>
+    <marker id="envArrowBlue" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#2337ff"/></marker>
+  </defs>
+  <rect width="720" height="420" fill="#f8f9fb"/>
+  <text x="20" y="30" class="h">One dbt project, three environments</text>
+  <text x="20" y="54" class="col">where the events live</text>
+  <text x="270" y="54" class="col">what runs</text>
+  <text x="510" y="54" class="col">where the summary lands</text>
+
+  <!-- environments -->
+  <rect x="20" y="64" width="200" height="84" rx="6" class="card"/>
+  <rect x="20" y="64" width="200" height="20" rx="6" fill="#1ea672"/>
+  <text x="30" y="78" class="pill">MY LAPTOP</text>
+  <text x="30" y="104" class="label">data/raw/events/</text>
+  <text x="30" y="121" class="body">started by docker run</text>
+  <text x="30" y="137" class="label">target: local</text>
+
+  <rect x="20" y="164" width="200" height="84" rx="6" class="card"/>
+  <rect x="20" y="164" width="200" height="20" rx="6" fill="#7350dc"/>
+  <text x="30" y="178" class="pill">AWS EMULATOR</text>
+  <text x="30" y="204" class="label">s3:// on 127.0.0.1</text>
+  <text x="30" y="221" class="body">started by docker run</text>
+  <text x="30" y="237" class="label">target: emulator</text>
+
+  <rect x="20" y="264" width="200" height="84" rx="6" class="card"/>
+  <rect x="20" y="264" width="200" height="20" rx="6" fill="#e16e3c"/>
+  <text x="30" y="278" class="pill">AWS</text>
+  <text x="30" y="304" class="label">s3:// in eu-west-2</text>
+  <text x="30" y="321" class="body">started by a Fargate task</text>
+  <text x="30" y="337" class="label">target: s3</text>
+
+  <path d="M 220 106 L 268 170" class="arrow" marker-end="url(#envArrow)"/>
+  <path d="M 220 206 L 268 206" class="arrow" marker-end="url(#envArrow)"/>
+  <path d="M 220 306 L 268 242" class="arrow" marker-end="url(#envArrow)"/>
+
+  <!-- the one pipeline -->
+  <rect x="270" y="126" width="200" height="160" rx="6" fill="#dbe4ff" stroke="#2337ff" stroke-width="1.5"/>
+  <rect x="270" y="126" width="200" height="22" rx="6" fill="#2337ff"/>
+  <text x="280" y="141" class="pill">BEER_SALES · DBT BUILD</text>
+  <text x="282" y="172" class="label">source: raw events</text>
+  <text x="282" y="196" class="label">stg_events</text>
+  <text x="282" y="220" class="label">fct_daily_event_summary</text>
+  <text x="282" y="244" class="label">daily_event_summary_export</text>
+  <text x="282" y="270" class="body">the same SQL and the same tests</text>
+
+  <path d="M 470 170 L 508 106" class="arrowAccent" marker-end="url(#envArrowBlue)"/>
+  <path d="M 470 206 L 508 206" class="arrowAccent" marker-end="url(#envArrowBlue)"/>
+  <path d="M 470 242 L 508 306" class="arrowAccent" marker-end="url(#envArrowBlue)"/>
+
+  <!-- summaries -->
+  <rect x="510" y="64" width="190" height="84" rx="6" class="card"/>
+  <rect x="510" y="64" width="190" height="20" rx="6" fill="#1ea672"/>
+  <text x="520" y="78" class="pill">A LOCAL FILE</text>
+  <text x="520" y="108" class="label">data/</text>
+  <text x="520" y="126" class="body">daily_event_summary.parquet</text>
+
+  <rect x="510" y="164" width="190" height="84" rx="6" class="card"/>
+  <rect x="510" y="164" width="190" height="20" rx="6" fill="#7350dc"/>
+  <text x="520" y="178" class="pill">AN EMULATED BUCKET</text>
+  <text x="520" y="208" class="label">s3://beer-sales-local/</text>
+  <text x="520" y="226" class="body">summary/…parquet</text>
+
+  <rect x="510" y="264" width="190" height="84" rx="6" class="card"/>
+  <rect x="510" y="264" width="190" height="20" rx="6" fill="#e16e3c"/>
+  <text x="520" y="278" class="pill">A REAL BUCKET</text>
+  <text x="520" y="308" class="label">s3://…-eu-west-2/</text>
+  <text x="520" y="326" class="body">summary/…parquet</text>
+
+  <!-- what changes -->
+  <rect x="20" y="366" width="680" height="34" rx="4" fill="#000d8a"/>
+  <text x="34" y="387" class="band">The only settings that change:</text>
+  <text x="212" y="387" class="bandCode">DBT_TARGET · EVENTS_LOCATION · SUMMARY_LOCATION</text>
+</svg>
