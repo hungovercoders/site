@@ -974,6 +974,58 @@ fi
 
 </details>
 
+The three environments it compares are the three targets in one file:
+
+<details>
+<summary>All of <code>beer_sales/profiles.yml</code></summary>
+
+```yaml
+beer_sales:
+  target: "{{ env_var('DBT_TARGET', 'local') }}"
+  outputs:
+    local:
+      type: duckdb
+      path: beers.duckdb
+      schema: beer_sales
+      threads: 4
+      extensions:
+        - parquet
+    emulator:
+      type: duckdb
+      path: beers.duckdb
+      schema: beer_sales
+      threads: 4
+      extensions:
+        - parquet
+        - httpfs
+        - aws
+      settings:
+        # DuckDB does not read AWS_CA_BUNDLE, so it is told where the emulator's certificate is.
+        ca_cert_file: "{{ env_var('AWS_CA_BUNDLE', '') }}"
+      secrets:
+        - type: s3
+          provider: credential_chain
+          region: "{{ env_var('AWS_REGION', 'us-east-1') }}"
+          endpoint: "{{ env_var('EMULATOR_HOST', '127.0.0.1:9297') }}"
+          url_style: path
+          use_ssl: true
+    s3:
+      type: duckdb
+      path: beers.duckdb
+      schema: beer_sales
+      threads: 4
+      extensions:
+        - parquet
+        - httpfs
+        - aws
+      secrets:
+        - type: s3
+          provider: credential_chain
+          region: "{{ env_var('AWS_REGION', 'eu-west-2') }}"
+```
+
+</details>
+
 <video autoplay loop muted playsinline controls>
   <source src="/assets/2026-11-21-deployed-data-engineering-with-duckdb-dbt-and-aws/same-answer-in-three-environments.mp4" type="video/mp4">
   <source src="/assets/2026-11-21-deployed-data-engineering-with-duckdb-dbt-and-aws/same-answer-in-three-environments.webm" type="video/webm">
