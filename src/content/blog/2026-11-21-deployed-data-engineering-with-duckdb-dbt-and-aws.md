@@ -14,7 +14,7 @@ image:
   path: /assets/2026-11-21-deployed-data-engineering-with-duckdb-dbt-and-aws/link.png
 ---
 
-I wanted three environments for my one dbt and DuckDB setup, a laptop, AWS Emulator and real AWS, to prove how little config it takes to run the same beer pipeline in each. My day started at the park with a sausage bap for me and an ice-cream for my dog. I'd been improving my recent API template and was busting to continue the dbt series with AWS Emulator, my new favourite toy. Read on fellow hungovercoder.
+I wanted my one dbt and DuckDB setup running in three environments, on a laptop, on AWS Emulator and on real AWS, to prove how little config it takes to run the same beer pipeline in each. My day started at the park with a sausage bap for me and an ice-cream for my dog, and I was busting to continue the dbt series with AWS Emulator, my new favourite toy. Read on fellow hungovercoder.
 
 If you are joining here, [part 1](/blog/2026-09-13-delightful-local-data-engineering-with-duckdb-and-harlequin) generated a month of fake craft beer shop events as parquet files and queried them with DuckDB and Harlequin. [Part 2](/blog/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt) turned that into a dbt project called `beer_sales`, with a staging view, a daily summary table, a seeded beer list and tests, and put the location of the events behind an `EVENTS_LOCATION` variable. This post sticks to the basics and builds on both.
 
