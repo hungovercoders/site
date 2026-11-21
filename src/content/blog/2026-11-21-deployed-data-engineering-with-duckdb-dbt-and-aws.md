@@ -43,9 +43,33 @@ AWS         s3:// in eu-west-2
 
 The only things that change from one environment to the next are where the parquet lives and who starts the container. The emulator sits in the middle because a wrong bucket path or a typo in the Terraform costs nothing to find there.
 
+## A Container and No Server
+
+I wanted the cheapest thing that could run this in production and also run locally, and that is a container. DuckDB is embedded, so there is no database server to look after. Production is a program that starts, runs `dbt build` and stops. In the repo root add a Dockerfile:
+
+```dockerfile
+FROM python:3.12-slim
+RUN pip install --no-cache-dir uv
+WORKDIR /app
+COPY pyproject.toml uv.lock .python-version ./
+RUN uv sync --frozen --no-install-project
+COPY beer_sales ./beer_sales
+WORKDIR /app/beer_sales
+ENV DBT_PROFILES_DIR=/app/beer_sales
+CMD ["uv", "run", "--frozen", "dbt", "build"]
+```
+
+Build it:
+
+```bash
+docker build -t beer-sales .
+```
+
+Run it as it stands and the results land in `beers.duckdb` inside the container, then go in the bin with it when the job stops. So there is one change to make to the pipeline before running anything.
+
 ## Export the Summary
 
-Part 2 gave us two kinds of model. A view stores the query, and a table stores the results inside `beers.duckdb`. That file was the persistence we wanted on a laptop. A deployed job is gone the moment it finishes and the duckdb file goes with it, so the results need writing somewhere that outlives the job.
+Part 2 gave us two kinds of model. A view stores the query, and a table stores the results inside `beers.duckdb`. That file was the persistence we wanted on a laptop, and it is the one the container throws away.
 
 dbt-duckdb has a third kind for this, the [external materialisation](https://github.com/duckdb/dbt-duckdb). dbt runs the `select`, writes the rows to a file outside the database, and leaves a view behind that reads the file back, so anything downstream can still `ref()` it. Add `models/exports/daily_event_summary_export.sql`:
 
@@ -80,26 +104,11 @@ The default location sits in `data/` because DuckDB writes the file but won't cr
 IO Error: Cannot open file "../data/exports/daily_event_summary.parquet": No such file or directory
 ```
 
-## A Container and No Server
+## On the Laptop
 
-I wanted the cheapest thing that could run this in production and also run locally, and that is a container. DuckDB is embedded, so there is no database server to look after. Production is a program that starts, runs `dbt build` and stops. In the repo root add a Dockerfile:
-
-```dockerfile
-FROM python:3.12-slim
-RUN pip install --no-cache-dir uv
-WORKDIR /app
-COPY pyproject.toml uv.lock .python-version ./
-RUN uv sync --frozen --no-install-project
-COPY beer_sales ./beer_sales
-WORKDIR /app/beer_sales
-ENV DBT_PROFILES_DIR=/app/beer_sales
-CMD ["uv", "run", "--frozen", "dbt", "build"]
-```
-
-Build it and run it with the local data mounted in:
+Run the container with the local data mounted in:
 
 ```bash
-docker build -t beer-sales .
 docker run --rm -v "$(pwd)/data:/app/data" beer-sales
 ```
 
@@ -156,7 +165,19 @@ It uses an `aws-emulator` already on your PATH. Without one, on Linux and WSL it
           use_ssl: true
 ```
 
-`httpfs` reads and writes `s3://` paths, and `credential_chain` finds credentials the way the AWS CLI does, so there are no keys in the file. One command applies the Terraform to the emulator, uploads the events and runs the build against it:
+`httpfs` reads and writes `s3://` paths, and `credential_chain` finds credentials the way the AWS CLI does, so there are no keys in the file.
+
+The infrastructure is one Terraform file, `infra/main.tf`, written for real AWS and applied to the emulator unchanged. It makes:
+
+- An S3 bucket, with raw events in and the summary out
+- An ECR repository for the image
+- An ECS cluster and a Fargate task definition
+- A task role whose policy grants reading the events and writing the summary, with no delete and no other bucket named
+- A log group for the `dbt build` output
+- A schedule that starts the task at 06:00 UTC every day
+- An SNS topic and a rule for failures
+
+One command applies that Terraform to the emulator, uploads the events and runs the build against it:
 
 ```bash
 scripts/emulator.sh up
@@ -203,10 +224,11 @@ That is nineteen resources and a green build against a bucket, with the SQL from
 
 ```bash
 docker run --rm --network host \
-  -e DBT_TARGET=emulator -e AWS_REGION \
+  -e DBT_TARGET=emulator -e AWS_REGION=us-east-1 \
   -e AWS_CA_BUNDLE=/emulator/ca.pem \
   -e AWS_SHARED_CREDENTIALS_FILE=/emulator/emulator_credentials \
-  -e EVENTS_LOCATION -e SUMMARY_LOCATION \
+  -e EVENTS_LOCATION="s3://beer-sales-local/raw/events/*.parquet" \
+  -e SUMMARY_LOCATION="s3://beer-sales-local/summary/daily_event_summary.parquet" \
   -v "$HOME/.aws/emulator/9297:/emulator:ro" beer-sales
 ```
 
@@ -266,15 +288,7 @@ A third target, and it is the emulator one with the emulator taken out:
           region: "{{ env_var('AWS_REGION', 'eu-west-2') }}"
 ```
 
-On my laptop `credential_chain` finds my login and inside Fargate it finds the task's role. `infra/main.tf` is the same file the emulator took, and it makes:
-
-- An S3 bucket, with raw events in and the summary out
-- An ECR repository for the image
-- An ECS cluster and a Fargate task definition
-- A task role whose policy grants reading the events and writing the summary, with no delete and no other bucket named
-- A log group for the `dbt build` output
-- A schedule that starts the task at 06:00 UTC every day
-- An SNS topic and a rule for failures
+On my laptop `credential_chain` finds my login and inside Fargate it finds the task's role. The Terraform is the same file the emulator took.
 
 A second sh file wraps the real account. `deploy` applies the Terraform, pushes the image and uploads the events, and `run` starts the task, waits for it and prints its log:
 
@@ -360,7 +374,7 @@ run() {
 
 </details>
 
-My first go got this far:
+I ran this before I had run the emulator step on my own machine, and my first go got this far:
 
 ```txt
 mise ERROR No version is set for shim: terraform
@@ -541,15 +555,13 @@ I didn't type this. Claude Code wrote the Terraform, the Dockerfile and the scri
 
 It's a bit messy still, but the emulator is great for getting more production like testing done locally. It's a shame I can't register a container in its registry and do everything in an emulated environment, and no other service fitted either.
 
-If I did it again I'd use a script runner like Taskfile, as I usually do, in place of the sh files. I'd also have a GitHub Action for CI that runs against the emulator and then deploys. That's my next post in this series.
-
 Three environments from one dbt setup took three targets in `profiles.yml` and three variables to choose between them: `DBT_TARGET`, `EVENTS_LOCATION` and `SUMMARY_LOCATION`.
 
 [Fargate bills](https://aws.amazon.com/fargate/pricing/) while a task runs and not while it doesn't, and there is no server to patch. Against that, the image downloads duckdb's extensions each time it starts, the duckdb file is gone after every run, and it is one job. Each run also overwrites the one summary file, so there is no history to go back to. A real setup would write a dated file per run.
 
 I wanted to know why this wasn't Airflow. The container is the thing that runs and Airflow decides when things run, so Airflow would still be launching this image. With one job on one schedule, and dbt ordering the work inside `dbt build`, there is nothing left to orchestrate. That changes when several jobs depend on each other.
 
-The post after that one automates the whole process from an ODCS data contract with skills.
+If I did it again I'd use a script runner like Taskfile, as I usually do, in place of the sh files. I'd also have a GitHub Action for CI that runs against the emulator and then deploys. That's my next post in this series. The post after that one automates the whole process from an ODCS data contract with skills.
 
 ## Sources and Further Reading
 
