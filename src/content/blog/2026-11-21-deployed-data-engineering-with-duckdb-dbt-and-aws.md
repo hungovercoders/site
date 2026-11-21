@@ -16,6 +16,8 @@ image:
 
 I wanted three environments for my one dbt and DuckDB setup, a laptop, AWS Emulator and real AWS, to prove how little config it takes to run the same beer pipeline in each. My day started at the park with a sausage bap for me and an ice-cream for my dog. As well as improving my recent API template I was busting to continue the dbt series and introduce another environment with AWS Emulator, my new favourite toy. This builds on [part 1](/blog/2026-09-13-delightful-local-data-engineering-with-duckdb-and-harlequin) and [part 2](/blog/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt) and sticks to the basics. Read on fellow hungovercoder.
 
+A quick recap if you are joining here. [Part 1](/blog/2026-09-13-delightful-local-data-engineering-with-duckdb-and-harlequin) generated a month of fake craft beer shop events as parquet files and queried them with DuckDB and Harlequin. [Part 2](/blog/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt) turned that into a dbt project called `beer_sales`, with a staging view, a daily summary table, a seeded beer list and tests, and put the location of the events behind an `EVENTS_LOCATION` variable.
+
 ## Pre-Requisites
 
 - [Part 2](/blog/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt) completed, with a green `dbt build`
@@ -43,7 +45,9 @@ The only things that change from one environment to the next are where the parqu
 
 ## Export the Summary
 
-In part 2 our marts became tables inside `beers.duckdb`. A deployed job is gone the moment it finishes and the duckdb file goes with it, so the results need writing somewhere that outlives the job. dbt-duckdb has an [external materialisation](https://github.com/duckdb/dbt-duckdb) for this. Add `models/exports/daily_event_summary_export.sql`:
+Part 2 gave us two kinds of model. A view stores the query, and a table stores the results inside `beers.duckdb`. That file was the persistence we wanted on a laptop. A deployed job is gone the moment it finishes and the duckdb file goes with it, so the results need writing somewhere that outlives the job.
+
+dbt-duckdb has a third kind for this, the [external materialisation](https://github.com/duckdb/dbt-duckdb). dbt runs the `select`, writes the rows to a file outside the database, and leaves a view behind that reads the file back, so anything downstream can still `ref()` it. Add `models/exports/daily_event_summary_export.sql`:
 
 ```sql
 {{
@@ -58,7 +62,17 @@ select *
 from {{ ref('fct_daily_event_summary') }}
 ```
 
-`SUMMARY_LOCATION` is the same trick as `EVENTS_LOCATION`, pointing the other way. The default sits in `data/` because DuckDB writes the file but won't create a missing folder for it:
+This model is one more step on the end of the pipeline. It takes the daily summary mart from part 2 and writes it out as one parquet file, which is the thing another tool or another DuckDB can pick up. The mart stays a table, so the tests and the harlequin queries from part 2 carry on working.
+
+`SUMMARY_LOCATION` decides where the file goes. It is the same trick as `EVENTS_LOCATION`, pointing the other way. Left unset the file lands next to our raw data, and in AWS it is an `s3://` path. After a local build this is the view dbt left in `beers.duckdb`:
+
+```sql
+CREATE VIEW beer_sales.daily_event_summary_export AS
+SELECT * FROM read_parquet('../data/daily_event_summary.parquet',
+  (union_by_name = CAST('f' AS BOOLEAN)));
+```
+
+The default location sits in `data/` because DuckDB writes the file but won't create a missing folder for it:
 
 ```txt
 IO Error: Cannot open file "../data/exports/daily_event_summary.parquet": No such file or directory
