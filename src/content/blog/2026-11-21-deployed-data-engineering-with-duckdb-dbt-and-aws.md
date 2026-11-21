@@ -1046,7 +1046,11 @@ scripts/aws.sh destroy
 
 It's a bit messy still, but the emulator is great for getting more production like testing done locally. It's a shame a container can't be registered in its registry so that everything runs in an emulated environment, and no other service fitted either.
 
-It took three targets in `profiles.yml` and three variables to choose between them: `DBT_TARGET`, `EVENTS_LOCATION` and `SUMMARY_LOCATION`. The emulator wants its certificate and credentials on top. [Fargate bills](https://aws.amazon.com/fargate/pricing/) while a task runs and not while it doesn't, and there is no server to patch. The limits are that the image downloads duckdb's extensions each time it starts, and each run overwrites the one summary file, so there is no history to go back to. A real setup would write a dated file per run.
+Three environments took little config. One `profiles.yml` holds a target for each, and three variables pick between them. `DBT_TARGET` chooses the target, `EVENTS_LOCATION` says where the events are, and `SUMMARY_LOCATION` says where the summary goes. The emulator also needs its own certificate and credentials.
+
+It only costs money while it is working. [Fargate bills](https://aws.amazon.com/fargate/pricing/) while a task runs and not while it doesn't, and there is no server to patch.
+
+It has two limits as it stands. The image downloads duckdb's extensions every time it starts, so each run depends on that download working. And each run overwrites the same summary file, so there is no history to go back to. A real setup would write a dated file per run.
 
 If I did it again I'd use a script runner like Taskfile, as I usually do, in place of the sh files. I'd also have a GitHub Action for CI that runs against the emulator and then deploys. That's my next post in this series. I'll likely follow that with one that automates the whole process from an ODCS data contract with skills.
 
