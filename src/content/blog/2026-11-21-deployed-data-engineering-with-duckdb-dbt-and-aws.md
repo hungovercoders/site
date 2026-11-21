@@ -692,7 +692,7 @@ The emulator answers the AWS APIs. It does not run what is inside an image, and 
 
 ## The Real Thing
 
-A third target, and it is the emulator one with the emulator taken out:
+Real AWS needs a third target in `profiles.yml`. It is the same as the emulator target, without the endpoint and certificate settings that pointed that one at the emulator:
 
 ```yaml
     s3:
