@@ -856,7 +856,7 @@ break_it() {
 
 A minute later this was in my inbox:
 
-> "The beer-sales dbt job failed. Stop code: EssentialContainerExited. Reason: Essential container in task exited. Task: arn:aws:ecs:eu-west-2:123456789012:task/beer-sales/0123456789abcdef0123456789abcdef. Logs are in the /ecs/beer-sales log group."
+![The alert email from AWS Notifications, timed 18:44, reading: The beer-sales dbt job failed. Stop code: EssentialContainerExited. Reason: Essential container in task exited. Task: an ECS task ARN in eu-west-2. Logs are in the /ecs/beer-sales log group](/assets/2026-11-21-deployed-data-engineering-with-duckdb-dbt-and-aws/failure_email.png)
 
 The summary file in that capture is timed 18:43:35, the second the failing run finished. That is the `SKIP=0` from earlier, on a real account.
 
