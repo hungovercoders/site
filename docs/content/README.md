@@ -70,3 +70,14 @@ Body is optional — the projects page renders the frontmatter as a card.
 - No trailing period on `description`.
 - Tab indentation for YAML / Astro files.
 - Per-component scoped CSS in `<style>` blocks; breakpoint is 720px.
+
+## Privacy
+
+Nothing published carries personal or account details. This covers post text, code blocks, alt text, screenshots, GIFs, video and share images.
+
+- **Never publish:** email addresses, AWS account IDs and anything that contains one (ARNs, ECR URLs, bucket names), access keys and tokens, IP addresses, phone numbers, or home paths that show a username.
+- **Use stand-ins:** `me@example.com` for an email, `123456789012` for an AWS account ID, `my-profile` for a named profile.
+- **Check every image before it goes under `public/`.** Terminal prompts, browser address bars and cloud consoles are the usual leaks. Crop or mask the image, or retake it with the detail hidden.
+- **Search the post and its code before publishing:** `grep -rnE '[0-9]{12}|[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[a-z]{2,}|AKIA[0-9A-Z]{16}' <files>`, then read each hit.
+
+The `dataGriff` handle and the `hungovercoders` organisation are public and fine to use.
