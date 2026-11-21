@@ -537,7 +537,9 @@ I didn't type this. Claude Code wrote the Terraform, the Dockerfile and the scri
 
 ## Would I Use It
 
-<!-- dataGriff: your verdict in your own words goes here, and one line on what you'd do differently. Neither can be written for you. -->
+It's a bit messy still, but the emulator is great for getting more production like testing done locally. It's a shame I can't register a container in its registry and do everything in an emulated environment, and no other service fitted either.
+
+If I did it again I'd use a script runner like Taskfile, as I usually do, in place of the sh files. I'd also have a GitHub Action for CI that runs against the emulator and then deploys. That's my next post in this series.
 
 Three environments from one dbt setup took three targets in `profiles.yml` and three variables to choose between them: `DBT_TARGET`, `EVENTS_LOCATION` and `SUMMARY_LOCATION`.
 
@@ -545,7 +547,7 @@ Three environments from one dbt setup took three targets in `profiles.yml` and t
 
 I wanted to know why this wasn't Airflow. The container is the thing that runs and Airflow decides when things run, so Airflow would still be launching this image. With one job on one schedule, and dbt ordering the work inside `dbt build`, there is nothing left to orchestrate. That changes when several jobs depend on each other.
 
-I'll likely have to follow this up with two more posts. One automates the deploy with GitHub Actions, and the other automates the whole process from an ODCS data contract with skills.
+The post after that one automates the whole process from an ODCS data contract with skills.
 
 ## Sources and Further Reading
 
