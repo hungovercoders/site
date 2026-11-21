@@ -14,9 +14,7 @@ image:
   path: /assets/2026-11-21-deployed-data-engineering-with-duckdb-dbt-and-aws/link.png
 ---
 
-I wanted the cheapest thing that could run our dbt and DuckDB beer pipeline in production on AWS and still run on my laptop, so part three of this series ships it as a scheduled Fargate job and proves it in three places first. [Part 2](/blog/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt) put the location of our data behind an environment variable and promised the cloud would be a change of configuration. This post checks that promise on a laptop, on AWS Emulator and on a real account. Read on fellow hungovercoder.
-
-<!-- dataGriff: one sentence about the day you did this belongs in the paragraph above. It can't be written for you. -->
+I wanted three environments for my one dbt and DuckDB setup, a laptop, AWS Emulator and real AWS, to prove how little config it takes to run the same beer pipeline in each. My day started at the park with a sausage bap for me and an ice-cream for my dog. As well as improving my recent API template I was busting to continue the dbt series and introduce another environment with AWS Emulator, my new favourite toy. This builds on [part 1](/blog/2026-09-13-delightful-local-data-engineering-with-duckdb-and-harlequin) and [part 2](/blog/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt) and sticks to the basics. Read on fellow hungovercoder.
 
 ## Pre-Requisites
 
@@ -25,7 +23,7 @@ I wanted the cheapest thing that could run our dbt and DuckDB beer pipeline in p
 - [AWS Emulator](https://github.com/aws/aws-emulator), which the repo's script installs for you
 - An AWS account, for the last step only
 
-## Three Rungs
+## Three Environments
 
 ```txt
 laptop      data/raw/events/
@@ -41,7 +39,7 @@ AWS         s3:// in eu-west-2
      daily_event_summary_export
 ```
 
-The only things that change from one rung to the next are where the parquet lives and who starts the container. The emulator sits in the middle because a wrong bucket path or a typo in the Terraform costs nothing to find there.
+The only things that change from one environment to the next are where the parquet lives and who starts the container. The emulator sits in the middle because a wrong bucket path or a typo in the Terraform costs nothing to find there.
 
 ## Export the Summary
 
@@ -68,7 +66,7 @@ IO Error: Cannot open file "../data/exports/daily_event_summary.parquet": No suc
 
 ## A Container and No Server
 
-DuckDB is embedded, so there is no database server to look after. Production is a program that starts, runs `dbt build` and stops. In the repo root add a Dockerfile:
+I asked for the cheapest thing that could run this in production and also run locally, and the answer was a container. DuckDB is embedded, so there is no database server to look after. Production is a program that starts, runs `dbt build` and stops. In the repo root add a Dockerfile:
 
 ```dockerfile
 FROM python:3.12-slim
@@ -259,9 +257,9 @@ The summary file in that capture is stamped by the failing run. That is the `SKI
 
 ## One Query in Three Places
 
-I wanted one picture of all three environments answering the same query. `scripts/three_rungs.sh` asks which beers are paying the bills of the summary file on the laptop, in the emulator's bucket and in the real one, then compares the answers:
+I wanted one picture of all three environments answering the same query. `scripts/three_environments.sh` asks which beers are paying the bills of the summary file on the laptop, in the emulator's bucket and in the real one, then compares the answers:
 
-![The output of scripts/three_rungs.sh: the beer revenue query run against the summary file on the laptop, in the AWS Emulator bucket and in the real S3 bucket in eu-west-2, each returning the same eight rows with Clwb Tropica top at 887 purchases and 33624.22 revenue, ending with the line Same answer on all 3 rungs](/assets/2026-11-21-deployed-data-engineering-with-duckdb-dbt-and-aws/three_rungs.png)
+![The output of scripts/three_environments.sh: the beer revenue query run against the summary file on the laptop, in the AWS Emulator bucket and in the real S3 bucket in eu-west-2, each returning the same eight rows with Clwb Tropica top at 887 purchases and 33624.22 revenue, ending with the line Same answer in all 3 environments](/assets/2026-11-21-deployed-data-engineering-with-duckdb-dbt-and-aws/three_environments.png)
 
 Eight beers, the same purchases and the same revenue to the penny, with hsql from part 1 doing the asking.
 
@@ -273,9 +271,13 @@ I didn't type this. Claude Code wrote the Terraform, the Dockerfile and the scri
 
 <!-- dataGriff: your verdict in your own words goes here, and one line on what you'd do differently. Neither can be written for you. -->
 
+Three environments from one dbt setup took three targets in `profiles.yml` and three environment variables. That is the easy multi environment config this post set out to prove.
+
 The facts to weigh are these. [Fargate bills](https://aws.amazon.com/fargate/pricing/) while a task runs and not while it doesn't, and there is no server to patch. Against that, the image downloads duckdb's extensions each time it starts, the duckdb file is gone after every run, and it is one job.
 
 I asked why this wasn't Airflow. The container is the thing that runs and Airflow decides when things run, so Airflow would still be launching this image. With one job on one schedule, and dbt ordering the work inside `dbt build`, there is nothing left to orchestrate. That changes when several jobs depend on each other.
+
+I'll likely have to follow this up with two more posts. One automates the deploy with GitHub Actions, and the other automates the whole process from an ODCS data contract with skills.
 
 ## Sources and Further Reading
 
