@@ -64,6 +64,8 @@ from {{ ref('fct_daily_event_summary') }}
 
 This model is one more step on the end of the pipeline. It takes the daily summary mart from part 2 and writes it out as one parquet file, which is the thing another tool or another DuckDB can pick up. The mart stays a table, so the tests and the harlequin queries from part 2 carry on working.
 
+Once deployed, DuckDB does the work inside the container and writes the result straight to S3. The container is the compute and the bucket is the storage, and the duckdb file in between is scratch space that nobody needs to keep.
+
 `SUMMARY_LOCATION` decides where the file goes. It is the same trick as `EVENTS_LOCATION`, pointing the other way. Left unset the file lands next to our raw data, and in AWS it is an `s3://` path. After a local build this is the view dbt left in `beers.duckdb`:
 
 ```sql
