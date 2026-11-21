@@ -15,3 +15,9 @@ description = "Cosmos DB Emulator default account key — documented by Microsof
 paths = [
   '''src/content/blog/2024-06-29-cosmos-emulator-docker-local\.md''',
 ]
+
+[[allowlists]]
+description = "The fingerprint of AWS's package-signing key, quoted in scripts/emulator.sh — a public key fingerprint used to verify the AWS Emulator download, not a credential. See: https://downloads.aws.com/keys/gpg/current.asc"
+regexes = [
+  '''98BCF336A3BE53B734E967C52E5BF49BD940F624''',
+]
