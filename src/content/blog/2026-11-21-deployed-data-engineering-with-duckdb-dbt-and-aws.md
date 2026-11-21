@@ -545,7 +545,7 @@ If I did it again I'd use a script runner like Taskfile, as I usually do, in pla
 
 Three environments from one dbt setup took three targets in `profiles.yml` and three variables to choose between them: `DBT_TARGET`, `EVENTS_LOCATION` and `SUMMARY_LOCATION`.
 
-[Fargate bills](https://aws.amazon.com/fargate/pricing/) while a task runs and not while it doesn't, and there is no server to patch. Against that, the image downloads duckdb's extensions each time it starts, the duckdb file is gone after every run, and it is one job.
+[Fargate bills](https://aws.amazon.com/fargate/pricing/) while a task runs and not while it doesn't, and there is no server to patch. Against that, the image downloads duckdb's extensions each time it starts, the duckdb file is gone after every run, and it is one job. Each run also overwrites the one summary file, so there is no history to go back to. A real setup would write a dated file per run.
 
 I wanted to know why this wasn't Airflow. The container is the thing that runs and Airflow decides when things run, so Airflow would still be launching this image. With one job on one schedule, and dbt ordering the work inside `dbt build`, there is nothing left to orchestrate. That changes when several jobs depend on each other.
 
