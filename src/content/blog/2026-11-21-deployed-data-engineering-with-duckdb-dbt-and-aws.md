@@ -682,6 +682,8 @@ Two things in the Terraform had to give. A plain `aws_s3_bucket` never finished 
 aws_s3_bucket.data: Still creating... [01m30s elapsed]
 ```
 
+Both make the same bucket. The plain one uses the standard AWS provider, which also reads the bucket's tags through an API the emulator does not answer. The `awscc` one goes through Cloud Control, which the emulator does answer. The price is no `force_destroy`, so the bucket has to be emptied before Terraform can delete it.
+
 And on emulator 1.0.365 the security group's outbound rule failed. On 1.0.545 it applies:
 
 ```txt
