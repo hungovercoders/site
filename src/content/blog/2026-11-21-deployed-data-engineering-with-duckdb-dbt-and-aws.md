@@ -1042,19 +1042,11 @@ One command empties the bucket and takes everything down, and Ctrl+C stops the e
 scripts/aws.sh destroy
 ```
 
-## Who Did What
-
-I didn't type this. Claude Code wrote the Terraform, the Dockerfile and the scripts in a cloud session with me steering, and its sandbox is where the emulator got taken apart. The real account was mine. The deploy and the runs came from my own terminal, and the captures are mine with account details swapped for stand-ins.
-
 ## Would I Use It
 
 It's a bit messy still, but the emulator is great for getting more production like testing done locally. It's a shame a container can't be registered in its registry so that everything runs in an emulated environment, and no other service fitted either.
 
-It took three targets in `profiles.yml` and three variables to choose between them: `DBT_TARGET`, `EVENTS_LOCATION` and `SUMMARY_LOCATION`. The emulator wants its certificate and credentials on top.
-
-[Fargate bills](https://aws.amazon.com/fargate/pricing/) while a task runs and not while it doesn't, and there is no server to patch. Against that, the image downloads duckdb's extensions each time it starts, the duckdb file is gone after every run, and it is one job. Each run also overwrites the one summary file, so there is no history to go back to. A real setup would write a dated file per run.
-
-I wanted to know why this wasn't Airflow. The container is the thing that runs and Airflow decides when things run, so Airflow would still be launching this image. With one job on one schedule, and dbt ordering the work inside `dbt build`, there is nothing left to orchestrate. That changes when several jobs depend on each other.
+It took three targets in `profiles.yml` and three variables to choose between them: `DBT_TARGET`, `EVENTS_LOCATION` and `SUMMARY_LOCATION`. The emulator wants its certificate and credentials on top. [Fargate bills](https://aws.amazon.com/fargate/pricing/) while a task runs and not while it doesn't, and there is no server to patch. The limits are that the image downloads duckdb's extensions each time it starts, and each run overwrites the one summary file, so there is no history to go back to. A real setup would write a dated file per run.
 
 If I did it again I'd use a script runner like Taskfile, as I usually do, in place of the sh files. I'd also have a GitHub Action for CI that runs against the emulator and then deploys. That's my next post in this series. I'll likely follow that with one that automates the whole process from an ODCS data contract with skills.
 
