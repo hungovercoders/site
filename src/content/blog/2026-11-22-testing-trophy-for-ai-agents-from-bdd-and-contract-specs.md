@@ -48,7 +48,7 @@ Here it is with the counts from that run, and where each layer comes from.
 
 A fat middle is normally where a suite gets slow and flaky. This one runs on the mighty [AWS Emulator](https://github.com/aws/aws-emulator), built for the run and thrown away after. The top of the trophy is empty, because nothing has ever run against a real AWS account.
 
-## Nobody Wrote the Middle
+## Nobody Writes the Middle
 
 Here's the design pattern. In most codebases a person writes each layer by hand, after the code, and the layers drift apart. Here the spec comes first and the tests come from it.
 
