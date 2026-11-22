@@ -127,15 +127,26 @@ docker run --rm -v "$(pwd)/data:/app/data" beer-sales
 Done. PASS=10 WARN=0 ERROR=0 SKIP=0 NO-OP=0 REUSED=0 TOTAL=10
 ```
 
-That is the production job running on a laptop. Take Dutty off the beer list, as we did in part 2, build the image again, and it hands back this:
+That is the production job running on a laptop.
+
+Now break it on purpose, to see what a failure looks like. Part 2 added a test that every beer in the summary has to be on our beer list, `seeds/beers.csv`. Take Dutty off that list and build the image again so it carries the shorter list. The events still have people buying Dutty, so the test finds a beer that is not on the list:
+
+```bash
+docker build -t beer-sales .
+docker run --rm -v "$(pwd)/data:/app/data" beer-sales
+echo $?
+```
 
 ```txt
 Done. PASS=9 WARN=0 ERROR=1 SKIP=0 NO-OP=0 REUSED=0 TOTAL=10
-$ echo $?
 1
 ```
 
-The exit code of `1` is what sends an email later on. The other thing to read is `SKIP=0`. The export ran even though a test on the mart failed, because that test depends on the seed as well as the mart and dbt did not hold the export back for it. A rogue beer fails the job and its numbers still reach the summary file. Put Dutty back and build once more before carrying on.
+Nine steps passed and one failed, so dbt finishes with an error and the container exits with a `1` where a clean run gives a `0`. That exit code is how anything outside the container knows the job failed, and it is what sends an email later on.
+
+The other thing to read is `SKIP=0`. Nothing was skipped, so the export ran even though a test on the summary failed. That test depends on the beer list as well as the summary, and dbt did not hold the export back for it. A rogue beer fails the job and its numbers still reach the summary file.
+
+Put Dutty back and build once more before carrying on.
 
 ## A Throwaway AWS
 
