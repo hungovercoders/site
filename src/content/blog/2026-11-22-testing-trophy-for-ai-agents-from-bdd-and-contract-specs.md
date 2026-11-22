@@ -92,15 +92,15 @@ The same contract sets the rate limit too. Terraform reads it to throttle the ro
 
 ## The Brief Is Also the Test
 
-The specs get used twice.
+Each spec is used twice, once as the agent's instructions and once as its test.
 
-First the agent reads them. The feature files and contracts are its context, the whole brief for what to build, in plain words and standard formats it already knows. Context is hard to manage, so I only want what's necessary in it. A spec does two jobs for the room it takes.
+First the agent reads the feature files and contracts to learn what to build. They are its brief, written in plain words and standard formats it already knows. Context is hard to manage and I only want what's necessary in it, so a file that is both the instructions and the test earns its place.
 
-Then the gates run the same files as the tests. Nothing is translated in between, so the brief and the mark can't disagree.
+Then the gates run those same files as the tests. Nobody rewrites a requirement into a separate test, so what the agent was told and what it is judged on can't disagree.
 
 ![On the left one orange box, the specs: feature files and contracts, written once. Two arrows leave it. The upper arrow, labelled read as the brief, goes to a blue box, the agent, which reads them as its context. An arrow from the agent, labelled writes, goes to a box on the right, the code: operations, steps and rules. The lower arrow from the specs, labelled run as the tests, goes to a green box, the gates, task ci, one verdict. An arrow from the code down to the gates is labelled judged. A dashed red arrow goes from the gates back up to the agent, labelled red, names what is missing. A green arrow leaves the gates to the right, to a box labelled done.](/assets/2026-11-22-testing-trophy-for-ai-agents-from-bdd-and-contract-specs/brief-and-test.svg)
 
-Reading is the part nobody can predict. Two agents given the same brief will write different code. The verdict is the part that never changes.
+What the agent writes from the brief is the part nobody can predict. Two agents given the same brief will write different code. The verdict on that code is the same every time.
 
 ## Why an Agent Likes a Referee
 
