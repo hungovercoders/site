@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 320" role="img" aria-labelledby="batTitle batDesc">
+  <title id="batTitle">The specs are the agent's brief and then its test</title>
+  <desc id="batDesc">On the left one orange box, the specs: feature files and contracts, written once. Two arrows leave it. The upper arrow, labelled read as the brief, goes to a blue box, the agent, which reads them as its context. An arrow from the agent, labelled writes, goes to a box on the right, the code: operations, steps and rules. The lower arrow from the specs, labelled run as the tests, goes to a green box, the gates, task ci. An arrow from the code down to the gates is labelled judged. A dashed red arrow goes from the gates back up to the agent, labelled red, names what is missing. A green arrow leaves the gates to the right, to a box labelled done, labelled green.</desc>
+  <defs>
+    <marker id="bArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgb(96, 115, 159)"/></marker>
+    <marker id="bRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#b54343"/></marker>
+    <marker id="bGreen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1ea672"/></marker>
+  </defs>
+  <rect width="720" height="320" fill="#f8f9fb"/>
+  <g font-family="'Atkinson', system-ui, sans-serif" font-size="12.5" fill="rgb(34, 41, 57)">
+    <rect x="20" y="112" width="170" height="86" rx="6" fill="#fee5d9" stroke="#e16e3c"/>
+    <text x="105" y="138" text-anchor="middle" font-weight="700">The specs</text>
+    <text x="105" y="157" text-anchor="middle" fill="rgb(96, 115, 159)">feature files and contracts</text>
+    <text x="105" y="174" text-anchor="middle" fill="rgb(96, 115, 159)">written once</text>
+
+    <rect x="290" y="36" width="170" height="70" rx="6" fill="#dbe4ff" stroke="#2337ff"/>
+    <text x="375" y="62" text-anchor="middle" font-weight="700">The agent</text>
+    <text x="375" y="81" text-anchor="middle" fill="rgb(96, 115, 159)">reads them as its context</text>
+
+    <rect x="540" y="36" width="160" height="70" rx="6" fill="#ffffff" stroke="rgb(229, 233, 240)"/>
+    <text x="620" y="62" text-anchor="middle" font-weight="700">The code</text>
+    <text x="620" y="81" text-anchor="middle" fill="rgb(96, 115, 159)">operations, steps, rules</text>
+
+    <rect x="290" y="206" width="170" height="70" rx="6" fill="#d8f1e1" stroke="#1ea672"/>
+    <text x="375" y="232" text-anchor="middle" font-weight="700">The gates</text>
+    <text x="375" y="251" text-anchor="middle" fill="rgb(96, 115, 159)">task ci, one verdict</text>
+
+    <rect x="570" y="216" width="130" height="50" rx="6" fill="#d8f1e1" stroke="#1ea672"/>
+    <text x="635" y="246" text-anchor="middle" font-weight="700">Done</text>
+
+    <g stroke="rgb(96, 115, 159)" stroke-width="1.5" fill="none" marker-end="url(#bArrow)">
+      <path d="M190,135 L286,82"/>
+      <path d="M190,175 L286,232"/>
+      <line x1="460" y1="71" x2="536" y2="71"/>
+      <path d="M600,106 L464,214"/>
+    </g>
+    <line x1="340" y1="206" x2="340" y2="110" stroke="#b54343" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#bRed)"/>
+    <line x1="460" y1="241" x2="566" y2="241" stroke="#1ea672" stroke-width="1.5" marker-end="url(#bGreen)"/>
+
+    <g font-size="11.5" fill="rgb(96, 115, 159)">
+      <text x="112" y="96">read as the brief</text>
+      <text x="112" y="224">run as the tests</text>
+      <text x="498" y="62" text-anchor="middle">writes</text>
+      <text x="548" y="160">judged</text>
+      <text x="513" y="232" text-anchor="middle" fill="#1ea672">green</text>
+      <text x="350" y="153" fill="#b54343">red, names</text>
+      <text x="350" y="168" fill="#b54343">what is missing</text>
+    </g>
+  </g>
+  <text x="20" y="304" font-family="'Atkinson', system-ui, sans-serif" font-size="11.5" fill="rgb(96, 115, 159)">The same files go in at the start and come back at the end, so the brief and the mark cannot disagree.</text>
+</svg>
