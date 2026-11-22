@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 436" role="img" aria-labelledby="trophyTitle trophyDesc">
+  <title id="trophyTitle">A testing trophy where every layer but one comes from a spec</title>
+  <desc id="trophyDesc">On the right, four bands stacked into the shape of a trophy. At the bottom a wide purple base, static checks: lint, compatibility and types, and 10 Terraform plan tests. Above it a narrow blue stem, unit tests: 183 tests of the business rules and the skeleton. Above that the widest band, a green bowl, integration: 68 scenarios and 469 fuzzed requests through API Gateway to the Lambda on AWS Emulator. At the top a small dashed box, real AWS, nothing runs here yet. On the left, four boxes say where each band comes from, each joined to its band by an arrow. A real deploy points at the dashed top. Feature files and contracts point at the green bowl. Written, not derived, by the agent like the code, points at the unit stem. Contracts, SLOs and Terraform point at the purple base.</desc>
+  <defs>
+    <marker id="tArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgb(96, 115, 159)"/></marker>
+  </defs>
+  <rect width="720" height="436" fill="#f8f9fb"/>
+  <text x="20" y="34" font-family="'Lora', Georgia, Cambria, serif" font-weight="700" font-size="17" fill="rgb(34, 41, 57)">Where each layer comes from</text>
+  <text x="500" y="34" text-anchor="middle" font-family="'Lora', Georgia, Cambria, serif" font-weight="700" font-size="17" fill="rgb(34, 41, 57)">The trophy</text>
+
+  <g font-family="'Atkinson', system-ui, sans-serif" font-size="12.5" fill="rgb(34, 41, 57)">
+    <!-- sources -->
+    <rect x="20" y="58" width="220" height="44" rx="5" fill="#ffffff" stroke="rgb(229, 233, 240)"/>
+    <text x="32" y="77" font-weight="700">A real deploy</text>
+    <text x="32" y="94" fill="rgb(96, 115, 159)">not done yet</text>
+
+    <rect x="20" y="126" width="220" height="60" rx="5" fill="#fee5d9" stroke="#e16e3c"/>
+    <text x="32" y="146" font-weight="700">Feature files and contracts</text>
+    <text x="32" y="163" fill="rgb(96, 115, 159)">the scenarios run as written,</text>
+    <text x="32" y="179" fill="rgb(96, 115, 159)">the fuzz requests are generated</text>
+
+    <rect x="20" y="222" width="220" height="44" rx="5" fill="#dbe4ff" stroke="#2337ff"/>
+    <text x="32" y="241" font-weight="700">Written, not derived</text>
+    <text x="32" y="258" fill="rgb(96, 115, 159)">by the agent, like the code</text>
+
+    <rect x="20" y="302" width="220" height="60" rx="5" fill="#fee5d9" stroke="#e16e3c"/>
+    <text x="32" y="322" font-weight="700">Contracts, SLOs and Terraform</text>
+    <text x="32" y="339" fill="rgb(96, 115, 159)">checked as files,</text>
+    <text x="32" y="355" fill="rgb(96, 115, 159)">nothing started</text>
+
+    <!-- arrows -->
+    <g stroke="rgb(96, 115, 159)" stroke-width="1.5" fill="none" marker-end="url(#tArrow)">
+      <line x1="240" y1="80" x2="416" y2="80"/>
+      <line x1="240" y1="156" x2="346" y2="156"/>
+      <line x1="240" y1="244" x2="421" y2="244"/>
+      <line x1="240" y1="332" x2="326" y2="332"/>
+    </g>
+
+    <!-- trophy -->
+    <rect x="420" y="58" width="160" height="44" rx="5" fill="#ffffff" stroke="rgb(140, 156, 188)" stroke-dasharray="5 4"/>
+    <text x="500" y="77" text-anchor="middle" font-weight="700">Real AWS</text>
+    <text x="500" y="94" text-anchor="middle" fill="rgb(96, 115, 159)">nothing runs here yet</text>
+
+    <rect x="350" y="112" width="300" height="88" rx="6" fill="#d8f1e1" stroke="#1ea672"/>
+    <text x="500" y="133" text-anchor="middle" font-weight="700">Integration, the fat middle</text>
+    <text x="500" y="151" text-anchor="middle">68 scenarios, 469 fuzzed requests</text>
+    <text x="500" y="168" text-anchor="middle" fill="rgb(96, 115, 159)">through API Gateway to the Lambda</text>
+    <text x="500" y="185" text-anchor="middle" fill="rgb(96, 115, 159)">on AWS Emulator</text>
+
+    <rect x="425" y="210" width="150" height="68" rx="5" fill="#dbe4ff" stroke="#2337ff"/>
+    <text x="500" y="231" text-anchor="middle" font-weight="700">Unit</text>
+    <text x="500" y="249" text-anchor="middle">183 tests</text>
+    <text x="500" y="266" text-anchor="middle" fill="rgb(96, 115, 159)">rules and skeleton</text>
+
+    <rect x="330" y="288" width="340" height="88" rx="6" fill="#e9deff" stroke="#7350dc"/>
+    <text x="500" y="309" text-anchor="middle" font-weight="700">Static checks, the base</text>
+    <text x="500" y="327" text-anchor="middle">lint, compatibility and types</text>
+    <text x="500" y="344" text-anchor="middle">10 Terraform plan tests</text>
+    <text x="500" y="361" text-anchor="middle" fill="rgb(96, 115, 159)">seconds, on every push</text>
+  </g>
+  <text x="20" y="402" font-family="'Atkinson', system-ui, sans-serif" font-size="11.5" fill="rgb(96, 115, 159)">Counts are from one run of task ci on the Beer Catalogue example.</text>
+  <text x="20" y="419" font-family="'Atkinson', system-ui, sans-serif" font-size="11.5" fill="rgb(96, 115, 159)">Orange comes from a spec. Blue is the only layer somebody has to write.</text>
+</svg>
