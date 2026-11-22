@@ -803,15 +803,17 @@ Done. PASS=10 WARN=0 ERROR=0 SKIP=0 NO-OP=0 REUSED=0 TOTAL=10
 
 ### What the Emulator Would Not Do
 
-One thing in the Terraform had to give, and one problem went away with a newer emulator. A plain `aws_s3_bucket` never finished creating, so the bucket is an `awscc_s3_bucket`, which works on both:
+Three things got in the way.
+
+**The bucket.** A plain `aws_s3_bucket` never finished creating:
 
 ```txt
 aws_s3_bucket.data: Still creating... [01m30s elapsed]
 ```
 
-Both make the same bucket. The plain one uses the standard AWS provider, which hangs on the emulator. My API template's [notes](https://github.com/hungovercoders/template-aws-api/blob/main/docs/testing.md) put that down to a tags call through S3 Control, which the emulator does not serve. The [`awscc` one](https://registry.terraform.io/providers/hashicorp/awscc/latest/docs/resources/s3_bucket) goes through Cloud Control, which it does. The price is no `force_destroy`, so the bucket has to be emptied before Terraform can delete it.
+My API template's [notes](https://github.com/hungovercoders/template-aws-api/blob/main/docs/testing.md) put that down to a tags call through S3 Control, which the emulator does not serve. An [`awscc_s3_bucket`](https://registry.terraform.io/providers/hashicorp/awscc/latest/docs/resources/s3_bucket) goes through Cloud Control and works on both. The price is no `force_destroy`, so the bucket has to be emptied before Terraform can delete it.
 
-On emulator 1.0.365 the security group's outbound rule failed like this:
+**The security group.** On emulator 1.0.365 its outbound rule failed. On 1.0.545 the same Terraform applies:
 
 ```txt
 Error: updating Security Group egress rules: operation error EC2:
@@ -819,9 +821,7 @@ AuthorizeSecurityGroupEgress, api error InvalidPermission.Duplicate:
 the specified rule "peer: 0.0.0.0/0, ALL, ALLOW" already exists
 ```
 
-On 1.0.545 the same Terraform applies.
-
-I also wanted the job itself to run there. Three ways in all failed:
+**The job itself.** The emulator answers the AWS APIs and does not run what is inside an image, so three ways in all failed:
 
 ```txt
 $ docker push 127.0.0.1:9297/beer-sales:latest
@@ -835,7 +835,9 @@ $ aws lambda invoke ...  # a python3.12 function returning sys.version and os.ge
 OSError(38, 'a Lambda function in this emulator has no host filesystem to reach')
 ```
 
-The emulator answers the AWS APIs. It does not run what is inside an image, and its [README](https://github.com/aws/aws-emulator) says not to test security on it. So the emulator stands in for S3 and takes the Terraform, and the container still needs Docker to run it.
+That leaves Docker to run the container, and the emulator's [README](https://github.com/aws/aws-emulator) says not to test security on it.
+
+A few weeks ago I had no local AWS at all. Now the same Terraform applies to a throwaway one on my laptop, the build runs against its S3, and all of it can be tested locally and as part of CI on a pull request. I'm a very happy man. Clink.
 
 ## The Real Thing
 
