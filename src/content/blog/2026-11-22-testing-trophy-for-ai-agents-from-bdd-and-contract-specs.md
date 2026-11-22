@@ -125,18 +125,17 @@ The second was in the gate that checks every operation has a scenario. It counte
 
 The template's own gates found both while Claude Code was building it, and each fix was a few lines.
 
-## What the Trophy Doesn't Hold
+## What Isn't Tested Yet
 
-A tech lead should know what's missing.
+Three things are missing, and you should know them before copying any of this.
 
-- Nothing runs on real AWS. The emulator doesn't verify a token's signature or enforce IAM the way AWS does ([the template's list of what it does and doesn't emulate](https://github.com/hungovercoders/template-aws-api/blob/main/docs/testing.md)), so security is unproven until there's a deploy.
-- There are no consumer-driven contract tests. The template tests its own promises, and nothing records what a particular consumer relies on. Versioned contracts and the compatibility gates stand in for that today.
-- The business logic has few unit tests of its own. Most of the 183 belong to the skeleton, and the scenarios prove most of the rules.
-- It's all pre-publication and demos. Take it as a pattern worth nicking.
+- **Real AWS.** Every test runs on the emulator, which doesn't verify a token's signature or enforce IAM the way AWS does. The template [lists what the emulator does and doesn't cover](https://github.com/hungovercoders/template-aws-api/blob/main/docs/testing.md). Security stays unproven until there's a deploy.
+- **What a consumer relies on.** The template tests its own promises. Nothing records which fields a particular caller depends on. Consumer-driven contract tests do that, and versioned contracts and the compatibility gates stand in for them today.
+- **The business rules on their own.** Most of the 183 unit tests belong to the skeleton. The scenarios prove most of the rules, so a broken rule is found by a slower test than it should be.
 
 ## Would I Tell You to Work This Way
 
-I'd use the pattern now. The same gates took retention, rate limits and service levels without a new kind of check.
+I'd use the pattern now. The same gates took retention, rate limits and service levels without a new kind of check. It's all still pre-publication and demos, so take it as a pattern worth nicking.
 
 The cost is up front. Somebody has to write the feature files and the contracts before any code exists, and decide what the API promises. That part stays with a person, and the `/write-spec` skill asks for it and never invents it. The concept is what we should all strive for, and expect from our software.
 
