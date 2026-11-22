@@ -837,6 +837,8 @@ OSError(38, 'a Lambda function in this emulator has no host filesystem to reach'
 
 The emulator answers the AWS APIs. It does not run what is inside an image, and its [README](https://github.com/aws/aws-emulator) says not to test security on it. So the emulator stands in for S3 and takes the Terraform, and the container still needs Docker to run it.
 
+A few weeks ago I had no local AWS at all. Now the same Terraform applies to a throwaway one on my laptop, the build runs against its S3, and all of it can be tested locally and as part of CI on a pull request. I'm a very happy man. Clink.
+
 ## The Real Thing
 
 Real AWS needs a third target in `profiles.yml`. It is the same as the emulator target, without the endpoint and certificate settings that pointed that one at the emulator:
