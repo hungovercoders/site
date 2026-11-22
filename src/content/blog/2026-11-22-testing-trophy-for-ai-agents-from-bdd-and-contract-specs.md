@@ -15,7 +15,7 @@ image:
 
 I went looking for the test pyramid in my spec driven Lambda template and found a trophy instead, a suite that is mostly integration tests. An AI agent reads the feature files and contracts to learn what to build, then the same files run as the tests.
 
-Man Utd had just been battered 4-0 by Liverpool, and instead of consoling my team's demise with a bottle of wine I decided to research the test patterns and techniques that underpinned my thinking, as I'd pretty much just made stuff up so far.
+Man Utd have just been battered 4-0 by Liverpool, and instead of consoling my team's demise with a bottle of wine I've decided to research the test patterns and techniques that underpin my thinking, as I've pretty much just made stuff up so far.
 
 I think my made up specs to test framework is a winner all the same. Read on fellow hungovercoder.
 
