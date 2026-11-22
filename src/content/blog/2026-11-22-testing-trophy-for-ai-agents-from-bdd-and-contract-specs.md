@@ -50,7 +50,7 @@ A fat middle is normally where a suite gets slow and flaky. This one runs on the
 
 ## The Tests Come from the Specs
 
-Here's the design pattern. In most codebases a person writes each layer by hand, after the code, and the layers drift apart. Here the spec comes first, and nobody writes the integration tests as code.
+This is the design pattern. In most codebases a person writes each layer by hand, after the code, and the layers drift apart. Here the spec comes first, and nobody writes the integration tests as code.
 
 ![Five rows read left to right, each a spec you write, the tool that runs it as a test, and what that proves. Feature files, Gherkin scenarios in plain words, are run by Cucumber on AWS Emulator and prove what the API does, 68 scenarios. The OpenAPI contract is used by the router and Schemathesis to check every request and response and fuzz 469 more, proving the HTTP shape and the rate limit. The AsyncAPI contract gives schema checks on every message taken and event published, proving messages and events as CloudEvents. The data contract is tested by the Data Contract CLI against what landed in S3, proving the data kept as JSON and Parquet. The SLOs, OpenSLO files for availability and latency, are validated by oslo and planned by Terraform tests, proving the alarms and limits with 10 plan tests. All five rows sit on one band at the bottom, task ci, which gives one verdict, green or red, the same every time.](/assets/2026-11-22-testing-trophy-for-ai-agents-from-bdd-and-contract-specs/specs-as-tests.svg)
 
@@ -60,7 +60,7 @@ I aim to be test driven and often end up lazy and doing it after. This fixes tha
 
 Each row of that picture is an open standard with a tool behind it. None of them is mine.
 
-- **Behaviour.** [BDD](https://cucumber.io/docs/bdd/) is behaviour driven development, where you agree what the software does in examples before building it. The examples are written in [Gherkin](https://cucumber.io/docs/gherkin/reference/), the Given, When, Then language, and [Cucumber](https://github.com/cucumber/cucumber-js) runs them.
+- **Behaviour.** [BDD](https://cucumber.io/docs/bdd/) is behaviour driven development, where you agree what the software does in examples before building it. You write the examples in [Gherkin](https://cucumber.io/docs/gherkin/reference/), the Given, When, Then language, and [Cucumber](https://github.com/cucumber/cucumber-js) runs them.
 - **HTTP.** An [OpenAPI](https://www.openapis.org/what-is-openapi) contract describes every operation, request and response. The router validates against it, and [Schemathesis](https://schemathesis.readthedocs.io) generates requests from it. That's [property-based testing](https://hypothesis.works/articles/what-is-property-based-testing/) for an API.
 - **Messages and events.** [AsyncAPI](https://www.asyncapi.com/docs) does for queues and buses what OpenAPI does for HTTP. Every message is a [CloudEvent](https://cloudevents.io), the common envelope for events.
 - **Data.** The [Open Data Contract Standard](https://bitol-io.github.io/open-data-contract-standard/) says what the stored events look like, how long they're kept and how sensitive each field is. The [Data Contract CLI](https://cli.datacontract.com) tests the real files against it.
@@ -92,9 +92,9 @@ The same contract sets the rate limit too. Terraform reads it to throttle the ro
 
 ## The Brief Is Also the Test
 
-The specs get used twice, and that's the part that matters most for an agent.
+The specs get used twice.
 
-First it reads them. The feature files and contracts are its context, the whole brief for what to build, in plain words and standard formats it already knows. Context is hard to manage, so I only want what's necessary in it, and a spec earns its place by doing two jobs.
+First it reads them. The feature files and contracts are its context, the whole brief for what to build, in plain words and standard formats it already knows. Context is hard to manage, so I only want what's necessary in it. A spec does two jobs for the room it takes.
 
 Then the gates run the same files as the tests. Nothing is translated in between, so the brief and the mark can't disagree.
 
@@ -104,7 +104,7 @@ Reading is the part nobody can predict. Two agents given the same brief will wri
 
 ## Why an Agent Likes a Referee
 
-An agent isn't deterministic and a test is. Put them together and the agent's variety stops mattering. It can write the function however it likes, and the specs decide whether it's finished. AI does the typing and the specs do the marking.
+So the agent can write the function however it likes, and the specs decide whether it's finished. AI does the typing and the specs do the marking.
 
 Here's a gate doing the marking. Take the `@operation:retire_beer_v0` tag off the scenarios that cover retiring a beer, and the first spec gate stops and names what's missing.
 
@@ -145,7 +145,7 @@ Three things are missing, and you should know them before copying any of this.
 
 - **Real AWS.** Every test runs on the emulator, which doesn't verify a token's signature or enforce IAM the way AWS does. The template [lists what the emulator does and doesn't cover](https://github.com/hungovercoders/template-aws-api/blob/main/docs/testing.md). Security stays unproven until there's a deploy.
 - **What a consumer relies on.** The template tests its own promises. Nothing records which fields a particular caller depends on. Consumer-driven contract tests do that, and versioned contracts and the compatibility gates stand in for them today.
-- **The business rules on their own.** Most of the 183 unit tests belong to the skeleton. The scenarios prove most of the rules, so a broken rule is found by a slower test than it should be.
+- **The business rules on their own.** Most of the 183 unit tests belong to the skeleton. The scenarios prove most of the rules, so a broken rule shows up in a slower test than it should.
 
 ## Would I Tell You to Work This Way
 
