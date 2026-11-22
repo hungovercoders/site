@@ -16,7 +16,7 @@ image:
 
 I wanted one dbt and DuckDB setup running in three environments, a laptop, AWS Emulator and real AWS, to prove how little config the same beer pipeline needs in each. My day started at the park with a sausage bap for me and an ice-cream for my dog, and I was busting to continue the dbt series with AWS Emulator, my new favourite toy. Read on fellow hungovercoder.
 
-If you are joining here, [part 1](/blog/2026-09-13-delightful-local-data-engineering-with-duckdb-and-harlequin) generated a month of fake craft beer shop events as parquet files and queried them with DuckDB and Harlequin. [Part 2](/blog/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt) turned that into a dbt project called `beer_sales`, with a staging view, a daily summary table, a seeded beer list and tests, and put the location of the events behind an `EVENTS_LOCATION` variable. This post sticks to the basics and builds on both.
+If you are joining here, [part 1](/blog/2026-09-13-delightful-local-data-engineering-with-duckdb-and-harlequin) generated a month of fake craft beer shop events as parquet files and queried them with DuckDB and Harlequin. [Part 2](/blog/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt) turned that into a dbt project called `beer_sales`, with a staging view, a daily summary table, a seeded beer list and tests, and put the location of the events behind an `EVENTS_LOCATION` variable. This post takes that dbt project and runs it, unchanged, in three places: in a container on a laptop, against AWS Emulator, and as a scheduled Fargate job on AWS.
 
 ## Pre-Requisites
 
@@ -775,7 +775,7 @@ Apply complete! Resources: 19 added, 0 changed, 0 destroyed.
 Done. PASS=10 WARN=0 ERROR=0 SKIP=0 NO-OP=0 REUSED=0 TOTAL=10
 ```
 
-That is nineteen resources and a green build against a bucket, with the SQL from part 2 untouched. The container runs against the emulator as well. Build the image again to pick up the new target, and give it the emulator's certificate and credentials. This form was run on Linux, in Claude Code's sandbox, where `--network host` reaches the emulator:
+That is nineteen resources and a green build against a bucket, with the SQL from part 2 untouched. The container runs against the emulator as well. Build the image again to pick up the new target, and give it the emulator's certificate and credentials. This form is for Linux, where `--network host` reaches the emulator:
 
 ```bash
 docker build -t beer-sales .
@@ -812,7 +812,7 @@ the specified rule "peer: 0.0.0.0/0, ALL, ALLOW" already exists
 
 On 1.0.545 the same Terraform applies.
 
-I also wanted the job itself to run there, and Claude Code tried three ways in from its sandbox:
+I also wanted the job itself to run there. Three ways in all failed:
 
 ```txt
 $ docker push 127.0.0.1:9297/beer-sales:latest
@@ -1052,19 +1052,19 @@ esac
 
 </details>
 
-I ran this before I had run the emulator step on my own machine, and my first go got this far:
+If you use mise, Terraform needs a version pinned or the deploy stops here:
 
 ```txt
 mise ERROR No version is set for shim: terraform
 ```
 
-The repo now pins Terraform in `mise.toml`. With that in place the first run against a real account passed. This capture is the second:
+The repo pins it in `mise.toml`. With that in place, this is a run against a real account:
 
 ![The dbt build log from the Fargate task, with ten of ten steps passing against the s3 target, followed by daily_event_summary.parquet listed in the bucket's summary folder and the task stopping with exit code 0](/assets/2026-11-21-deployed-data-engineering-with-duckdb-dbt-and-aws/fargate_run.png)
 
-It passed ten of ten with `target='s3'`. The image pulled, the role was allowed what it needed and the summary landed in the bucket. The first capture I took had my real account number sitting in the bucket name, so the script now swaps it for `123456789012` on the way out. The console capture and the alert email further down had their identifiers swapped by hand.
+It passed ten of ten with `target='s3'`. The image pulled, the role was allowed what it needed and the summary landed in the bucket.
 
-Every run in this post was started by hand. The schedule is the one piece it does not show firing.
+I started every run by hand. The 06:00 UTC schedule is the one piece I have not seen fire.
 
 ### One Page for the Lot
 
