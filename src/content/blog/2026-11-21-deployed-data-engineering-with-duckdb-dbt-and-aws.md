@@ -77,7 +77,7 @@ A run of that leaves its results in `beers.duckdb` inside the container, and the
 
 ## Export the Summary
 
-Part 2 gave us two kinds of model. A view stores the query, and a table stores the results inside `beers.duckdb`. That file was the persistence we wanted on a laptop, and it is the one the container throws away. Left as it is, a successful run in AWS would leave nothing behind.
+Part 2 gave us [two kinds of model](/blog/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/#dbt-directories-and-files-i-need-to-know-right-now). A view stores the query, and a table stores the results inside `beers.duckdb`. That file was the persistence we wanted on a laptop, and it is the one the container throws away. Left as it is, a successful run in AWS would leave nothing behind.
 
 ![Raw events sit in S3 as if from a source system. Without the export model the summary is a table inside the container and is lost when the job finishes. With it, the container writes daily_event_summary.parquet back to S3, where it is still there afterwards](/assets/2026-11-21-deployed-data-engineering-with-duckdb-dbt-and-aws/why-export.svg)
 
@@ -98,9 +98,9 @@ select *
 from {{ ref('fct_daily_event_summary') }}
 ```
 
-This model is one more step on the end of the pipeline. It takes the daily summary mart from part 2 and writes it out as one parquet file. Another tool or another DuckDB can pick that up. The mart stays a table, so the tests and the harlequin queries from part 2 carry on working.
+This model is one more step on the end of the pipeline. It takes the [daily summary mart from part 2](/blog/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/#create-stable-views) and writes it out as one parquet file. Another tool or another DuckDB can pick that up. The mart stays a table, so the [tests](/blog/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/#add-model-tests) and the [harlequin queries](/blog/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/#harlequin-on-a-real-database) from part 2 carry on working.
 
-`SUMMARY_LOCATION` decides where the file goes. It is the same trick as `EVENTS_LOCATION`, pointing the other way. Left unset the file lands next to our raw data, and in AWS it is an `s3://` path. After `uv run dbt build` in `beer_sales`, this is the view dbt left in `beers.duckdb`:
+`SUMMARY_LOCATION` decides where the file goes. It is the same trick as [`EVENTS_LOCATION` in part 2](/blog/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/#stable-source-with-dynamic-location), pointing the other way. Left unset the file lands next to our raw data, and in AWS it is an `s3://` path. After `uv run dbt build` in `beer_sales`, this is the view dbt left in `beers.duckdb`:
 
 ```sql
 CREATE VIEW beer_sales.daily_event_summary_export AS
@@ -129,7 +129,7 @@ Done. PASS=10 WARN=0 ERROR=0 SKIP=0 NO-OP=0 REUSED=0 TOTAL=10
 
 That is the production job running on a laptop.
 
-Now break it on purpose, to see what a failure looks like. Part 2 added a test that every beer in the summary has to be on our beer list, `seeds/beers.csv`. Take Dutty off that list and build the image again so it carries the shorter list. The events still have people buying Dutty, so the test finds a beer that is not on the list:
+Now break it on purpose, to see what a failure looks like. Part 2 [added a test](/blog/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/#add-model-tests) that every beer in the summary has to be on our [beer list](/blog/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/#seeding-the-beer-list), `seeds/beers.csv`. Take Dutty off that list, the same break as [When Tests Bite](/blog/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/#when-tests-bite), and build the image again so it carries the shorter list. The events still have people buying Dutty, so the test finds a beer that is not on the list:
 
 ```bash
 docker build -t beer-sales .
@@ -1276,7 +1276,7 @@ beer_sales:
   <img src="/assets/2026-11-21-deployed-data-engineering-with-duckdb-dbt-and-aws/same-answer-in-three-environments.gif" alt="A terminal recording of scripts/three_environments.sh. The beer revenue query runs against the summary file on the laptop, in the AWS Emulator bucket on 127.0.0.1 and in the real S3 bucket in eu-west-2. Each returns the same eight rows, with Clwb Tropica top at 887 purchases and 33624.22 revenue, and the last line reads Same answer in all 3 environments">
 </video>
 
-All three return eight beers with the same purchases and the same revenue to the penny, with hsql from part 1 doing the asking.
+All three return eight beers with the same purchases and the same revenue to the penny, with [hsql from part 1](/blog/2026-09-13-delightful-local-data-engineering-with-duckdb-and-harlequin/#hsql) doing the asking.
 
 ## Tidy Up
 
