@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 436" role="img" aria-labelledby="trophyTitle trophyDesc">
   <title id="trophyTitle">A testing trophy where every layer but one comes from a spec</title>
-  <desc id="trophyDesc">On the right, four bands stacked into the shape of a trophy. At the bottom a wide purple base, static checks: lint, compatibility and types, and 10 Terraform plan tests. Above it a narrow blue stem, unit tests: 183 tests of the business rules and the skeleton. Above that the widest band, a green bowl, integration: 68 scenarios and 469 fuzzed requests through API Gateway to the Lambda on AWS Emulator. At the top a small dashed box, real AWS, nothing runs here yet. On the left, four boxes say where each band comes from, each joined to its band by an arrow. A real deploy points at the dashed top. Feature files and contracts point at the green bowl. Written, not derived, by the agent like the code, points at the unit stem. Contracts, SLOs and Terraform point at the purple base.</desc>
+  <desc id="trophyDesc">On the right, four bands stacked into the shape of a trophy. At the bottom a wide purple base, static checks: lint, compatibility and types, and 10 Terraform plan tests. Above it a narrow blue stem, unit tests: 183 tests of the business rules and the skeleton. Above that the widest band, a green bowl, integration: 68 scenarios and 469 fuzzed requests through API Gateway to the Lambda on AWS Emulator. At the top a small dashed box, real AWS, nothing runs here yet. On the left, four boxes say where each band comes from, each joined to its band by an arrow. A real deploy points at the dashed top. Feature files and contracts point at the green bowl. Written, not derived, by the agent like the code and the steps, points at the unit stem. Contracts, SLOs and Terraform point at the purple base.</desc>
   <defs>
     <marker id="tArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgb(96, 115, 159)"/></marker>
   </defs>
@@ -56,8 +56,8 @@
     <text x="500" y="309" text-anchor="middle" font-weight="700">Static checks, the base</text>
     <text x="500" y="327" text-anchor="middle">lint, compatibility and types</text>
     <text x="500" y="344" text-anchor="middle">10 Terraform plan tests</text>
-    <text x="500" y="361" text-anchor="middle" fill="rgb(96, 115, 159)">seconds, on every push</text>
+    <text x="500" y="361" text-anchor="middle" fill="rgb(96, 115, 159)">no stack started</text>
   </g>
   <text x="20" y="402" font-family="'Atkinson', system-ui, sans-serif" font-size="11.5" fill="rgb(96, 115, 159)">Counts are from one run of task ci on the Beer Catalogue example.</text>
-  <text x="20" y="419" font-family="'Atkinson', system-ui, sans-serif" font-size="11.5" fill="rgb(96, 115, 159)">Orange comes from a spec. Blue is the only layer somebody has to write.</text>
+  <text x="20" y="419" font-family="'Atkinson', system-ui, sans-serif" font-size="11.5" fill="rgb(96, 115, 159)">Orange comes from a spec. Blue is written, like the code and the steps.</text>
 </svg>

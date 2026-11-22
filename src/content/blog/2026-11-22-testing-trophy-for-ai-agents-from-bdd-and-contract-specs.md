@@ -15,7 +15,7 @@ image:
 
 I wanted to understand the test pyramid, because my spec driven Lambda template tests itself from its feature files and contracts and I couldn't have told you what shape of testing that was. I've been running at these concepts with little expertise, so this post is me working out the design pattern of what I've built, and why deterministic specs suit an AI agent so well. Read on fellow hungovercoder.
 
-If you're joining here, [the first post](/blog/2026-11-14-repeatable-unit-of-a-software-factory/) built the skeleton and the gates, and [the second](/blog/2026-11-16-asyncapi-cloudevents-data-contract-software-factory-unit/) added queues, events and a data contract. This one is only about the testing. It's the guided path, and the people who named these shapes are in the sources at the bottom.
+New here? [The first post](/blog/2026-11-14-repeatable-unit-of-a-software-factory/) built the skeleton and the gates, and [the second](/blog/2026-11-16-asyncapi-cloudevents-data-contract-software-factory-unit/) added queues, events and a data contract. This one is only about the testing. It's the guided path, and the people who named these shapes are in the sources at the bottom.
 
 ## Pre-Requisites
 
@@ -47,7 +47,7 @@ The top of the trophy is empty. Nothing has ever run against a real AWS account.
 
 Here's the design pattern. In most codebases a person writes each layer by hand, after the code, and the layers drift apart. Here the spec comes first and the tests fall out of it.
 
-A scenario in a feature file is the test. Cucumber runs it as written, through the real API Gateway.
+A scenario in a feature file is the test. Cucumber runs it as written, through the emulator's API Gateway to the built Lambda. The agent still writes the step definitions that join those words to the API, from outlines a command generates.
 
 ```gherkin
 @operation:list_beers_v0
@@ -69,11 +69,11 @@ Terraform reads those lines and throttles the routes. The contract also validate
 
 I aim to be test driven and often end up lazy and doing it after. This fixes that by leaving me no choice. The spec is the test, so it can't be written afterwards.
 
-The same question came up when the template needed non-functional requirements. Could retention, rate limits and service levels be testable specs like the others, without saying anything twice? They could. Retention is in the data contract, the rate limit is in the OpenAPI contract, and the service levels are [OpenSLO](https://github.com/OpenSLO/OpenSLO) files that set the production alarms.
+The same idea was put to the test when the template needed non-functional requirements. Could retention, rate limits and service levels be testable specs like the others, without saying anything twice? Retention is in the data contract, the rate limit is in the OpenAPI contract, and the service levels are [OpenSLO](https://github.com/OpenSLO/OpenSLO) files that set the production alarms.
 
 ## Why an Agent Likes a Referee
 
-An agent isn't deterministic. Ask it for the same thing twice and you get two different pieces of code. A test is the opposite. The same code gets the same verdict every time.
+An agent isn't deterministic. A test is the opposite, and the same code gets the same verdict every time. Ask an agent for the same thing twice and you get two different pieces of code.
 
 Put them together and the agent's variety stops mattering. It can write the function however it likes, and the specs decide whether it's finished. AI does the typing and the specs do the marking.
 
@@ -81,9 +81,7 @@ Three things make that work in practice.
 
 - A red gate is the best prompt going. It names the operation with no scenario, or the response nobody received, and it can't be argued with.
 - The agent can't mark its own homework. The skeleton is locked, so it can't loosen a gate to get a green tick, and the spec is read-only unless a person asks for a change.
-- Commands go first. Types, routes, stubs and example requests are generated, so the agent only writes what no command can.
-
-That last one is the principle under the whole template. Use a deterministic tool until you can't.
+- Commands go first. Types, routes, stubs and example requests are generated, so the agent only writes what no command can. Use a deterministic tool until you can't.
 
 ## Two Catches from the Bottom
 
@@ -108,14 +106,14 @@ Both were found by the agent's own gates while Claude Code was building the thin
 
 For a tech lead weighing this up, the gaps matter as much as the layers.
 
-- Nothing runs on real AWS. The emulator doesn't check token signatures or IAM, so security is unproven until there's a deploy.
+- Nothing runs on real AWS. The emulator doesn't verify a token's signature or enforce IAM the way AWS does ([the template's list of what it does and doesn't emulate](https://github.com/hungovercoders/template-aws-api/blob/main/docs/testing.md)), so security is unproven until there's a deploy.
 - There are no consumer-driven contract tests. The template tests its own promises, and nothing records what a particular consumer relies on. Versioned contracts and the compatibility gates stand in for that today.
 - The business logic has few unit tests of its own. Most of the 183 belong to the skeleton. The rules are mostly proved by the scenarios.
 - It's all pre-publication and demos. Take it as a pattern worth nicking.
 
 ## Would I Tell You to Work This Way
 
-I'd use the pattern now. Specs that are also the tests held up when retention, rate limits and service levels joined them, without a new way of working.
+I'd use the pattern now. The same gates took retention, rate limits and service levels without a new kind of check.
 
 The cost is up front. Somebody has to write the feature files and the contracts before any code exists, and decide what the API promises. That part stays with a person, and the `/write-spec` skill asks for it and never invents it. The concept is what we should all strive for, and expect from our software.
 
@@ -131,4 +129,4 @@ These are the sources.
 
 ## What Next
 
-A real deploy is still the obvious next step, because the top of the trophy is the only part with nothing in it. Watch this space for more experimentation in between meals, and see the code at [github.com/hungovercoders/template-aws-api](https://github.com/hungovercoders/template-aws-api), or in case I renamed it drunkenly check out [datagriff github](https://github.com/dataGriff).
+A real deploy is what's left, because the top of the trophy is the only part with nothing in it. Watch this space for more experimentation in between meals, and see the code at [github.com/hungovercoders/template-aws-api](https://github.com/hungovercoders/template-aws-api), or in case I renamed it drunkenly check out [datagriff github](https://github.com/dataGriff).
