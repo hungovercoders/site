@@ -147,17 +147,6 @@ Three things are missing, and you should know them before copying any of this.
 - **What a consumer relies on.** The template tests its own promises. Nothing records which fields a particular caller depends on. Consumer-driven contract tests do that, and versioned contracts and the compatibility gates stand in for them today.
 - **The business rules on their own.** Most of the 183 unit tests belong to the skeleton. The scenarios prove most of the rules, so a broken rule shows up in a slower test than it should.
 
-## Sources and Further Reading
-
-These are the sources.
-
-- Martin Fowler on the [test pyramid](https://martinfowler.com/bliki/TestPyramid.html), Kent C. Dodds on the [testing trophy](https://kentcdodds.com/blog/the-testing-trophy-and-testing-classifications) and Spotify on the [testing honeycomb](https://engineering.atspotify.com/2018/01/testing-of-microservices).
-- Cucumber's guides to [BDD](https://cucumber.io/docs/bdd/) and [Gherkin](https://cucumber.io/docs/gherkin/reference/), and Martin Fowler on [contract tests](https://martinfowler.com/bliki/ContractTest.html) and [test driven development](https://martinfowler.com/bliki/TestDrivenDevelopment.html).
-- The standards behind the specs: [OpenAPI](https://www.openapis.org/what-is-openapi), [AsyncAPI](https://www.asyncapi.com/docs), [CloudEvents](https://cloudevents.io), the [Open Data Contract Standard](https://bitol-io.github.io/open-data-contract-standard/) and [OpenSLO](https://github.com/OpenSLO/OpenSLO).
-- The tools that run them: [Cucumber](https://github.com/cucumber/cucumber-js), [Schemathesis](https://schemathesis.readthedocs.io), the [Data Contract CLI](https://cli.datacontract.com) and [Terraform tests](https://developer.hashicorp.com/terraform/language/tests).
-- The [AWS Emulator](https://github.com/aws/aws-emulator) repo and its [user guide](https://docs.aws.amazon.com/emulator/latest/userguide/what-is-service.html).
-- [template-aws-api](https://github.com/hungovercoders/template-aws-api), and the worked example in its [examples folder](https://github.com/hungovercoders/template-aws-api/tree/main/examples/beer-catalogue).
-
 ## Looking Back at the Pattern
 
 I'd use the pattern now. What seems weird to me is that spec driven development never used the specs we already had, considering they're testable too. OpenAPI, AsyncAPI, Gherkin and data contracts were all there to be picked up, and the same gates took retention, rate limits and service levels without a new kind of check.
@@ -169,3 +158,14 @@ The cost is up front. Somebody has to write the feature files and the contracts 
 It's all still pre-publication and demos, so take it as a pattern worth nicking. A real deploy is what's left, because the top of the trophy is the only part with nothing in it. The concept is what we should all strive for, and expect from our software.
 
 Watch this space for more experimentation in between meals, and see the code at [github.com/hungovercoders/template-aws-api](https://github.com/hungovercoders/template-aws-api), or in case I renamed it drunkenly check out [hungovercoders github](https://github.com/hungovercoders).
+
+## Sources and Further Reading
+
+These are the sources.
+
+- Martin Fowler on the [test pyramid](https://martinfowler.com/bliki/TestPyramid.html), Kent C. Dodds on the [testing trophy](https://kentcdodds.com/blog/the-testing-trophy-and-testing-classifications) and Spotify on the [testing honeycomb](https://engineering.atspotify.com/2018/01/testing-of-microservices).
+- Cucumber's guides to [BDD](https://cucumber.io/docs/bdd/) and [Gherkin](https://cucumber.io/docs/gherkin/reference/), and Martin Fowler on [contract tests](https://martinfowler.com/bliki/ContractTest.html) and [test driven development](https://martinfowler.com/bliki/TestDrivenDevelopment.html).
+- The standards behind the specs: [OpenAPI](https://www.openapis.org/what-is-openapi), [AsyncAPI](https://www.asyncapi.com/docs), [CloudEvents](https://cloudevents.io), the [Open Data Contract Standard](https://bitol-io.github.io/open-data-contract-standard/) and [OpenSLO](https://github.com/OpenSLO/OpenSLO).
+- The tools that run them: [Cucumber](https://github.com/cucumber/cucumber-js), [Schemathesis](https://schemathesis.readthedocs.io), the [Data Contract CLI](https://cli.datacontract.com) and [Terraform tests](https://developer.hashicorp.com/terraform/language/tests).
+- The [AWS Emulator](https://github.com/aws/aws-emulator) repo and its [user guide](https://docs.aws.amazon.com/emulator/latest/userguide/what-is-service.html).
+- [template-aws-api](https://github.com/hungovercoders/template-aws-api), and the worked example in its [examples folder](https://github.com/hungovercoders/template-aws-api/tree/main/examples/beer-catalogue).
