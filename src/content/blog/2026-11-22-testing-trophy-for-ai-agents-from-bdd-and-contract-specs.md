@@ -94,7 +94,7 @@ The same contract sets the rate limit too. Terraform reads it to throttle the ro
 
 The specs get used twice.
 
-First it reads them. The feature files and contracts are its context, the whole brief for what to build, in plain words and standard formats it already knows. Context is hard to manage, so I only want what's necessary in it. A spec does two jobs for the room it takes.
+First the agent reads them. The feature files and contracts are its context, the whole brief for what to build, in plain words and standard formats it already knows. Context is hard to manage, so I only want what's necessary in it. A spec does two jobs for the room it takes.
 
 Then the gates run the same files as the tests. Nothing is translated in between, so the brief and the mark can't disagree.
 
@@ -110,7 +110,7 @@ Here's a gate doing the marking. Take the `@operation:retire_beer_v0` tag off th
 
 ![Terminal output of task spec:check on the Beer Catalogue example. It reports spec:check failed, with one line underneath, operation retire_beer_v0 has no scenario tagged @operation:retire_beer_v0, and the task exits with status 1](/assets/2026-11-22-testing-trophy-for-ai-agents-from-bdd-and-contract-specs/red-gate.png)
 
-Three things make that work.
+Three things make the marking work.
 
 - A red gate is the best prompt going. It names the operation with no scenario, or the response nobody received, and it can't be argued with.
 - The agent can't mark its own homework. The skeleton is locked, so it can't loosen a gate to get a green tick, and the spec is read-only unless a person asks for a change.
@@ -150,7 +150,7 @@ Terraform's YAML reader takes a bare `y` to mean true. The code no longer saw ye
 
 The specs here are the feature files and the OpenAPI contract together. The test is `spec:check`, the gate from earlier that fails when an operation in the contract has no scenario tagged for it.
 
-It was counting an `@operation` tag anywhere in a feature file, including in a comment. Lines like these, from the starter feature file that comes with the template, would have passed as coverage.
+It counted an `@operation` tag anywhere in a feature file, including in a comment. Lines like these, from the starter feature file that comes with the template, would have passed as coverage.
 
 ```gherkin
 #   @operation:create_thing_v0
@@ -167,7 +167,7 @@ Three things are missing, and you should know them before copying any of this.
 
 - **Real AWS.** The scenarios and the fuzzing run on the emulator, which doesn't verify a token's signature or enforce IAM the way AWS does. The template [lists what the emulator does and doesn't cover](https://github.com/hungovercoders/template-aws-api/blob/main/docs/testing.md). Security stays unproven until there's a deploy.
 - **What a consumer relies on.** The template tests its own promises. Nothing records which fields a particular caller depends on. Consumer-driven contract tests do that, and versioned contracts and the compatibility gates stand in for them today.
-- **Speed under load.** The service levels are checked as files, and a plan test proves the alarms are built from them. Nothing measures how fast the API answers, so a latency target is first tested by real traffic.
+- **Speed under load.** The gates check the service levels as files, and a plan test proves the alarms are built from them. Nothing measures how fast the API answers, so real traffic is the first test of a latency target.
 
 ## Looking Back at the Pattern
 
