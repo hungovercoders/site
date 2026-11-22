@@ -165,9 +165,9 @@ The template's own gates found both while Claude Code was building it, and each 
 
 Three things are missing, and you should know them before copying any of this.
 
-- **Real AWS.** Every test runs on the emulator, which doesn't verify a token's signature or enforce IAM the way AWS does. The template [lists what the emulator does and doesn't cover](https://github.com/hungovercoders/template-aws-api/blob/main/docs/testing.md). Security stays unproven until there's a deploy.
+- **Real AWS.** The scenarios and the fuzzing run on the emulator, which doesn't verify a token's signature or enforce IAM the way AWS does. The template [lists what the emulator does and doesn't cover](https://github.com/hungovercoders/template-aws-api/blob/main/docs/testing.md). Security stays unproven until there's a deploy.
 - **What a consumer relies on.** The template tests its own promises. Nothing records which fields a particular caller depends on. Consumer-driven contract tests do that, and versioned contracts and the compatibility gates stand in for them today.
-- **The business rules on their own.** Most of the 183 unit tests belong to the skeleton. The scenarios prove most of the rules, so a broken rule shows up in a slower test than it should.
+- **Speed under load.** The service levels are checked as files, and a plan test proves the alarms are built from them. Nothing measures how fast the API answers, so a latency target is first tested by real traffic.
 
 ## Looking Back at the Pattern
 
