@@ -86,7 +86,7 @@ score:
   maximum: 5
 ```
 
-The two split the work. The contract carries the shape, so the router refuses a score of 6 or 3.5 without a line of code. The scenario carries the business rule, and somebody still has to write the sum. Cucumber runs it as written, through the emulator's API Gateway to the built Lambda. The agent writes the step definitions that join those words to the API, from outlines a command generates.
+The two split the work. The contract carries the shape, so the router refuses a score of 6 or 3.5 without a line of code. The scenario carries the business rule, and somebody still has to write the sum. Cucumber runs the scenario as written, through the emulator's API Gateway to the built Lambda. The agent writes the step definitions that join those words to the API, from outlines a command generates.
 
 The same contract sets the rate limit too. Terraform reads it to throttle the routes, and a scenario calls too fast to prove it.
 
@@ -171,7 +171,7 @@ Three things are missing, and you should know them before copying any of this.
 
 ## Looking Back at the Pattern
 
-I'd use the pattern now. What seems weird to me is that spec driven development never used the specs we already had, considering they're testable too. OpenAPI, AsyncAPI, Gherkin and data contracts were all there to be picked up, and the same gates took retention, rate limits and service levels without a new kind of check.
+I'd use the pattern now. What seems weird to me is that spec driven development never used the specs we already had, considering they're testable too. OpenAPI, AsyncAPI, Gherkin and data contracts were all there to be picked up. The same gates took retention, rate limits and service levels without a new kind of check.
 
 AI had me exploring testing patterns quickly, and it really helped my learning. I'd made this up as I went, and it turned out the shapes already had names.
 
