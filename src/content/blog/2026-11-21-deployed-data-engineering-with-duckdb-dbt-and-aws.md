@@ -152,12 +152,6 @@ Put Dutty back and build once more before carrying on.
 
 [AWS Emulator](https://github.com/aws/aws-emulator) is one program from AWS that answers the AWS APIs on a local port, and it [came out on 11 November](https://aws.amazon.com/blogs/aws/test-your-applications-against-aws-locally-with-aws-emulator/). My [software factory template](https://github.com/hungovercoders/template-aws-api) uses it, and I wanted everything here deployed to it as well.
 
-What can I say, I am a fairly lazy hungovercoder, and my own machine turned out not to have it installed:
-
-```txt
-zsh: command not found: aws-emulator
-```
-
 From here on I wrapped the commands in sh files and ran those. They are in the `scripts` folder of [the repo](https://github.com/hungovercoders/learn.harlequin), and each is shown in full where it first appears. The first installs and starts the emulator, in a terminal of its own:
 
 ```bash
