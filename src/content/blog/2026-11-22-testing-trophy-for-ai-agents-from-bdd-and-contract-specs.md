@@ -48,9 +48,9 @@ Here it is with the counts from that run, and where each layer comes from.
 
 A fat middle is normally where a suite gets slow and flaky. This one runs on the mighty [AWS Emulator](https://github.com/aws/aws-emulator), built for the run and thrown away after. The top of the trophy is empty, because nothing has ever run against a real AWS account.
 
-## Nobody Writes the Middle
+## The Tests Come from the Specs
 
-Here's the design pattern. In most codebases a person writes each layer by hand, after the code, and the layers drift apart. Here the spec comes first and the tests come from it.
+Here's the design pattern. In most codebases a person writes each layer by hand, after the code, and the layers drift apart. Here the spec comes first, and nobody writes the integration tests as code.
 
 ![Five rows read left to right, each a spec you write, the tool that runs it as a test, and what that proves. Feature files, Gherkin scenarios in plain words, are run by Cucumber on AWS Emulator and prove what the API does, 68 scenarios. The OpenAPI contract is used by the router and Schemathesis to check every request and response and fuzz 469 more, proving the HTTP shape and the rate limit. The AsyncAPI contract gives schema checks on every message taken and event published, proving messages and events as CloudEvents. The data contract is tested by the Data Contract CLI against what landed in S3, proving the data kept as JSON and Parquet. The SLOs, OpenSLO files for availability and latency, are validated by oslo and planned by Terraform tests, proving the alarms and limits with 10 plan tests. All five rows sit on one band at the bottom, task ci, which gives one verdict, green or red, the same every time.](/assets/2026-11-22-testing-trophy-for-ai-agents-from-bdd-and-contract-specs/specs-as-tests.svg)
 
