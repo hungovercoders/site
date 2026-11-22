@@ -25,11 +25,14 @@ New here? [The first post](/blog/2026-11-14-repeatable-unit-of-a-software-factor
 
 ## The Pyramid I Was Meant to Have
 
-The [test pyramid](https://martinfowler.com/bliki/TestPyramid.html) says to keep lots of small fast tests at the bottom and a few big slow ones at the top. Unit tests check one function. Integration tests check parts working together. End-to-end tests drive the whole thing the way a user would.
+The [test pyramid](https://martinfowler.com/bliki/TestPyramid.html) says to keep lots of small fast tests at the bottom and a few big slow ones at the top.
 
-The reason for the shape is cost. A unit test fails in milliseconds and points at the line. An end-to-end test fails after minutes and tells you something is broken somewhere. So you want most mistakes caught low down.
+- **Unit tests** check one function. They fail in milliseconds and point at the line.
+- **Integration tests** check parts working together.
+- **End-to-end tests** drive the whole thing the way a user would. They fail after minutes and tell you something is broken somewhere.
+- **[Contract tests](https://martinfowler.com/bliki/ContractTest.html)** sit beside the pyramid. They ask whether the code still matches what callers were promised.
 
-Contract tests sit beside the pyramid. They don't ask whether the code works. They ask whether it still matches what callers were promised.
+The shape is about cost. You want most mistakes caught low down, where they're cheap.
 
 ## The Shape I Actually Have
 
@@ -39,15 +42,27 @@ So what is my test shape? Count one run of `task ci` on the template's Beer Cata
 
 It's a [testing trophy](https://kentcdodds.com/blog/the-testing-trophy-and-testing-classifications). That's Kent C. Dodds' name for a wide base of static checks, a modest layer of unit tests and a fat middle of integration tests. Spotify made a similar case for services and called theirs a [honeycomb](https://engineering.atspotify.com/2018/01/testing-of-microservices). Both say to test through the interface, because the interface is what callers depend on.
 
-A fat middle is normally where a test suite gets slow and flaky. Two things let this one get away with it. The whole stack runs on the mighty [AWS Emulator](https://github.com/aws/aws-emulator), so it's built for the run and thrown away after. And the skeleton is the same for every API, so its tests were written once.
-
-The top of the trophy is empty. Nothing has ever run against a real AWS account.
+A fat middle is normally where a suite gets slow and flaky. This one runs on the mighty [AWS Emulator](https://github.com/aws/aws-emulator), built for the run and thrown away after. The top of the trophy is empty, because nothing has ever run against a real AWS account.
 
 ## Nobody Wrote the Middle
 
 Here's the design pattern. In most codebases a person writes each layer by hand, after the code, and the layers drift apart. Here the spec comes first and the tests fall out of it.
 
-A scenario in a feature file is the test. Cucumber runs it as written, through the emulator's API Gateway to the built Lambda. The agent still writes the step definitions that join those words to the API, from outlines a command generates.
+![Five rows read left to right, each a spec you write, the tool that runs it as a test, and what that proves. Feature files, Gherkin scenarios in plain words, are run by Cucumber on AWS Emulator and prove what the API does, 68 scenarios. The OpenAPI contract is used by the router and Schemathesis to check every request and response and fuzz 469 more, proving the HTTP shape and the rate limit. The AsyncAPI contract gives schema checks on every message taken and event published, proving messages and events as CloudEvents. The data contract is tested by the Data Contract CLI against what landed in S3, proving the data kept as JSON and Parquet. The SLOs, OpenSLO files for availability and latency, are validated by oslo and planned by Terraform tests, proving the alarms and limits with 10 plan tests. All five rows sit on one band at the bottom, task ci, which gives one verdict, green or red, the same every time.](/assets/2026-11-22-testing-trophy-for-ai-agents-from-bdd-and-contract-specs/specs-as-tests.svg)
+
+I aim to be test driven and often end up lazy and doing it after. This fixes that by leaving me no choice. The spec is the test, so it can't be written afterwards. That's [test driven development](https://martinfowler.com/bliki/TestDrivenDevelopment.html) by construction.
+
+## Five Specs Doing the Testing
+
+Each row of that picture is an open standard with a tool behind it. None of them is mine.
+
+- **Behaviour.** [BDD](https://cucumber.io/docs/bdd/) is behaviour driven development, where you agree what the software does in examples before building it. The examples are written in [Gherkin](https://cucumber.io/docs/gherkin/reference/), the Given, When, Then language, and [Cucumber](https://github.com/cucumber/cucumber-js) runs them.
+- **HTTP.** An [OpenAPI](https://www.openapis.org/what-is-openapi) contract describes every operation, request and response. The router validates against it, and [Schemathesis](https://schemathesis.readthedocs.io) generates requests from it, which is [property-based testing](https://hypothesis.works/articles/what-is-property-based-testing/) for an API.
+- **Messages and events.** [AsyncAPI](https://www.asyncapi.com/docs) does for queues and buses what OpenAPI does for HTTP. Every message is a [CloudEvent](https://cloudevents.io), the common envelope for events.
+- **Data.** The [Open Data Contract Standard](https://bitol-io.github.io/open-data-contract-standard/) says what the stored events look like, how long they're kept and how sensitive each field is. The [Data Contract CLI](https://cli.datacontract.com) tests the real files against it.
+- **Service levels.** An [SLO](https://sre.google/sre-book/service-level-objectives/) is a target such as 99.9% of requests answered without a server error. [OpenSLO](https://github.com/OpenSLO/OpenSLO) is the file format, and [Terraform's own tests](https://developer.hashicorp.com/terraform/language/tests) prove the alarms are built from it.
+
+Here's one requirement going through two of them. A scenario says what happens when someone calls too fast.
 
 ```gherkin
 @operation:list_beers_v0
@@ -57,7 +72,7 @@ Scenario: A caller who lists the beers too fast is told to slow down
   And the rest list the beers
 ```
 
-The limit that scenario hits is three lines in the OpenAPI contract.
+The limit it hits is three lines in the OpenAPI contract, and Terraform reads the same lines to throttle the routes.
 
 ```yaml
 x-rate-limit:
@@ -65,11 +80,7 @@ x-rate-limit:
   burst: 40
 ```
 
-Terraform reads those lines and throttles the routes. The contract also validates every request, checks every response the scenarios receive, and hands [Schemathesis](https://schemathesis.readthedocs.io) what it needs to generate 469 requests of its own.
-
-I aim to be test driven and often end up lazy and doing it after. This fixes that by leaving me no choice. The spec is the test, so it can't be written afterwards.
-
-The same idea was put to the test when the template needed non-functional requirements. Could retention, rate limits and service levels be testable specs like the others, without saying anything twice? Retention is in the data contract, the rate limit is in the OpenAPI contract, and the service levels are [OpenSLO](https://github.com/OpenSLO/OpenSLO) files that set the production alarms.
+Cucumber runs the scenario as written, through the emulator's API Gateway to the built Lambda. The agent still writes the step definitions that join those words to the API, from outlines a command generates.
 
 ## Why an Agent Likes a Referee
 
@@ -122,8 +133,9 @@ The cost is up front. Somebody has to write the feature files and the contracts 
 These are the sources.
 
 - Martin Fowler on the [test pyramid](https://martinfowler.com/bliki/TestPyramid.html), Kent C. Dodds on the [testing trophy](https://kentcdodds.com/blog/the-testing-trophy-and-testing-classifications) and Spotify on the [testing honeycomb](https://engineering.atspotify.com/2018/01/testing-of-microservices).
-- [Cucumber](https://github.com/cucumber/cucumber-js) for the scenarios, [Schemathesis](https://schemathesis.readthedocs.io) for the fuzzing and [Terraform tests](https://developer.hashicorp.com/terraform/language/tests) for the plan tests.
-- [OpenSLO](https://github.com/OpenSLO/OpenSLO) for the service levels, and the [Open Data Contract Standard](https://bitol-io.github.io/open-data-contract-standard/) for retention.
+- Cucumber's guides to [BDD](https://cucumber.io/docs/bdd/) and [Gherkin](https://cucumber.io/docs/gherkin/reference/), and Martin Fowler on [contract tests](https://martinfowler.com/bliki/ContractTest.html) and [test driven development](https://martinfowler.com/bliki/TestDrivenDevelopment.html).
+- The standards behind the specs: [OpenAPI](https://www.openapis.org/what-is-openapi), [AsyncAPI](https://www.asyncapi.com/docs), [CloudEvents](https://cloudevents.io), the [Open Data Contract Standard](https://bitol-io.github.io/open-data-contract-standard/) and [OpenSLO](https://github.com/OpenSLO/OpenSLO).
+- The tools that run them: [Cucumber](https://github.com/cucumber/cucumber-js), [Schemathesis](https://schemathesis.readthedocs.io), the [Data Contract CLI](https://cli.datacontract.com) and [Terraform tests](https://developer.hashicorp.com/terraform/language/tests).
 - The [AWS Emulator](https://github.com/aws/aws-emulator) repo and its [user guide](https://docs.aws.amazon.com/emulator/latest/userguide/what-is-service.html).
 - [template-aws-api](https://github.com/hungovercoders/template-aws-api), and the worked example in its [examples folder](https://github.com/hungovercoders/template-aws-api/tree/main/examples/beer-catalogue).
 

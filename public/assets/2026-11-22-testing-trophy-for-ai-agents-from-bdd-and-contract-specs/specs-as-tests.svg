@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 470" role="img" aria-labelledby="flowTitle flowDesc">
+  <title id="flowTitle">Each spec becomes a test</title>
+  <desc id="flowDesc">Five rows read left to right, each a spec you write, the tool that runs it as a test, and what that proves. Feature files, Gherkin scenarios in plain words, are run by Cucumber on AWS Emulator and prove what the API does, 68 scenarios. The OpenAPI contract is used by the router and Schemathesis to check every request and response and fuzz 469 more, proving the HTTP shape and the rate limit. The AsyncAPI contract gives schema checks on every message taken and event published, proving messages and events as CloudEvents. The data contract is tested by the Data Contract CLI against what landed in S3, proving the data kept as JSON and Parquet. The SLOs, OpenSLO files for availability and latency, are validated by oslo and planned by Terraform tests, proving the alarms and limits with 10 plan tests. All five rows sit on one band at the bottom, task ci, which gives one verdict, green or red, the same every time.</desc>
+  <defs><marker id="fArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="rgb(96, 115, 159)"/></marker></defs>
+  <rect width="720" height="470" fill="#f8f9fb"/>
+  <g font-family="'Lora', Georgia, Cambria, serif" font-weight="700" font-size="16" fill="rgb(34, 41, 57)">
+    <text x="20" y="32">You write the spec</text><text x="262" y="32">A tool runs it</text><text x="512" y="32">It proves</text>
+  </g>
+  <g font-family="'Atkinson', system-ui, sans-serif" font-size="12.5" fill="rgb(34, 41, 57)">
+    <rect x="20" y="46" width="200" height="62" rx="5" fill="#fee5d9" stroke="#e16e3c"/>
+    <text x="32" y="65" font-weight="700">Feature files</text><text x="32" y="82" fill="rgb(96, 115, 159)">Gherkin scenarios</text><text x="32" y="98" fill="rgb(96, 115, 159)">in plain words</text>
+    <rect x="262" y="46" width="208" height="62" rx="5" fill="#e9deff" stroke="#7350dc"/>
+    <text x="274" y="65" font-weight="700">Cucumber</text><text x="274" y="82" fill="rgb(96, 115, 159)">runs every scenario</text><text x="274" y="98" fill="rgb(96, 115, 159)">on AWS Emulator</text>
+    <rect x="512" y="46" width="188" height="62" rx="5" fill="#d8f1e1" stroke="#1ea672"/>
+    <text x="524" y="71" font-weight="700">What the API does</text><text x="524" y="90" fill="rgb(96, 115, 159)">68 scenarios</text>
+    <g stroke="rgb(96, 115, 159)" stroke-width="1.5" marker-end="url(#fArrow)"><line x1="220" y1="77" x2="258" y2="77"/><line x1="470" y1="77" x2="508" y2="77"/></g>
+  </g>
+  <g font-family="'Atkinson', system-ui, sans-serif" font-size="12.5" fill="rgb(34, 41, 57)">
+    <rect x="20" y="118" width="200" height="62" rx="5" fill="#fee5d9" stroke="#e16e3c"/>
+    <text x="32" y="137" font-weight="700">OpenAPI contract</text><text x="32" y="154" fill="rgb(96, 115, 159)">every operation,</text><text x="32" y="170" fill="rgb(96, 115, 159)">request and response</text>
+    <rect x="262" y="118" width="208" height="62" rx="5" fill="#e9deff" stroke="#7350dc"/>
+    <text x="274" y="137" font-weight="700">Router and Schemathesis</text><text x="274" y="154" fill="rgb(96, 115, 159)">check every request and</text><text x="274" y="170" fill="rgb(96, 115, 159)">response, fuzz 469 more</text>
+    <rect x="512" y="118" width="188" height="62" rx="5" fill="#d8f1e1" stroke="#1ea672"/>
+    <text x="524" y="143" font-weight="700">The HTTP shape</text><text x="524" y="162" fill="rgb(96, 115, 159)">and the rate limit</text>
+    <g stroke="rgb(96, 115, 159)" stroke-width="1.5" marker-end="url(#fArrow)"><line x1="220" y1="149" x2="258" y2="149"/><line x1="470" y1="149" x2="508" y2="149"/></g>
+  </g>
+  <g font-family="'Atkinson', system-ui, sans-serif" font-size="12.5" fill="rgb(34, 41, 57)">
+    <rect x="20" y="190" width="200" height="62" rx="5" fill="#fee5d9" stroke="#e16e3c"/>
+    <text x="32" y="209" font-weight="700">AsyncAPI contract</text><text x="32" y="226" fill="rgb(96, 115, 159)">messages in,</text><text x="32" y="242" fill="rgb(96, 115, 159)">events out</text>
+    <rect x="262" y="190" width="208" height="62" rx="5" fill="#e9deff" stroke="#7350dc"/>
+    <text x="274" y="209" font-weight="700">Schema checks</text><text x="274" y="226" fill="rgb(96, 115, 159)">on every message taken</text><text x="274" y="242" fill="rgb(96, 115, 159)">and event published</text>
+    <rect x="512" y="190" width="188" height="62" rx="5" fill="#d8f1e1" stroke="#1ea672"/>
+    <text x="524" y="215" font-weight="700">Messages and events</text><text x="524" y="234" fill="rgb(96, 115, 159)">as CloudEvents</text>
+    <g stroke="rgb(96, 115, 159)" stroke-width="1.5" marker-end="url(#fArrow)"><line x1="220" y1="221" x2="258" y2="221"/><line x1="470" y1="221" x2="508" y2="221"/></g>
+  </g>
+  <g font-family="'Atkinson', system-ui, sans-serif" font-size="12.5" fill="rgb(34, 41, 57)">
+    <rect x="20" y="262" width="200" height="62" rx="5" fill="#fee5d9" stroke="#e16e3c"/>
+    <text x="32" y="281" font-weight="700">Data contract</text><text x="32" y="298" fill="rgb(96, 115, 159)">schema, retention,</text><text x="32" y="314" fill="rgb(96, 115, 159)">sensitivity</text>
+    <rect x="262" y="262" width="208" height="62" rx="5" fill="#e9deff" stroke="#7350dc"/>
+    <text x="274" y="281" font-weight="700">Data Contract CLI</text><text x="274" y="298" fill="rgb(96, 115, 159)">tests what landed</text><text x="274" y="314" fill="rgb(96, 115, 159)">in S3</text>
+    <rect x="512" y="262" width="188" height="62" rx="5" fill="#d8f1e1" stroke="#1ea672"/>
+    <text x="524" y="287" font-weight="700">The data kept</text><text x="524" y="306" fill="rgb(96, 115, 159)">JSON and Parquet</text>
+    <g stroke="rgb(96, 115, 159)" stroke-width="1.5" marker-end="url(#fArrow)"><line x1="220" y1="293" x2="258" y2="293"/><line x1="470" y1="293" x2="508" y2="293"/></g>
+  </g>
+  <g font-family="'Atkinson', system-ui, sans-serif" font-size="12.5" fill="rgb(34, 41, 57)">
+    <rect x="20" y="334" width="200" height="62" rx="5" fill="#fee5d9" stroke="#e16e3c"/>
+    <text x="32" y="353" font-weight="700">SLOs</text><text x="32" y="370" fill="rgb(96, 115, 159)">OpenSLO files:</text><text x="32" y="386" fill="rgb(96, 115, 159)">availability, latency</text>
+    <rect x="262" y="334" width="208" height="62" rx="5" fill="#e9deff" stroke="#7350dc"/>
+    <text x="274" y="353" font-weight="700">oslo and Terraform tests</text><text x="274" y="370" fill="rgb(96, 115, 159)">validate the files,</text><text x="274" y="386" fill="rgb(96, 115, 159)">plan the alarms</text>
+    <rect x="512" y="334" width="188" height="62" rx="5" fill="#d8f1e1" stroke="#1ea672"/>
+    <text x="524" y="359" font-weight="700">Alarms and limits</text><text x="524" y="378" fill="rgb(96, 115, 159)">10 plan tests</text>
+    <g stroke="rgb(96, 115, 159)" stroke-width="1.5" marker-end="url(#fArrow)"><line x1="220" y1="365" x2="258" y2="365"/><line x1="470" y1="365" x2="508" y2="365"/></g>
+  </g>
+  <rect x="20" y="410" width="680" height="44" rx="8" fill="#0f1219"/>
+  <text x="36" y="437" font-family="'JetBrains Mono', Menlo, Consolas, monospace" font-size="13" fill="rgb(214, 220, 235)">task ci</text>
+  <text x="112" y="437" font-family="'Atkinson', system-ui, sans-serif" font-size="13" fill="rgb(214, 220, 235)">runs all five and gives one verdict, green or red, the same every time</text>
+</svg>
