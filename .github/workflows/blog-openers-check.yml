@@ -1,0 +1,27 @@
+name: Blog · Openers Check
+
+# Fails when the newest blog post opens with the same words as one of the three
+# posts before it (scripts/check-openers.mjs). The listings show the start of
+# each post, so repeated openers read as one template.
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/content/blog/**'
+      - 'scripts/check-openers.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  openers:
+    name: recent posts open differently
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 22
+      - run: node scripts/check-openers.mjs

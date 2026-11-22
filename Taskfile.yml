@@ -3,3 +3,9 @@ version: '3'
 includes:
   ss:
     taskfile: ./Taskfile.ss.yml
+
+tasks:
+  blog:openers:
+    desc: Gate - the newest blog post does not open with the same words as any of the three before it
+    cmds:
+      - node scripts/check-openers.mjs
