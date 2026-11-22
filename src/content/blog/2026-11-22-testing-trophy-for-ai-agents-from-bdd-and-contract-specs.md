@@ -100,7 +100,7 @@ Then the gates run those same files as the tests. Nobody rewrites a requirement 
 
 ![On the left one orange box, the specs: feature files and contracts, written once. Two arrows leave it. The upper arrow, labelled read as the brief, goes to a blue box, the agent, which reads them as its context. An arrow from the agent, labelled writes, goes to a box on the right, the code: operations, steps and rules. The lower arrow from the specs, labelled run as the tests, goes to a green box, the gates, task ci, one verdict. An arrow from the code down to the gates is labelled judged. A dashed red arrow goes from the gates back up to the agent, labelled red, names what is missing. A green arrow leaves the gates to the right, to a box labelled done.](/assets/2026-11-22-testing-trophy-for-ai-agents-from-bdd-and-contract-specs/brief-and-test.svg)
 
-What the agent writes from the brief is the part nobody can predict. Two agents given the same brief will write different code. The verdict on that code is the same every time.
+What the agent writes from the brief is the part nobody can predict. Two agents given the same brief will write different code. The tests don't care how it's written. They are deterministic, so the same specs give the same verdict every time, and any code that passes does what the specs say.
 
 ## Why an Agent Likes a Referee
 
