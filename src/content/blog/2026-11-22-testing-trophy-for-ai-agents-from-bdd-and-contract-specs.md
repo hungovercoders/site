@@ -24,7 +24,6 @@ If you're arriving cold, [the first post](/blog/2026-11-14-repeatable-unit-of-a-
 ## Pre-Requisites
 
 - [Saturday's post](/blog/2026-11-14-repeatable-unit-of-a-software-factory/) on the skeleton and the gates, if you want the detail
-- Nothing to install, this one is for reading
 - [template-aws-api](https://github.com/hungovercoders/template-aws-api) open in another tab if you want to see the files
 
 ## The Pyramid I Was Meant to Have
