@@ -57,7 +57,7 @@ I aim to be test driven and often end up lazy and doing it after. This fixes tha
 Each row of that picture is an open standard with a tool behind it. None of them is mine.
 
 - **Behaviour.** [BDD](https://cucumber.io/docs/bdd/) is behaviour driven development, where you agree what the software does in examples before building it. The examples are written in [Gherkin](https://cucumber.io/docs/gherkin/reference/), the Given, When, Then language, and [Cucumber](https://github.com/cucumber/cucumber-js) runs them.
-- **HTTP.** An [OpenAPI](https://www.openapis.org/what-is-openapi) contract describes every operation, request and response. The router validates against it, and [Schemathesis](https://schemathesis.readthedocs.io) generates requests from it, which is [property-based testing](https://hypothesis.works/articles/what-is-property-based-testing/) for an API.
+- **HTTP.** An [OpenAPI](https://www.openapis.org/what-is-openapi) contract describes every operation, request and response. The router validates against it, and [Schemathesis](https://schemathesis.readthedocs.io) generates requests from it. That's [property-based testing](https://hypothesis.works/articles/what-is-property-based-testing/) for an API.
 - **Messages and events.** [AsyncAPI](https://www.asyncapi.com/docs) does for queues and buses what OpenAPI does for HTTP. Every message is a [CloudEvent](https://cloudevents.io), the common envelope for events.
 - **Data.** The [Open Data Contract Standard](https://bitol-io.github.io/open-data-contract-standard/) says what the stored events look like, how long they're kept and how sensitive each field is. The [Data Contract CLI](https://cli.datacontract.com) tests the real files against it.
 - **Service levels.** An [SLO](https://sre.google/sre-book/service-level-objectives/) is a target such as 99.9% of requests answered without a server error. [OpenSLO](https://github.com/OpenSLO/OpenSLO) is the file format, and [Terraform's own tests](https://developer.hashicorp.com/terraform/language/tests) prove the alarms are built from it.
@@ -115,7 +115,7 @@ The template's own gates found both while Claude Code was building it, and each 
 
 ## What the Trophy Doesn't Hold
 
-Here's what a tech lead should know is missing.
+A tech lead should know what's missing.
 
 - Nothing runs on real AWS. The emulator doesn't verify a token's signature or enforce IAM the way AWS does ([the template's list of what it does and doesn't emulate](https://github.com/hungovercoders/template-aws-api/blob/main/docs/testing.md)), so security is unproven until there's a deploy.
 - There are no consumer-driven contract tests. The template tests its own promises, and nothing records what a particular consumer relies on. Versioned contracts and the compatibility gates stand in for that today.
