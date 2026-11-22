@@ -223,4 +223,4 @@ These are the sources.
 
 ## What Next
 
-If I were doing this again I'd explore the other options before committing to EventBridge blindly. It's cheap and lightweight, but I'd like CloudEvents and ordering to be easier. A real deploy is the obvious next step, and I still want the same skeleton for Cloudflare. Watch this space for more experimentation in between meals, and see the code at [github.com/hungovercoders/template-aws-api](https://github.com/hungovercoders/template-aws-api), or in case I renamed it drunkenly check out [datagriff github](https://github.com/dataGriff).
+If I were doing this again I'd explore the other options before committing to EventBridge blindly. It's cheap and lightweight, but I'd like CloudEvents and ordering to be easier. A real deploy is the obvious next step, and I still want the same skeleton for Cloudflare. Watch this space for more experimentation in between meals, and see the code at [github.com/hungovercoders/template-aws-api](https://github.com/hungovercoders/template-aws-api), or in case I renamed it drunkenly check out [hungovercoders github](https://github.com/hungovercoders).
