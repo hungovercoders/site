@@ -104,7 +104,7 @@ Reading is the part nobody can predict. Two agents given the same brief will wri
 
 ## Why an Agent Likes a Referee
 
-So the agent can write the function however it likes, and the specs decide whether it's finished. AI does the typing and the specs do the marking.
+The agent can write the function however it likes, and the specs decide whether it's finished. AI does the typing and the specs do the marking.
 
 Here's a gate doing the marking. Take the `@operation:retire_beer_v0` tag off the scenarios that cover retiring a beer, and the first spec gate stops and names what's missing.
 
@@ -150,7 +150,7 @@ Terraform's YAML reader takes a bare `y` to mean true. The code no longer saw ye
 
 The specs here are the feature files and the OpenAPI contract together. The test is `spec:check`, the gate from earlier that fails when an operation in the contract has no scenario tagged for it.
 
-It was counting an `@operation` tag anywhere in a feature file, including in a comment. So lines like these, from the starter feature file that comes with the template, would have passed as coverage.
+It was counting an `@operation` tag anywhere in a feature file, including in a comment. Lines like these, from the starter feature file that comes with the template, would have passed as coverage.
 
 ```gherkin
 #   @operation:create_thing_v0
