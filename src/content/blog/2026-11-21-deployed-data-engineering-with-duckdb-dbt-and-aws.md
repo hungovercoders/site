@@ -1292,7 +1292,7 @@ It's a bit messy still, but the emulator is great for getting more production-li
 
 One `profiles.yml` holds a target for each environment, and three variables pick between them. `DBT_TARGET` chooses the target, `EVENTS_LOCATION` says where the events are, and `SUMMARY_LOCATION` says where the summary goes. The emulator also needs its own certificate and credentials.
 
-[Fargate bills](https://aws.amazon.com/fargate/pricing/) while a task runs and not while it doesn't, and there is no server to patch. That's some money I can put in the back burner instead.
+[Fargate bills](https://aws.amazon.com/fargate/pricing/) while a task runs and not while it doesn't, and there is no server to patch. That's some money I can put in my back pocket instead.
 
 It has two limits as it stands. The image downloads duckdb's extensions every time it starts, so each run depends on that download working. And each run overwrites the same summary file, so there is no history to go back to. A real setup would write a dated file per run.
 
