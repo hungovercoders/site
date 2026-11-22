@@ -15,7 +15,7 @@ image:
 
 I went looking for the test pyramid in my spec driven Lambda template and found a trophy, a shape of testing where feature files and contracts generate almost every test and an AI agent writes what's left. I've been running at these concepts with little expertise, so this post is me working out the design pattern of what I've built, and why deterministic specs suit an agent so well. Read on fellow hungovercoder.
 
-New here? [The first post](/blog/2026-11-14-repeatable-unit-of-a-software-factory/) built the skeleton and the gates, and [the second](/blog/2026-11-16-asyncapi-cloudevents-data-contract-software-factory-unit/) added queues, events and a data contract. This one is only about the testing. It's the guided path, and the people who named these shapes are in the sources at the bottom.
+If you're arriving cold, [the first post](/blog/2026-11-14-repeatable-unit-of-a-software-factory/) built the skeleton and the gates, and [the second](/blog/2026-11-16-asyncapi-cloudevents-data-contract-software-factory-unit/) added queues, events and a data contract. This one is only about the testing. It's the guided path, and the people who named these shapes are in the sources at the bottom.
 
 ## Pre-Requisites
 
@@ -46,11 +46,11 @@ A fat middle is normally where a suite gets slow and flaky. This one runs on the
 
 ## Nobody Wrote the Middle
 
-Here's the design pattern. In most codebases a person writes each layer by hand, after the code, and the layers drift apart. Here the spec comes first and the tests fall out of it.
+Here's the design pattern. In most codebases a person writes each layer by hand, after the code, and the layers drift apart. Here the spec comes first and the tests come from it.
 
 ![Five rows read left to right, each a spec you write, the tool that runs it as a test, and what that proves. Feature files, Gherkin scenarios in plain words, are run by Cucumber on AWS Emulator and prove what the API does, 68 scenarios. The OpenAPI contract is used by the router and Schemathesis to check every request and response and fuzz 469 more, proving the HTTP shape and the rate limit. The AsyncAPI contract gives schema checks on every message taken and event published, proving messages and events as CloudEvents. The data contract is tested by the Data Contract CLI against what landed in S3, proving the data kept as JSON and Parquet. The SLOs, OpenSLO files for availability and latency, are validated by oslo and planned by Terraform tests, proving the alarms and limits with 10 plan tests. All five rows sit on one band at the bottom, task ci, which gives one verdict, green or red, the same every time.](/assets/2026-11-22-testing-trophy-for-ai-agents-from-bdd-and-contract-specs/specs-as-tests.svg)
 
-I aim to be test driven and often end up lazy and doing it after. This fixes that by leaving me no choice. The spec is the test, so it can't be written afterwards. That's [test driven development](https://martinfowler.com/bliki/TestDrivenDevelopment.html) by construction.
+I aim to be test driven and often end up lazy and doing it after. This fixes that by leaving me no choice. The spec is the test, so it can't be written afterwards. That's [test driven development](https://martinfowler.com/bliki/TestDrivenDevelopment.html) with the order enforced.
 
 ## Five Specs Doing the Testing
 
@@ -88,17 +88,17 @@ An agent isn't deterministic. A test is the opposite, and the same code gets the
 
 Put them together and the agent's variety stops mattering. It can write the function however it likes, and the specs decide whether it's finished. AI does the typing and the specs do the marking.
 
-Three things make that work in practice.
+Three things make that work.
 
 - A red gate is the best prompt going. It names the operation with no scenario, or the response nobody received, and it can't be argued with.
 - The agent can't mark its own homework. The skeleton is locked, so it can't loosen a gate to get a green tick, and the spec is read-only unless a person asks for a change.
-- Commands go first. Types, routes, stubs and example requests are generated, so the agent only writes what no command can. Use a deterministic tool until you can't.
+- Commands go first. They generate the types, routes, stubs and example requests, so the agent only writes what no command can. Use a deterministic tool until you can't.
 
 ## Two Catches from the Bottom
 
-The bottom of the trophy earned its keep this week.
+The bottom of the trophy caught two bugs this week.
 
-The first was in the Terraform plan tests. They plan the infrastructure against small fixture contracts with mock providers, so no account and no emulator is needed. One asserts that data kept for two years expires after 730 days.
+The first was in the Terraform plan tests. They plan the infrastructure against small fixture contracts with mock providers, so they need no account and no emulator. One asserts that data kept for two years expires after 730 days.
 
 ```hcl
 assert {
@@ -111,15 +111,15 @@ The first time it ran, it failed. The contract says `unit: y` for years, and Ter
 
 The second was in the gate that checks every operation has a scenario. It counted an `@operation` tag anywhere in a feature file, including inside a comment. A commented-out scenario was passing as coverage. It only showed up when the template gained a starter feature file made entirely of comments.
 
-Both were found by the agent's own gates while Claude Code was building the thing, and both fixes were a few lines.
+The template's own gates found both while Claude Code was building it, and each fix was a few lines.
 
 ## What the Trophy Doesn't Hold
 
-For a tech lead weighing this up, the gaps matter as much as the layers.
+Here's what a tech lead should know is missing.
 
 - Nothing runs on real AWS. The emulator doesn't verify a token's signature or enforce IAM the way AWS does ([the template's list of what it does and doesn't emulate](https://github.com/hungovercoders/template-aws-api/blob/main/docs/testing.md)), so security is unproven until there's a deploy.
 - There are no consumer-driven contract tests. The template tests its own promises, and nothing records what a particular consumer relies on. Versioned contracts and the compatibility gates stand in for that today.
-- The business logic has few unit tests of its own. Most of the 183 belong to the skeleton. The rules are mostly proved by the scenarios.
+- The business logic has few unit tests of its own. Most of the 183 belong to the skeleton, and the scenarios prove most of the rules.
 - It's all pre-publication and demos. Take it as a pattern worth nicking.
 
 ## Would I Tell You to Work This Way
