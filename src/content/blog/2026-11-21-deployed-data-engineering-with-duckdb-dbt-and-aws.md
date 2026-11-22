@@ -127,7 +127,7 @@ docker run --rm -v "$(pwd)/data:/app/data" beer-sales
 Done. PASS=10 WARN=0 ERROR=0 SKIP=0 NO-OP=0 REUSED=0 TOTAL=10
 ```
 
-That is the production job running on a laptop.
+Ten sweet sweet passes, and that is the production job running on a laptop.
 
 Now break it on purpose, to see what a failure looks like. Part 2 [added a test](/blog/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/#add-model-tests) that every beer in the summary has to be on our [beer list](/blog/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/#seeding-the-beer-list), `seeds/beers.csv`. Take Dutty off that list, the same break as [When Tests Bite](/blog/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/#when-tests-bite), and build the image again so it carries the shorter list. The events still have people buying Dutty, so the test finds a beer that is not on the list:
 
@@ -152,7 +152,7 @@ Put Dutty back and build once more before carrying on.
 
 [AWS Emulator](https://github.com/aws/aws-emulator) is one program from AWS that answers the AWS APIs on a local port, and it [came out on 11 November](https://aws.amazon.com/blogs/aws/test-your-applications-against-aws-locally-with-aws-emulator/). My [software factory template](https://github.com/hungovercoders/template-aws-api) uses it, and I wanted everything here deployed to it as well.
 
-My own machine turned out not to have it installed:
+What can I say, I am a fairly lazy hungovercoder, and my own machine turned out not to have it installed:
 
 ```txt
 zsh: command not found: aws-emulator
@@ -1276,11 +1276,11 @@ beer_sales:
   <img src="/assets/2026-11-21-deployed-data-engineering-with-duckdb-dbt-and-aws/same-answer-in-three-environments.gif" alt="A terminal recording of scripts/three_environments.sh. The beer revenue query runs against the summary file on the laptop, in the AWS Emulator bucket on 127.0.0.1 and in the real S3 bucket in eu-west-2. Each returns the same eight rows, with Clwb Tropica top at 887 purchases and 33624.22 revenue, and the last line reads Same answer in all 3 environments">
 </video>
 
-All three return eight beers with the same purchases and the same revenue to the penny, with [hsql from part 1](/blog/2026-09-13-delightful-local-data-engineering-with-duckdb-and-harlequin/#hsql) doing the asking.
+Clwb Tropica is top of the pile in all three, with the same purchases and the same revenue to the penny, and [hsql from part 1](/blog/2026-09-13-delightful-local-data-engineering-with-duckdb-and-harlequin/#hsql) doing the asking.
 
 ## Tidy Up
 
-One command empties the bucket and takes everything down, and Ctrl+C stops the emulator:
+Take it all down before the next round. One command empties the bucket and removes everything, and Ctrl+C stops the emulator:
 
 ```bash
 scripts/aws.sh destroy
@@ -1296,7 +1296,7 @@ One `profiles.yml` holds a target for each environment, and three variables pick
 
 It has two limits as it stands. The image downloads duckdb's extensions every time it starts, so each run depends on that download working. And each run overwrites the same summary file, so there is no history to go back to. A real setup would write a dated file per run.
 
-If I did it again I'd use a script runner like Taskfile, as I usually do, in place of the sh files. I'd also have a GitHub Action for CI that runs against the emulator and then deploys. That's my next post in this series. I'll likely follow that with one that automates the whole process from an ODCS data contract with skills.
+If I did it again I'd use a script runner like Taskfile, as I usually do, in place of the sh files. I'd also have a GitHub Action for CI that runs against the emulator and then deploys. That's my next post in this series, so watch this space. I'll likely follow that with one that automates the whole process from an ODCS data contract with skills.
 
 ## Sources and Further Reading
 
