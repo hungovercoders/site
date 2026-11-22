@@ -1276,7 +1276,7 @@ beer_sales:
   <img src="/assets/2026-11-21-deployed-data-engineering-with-duckdb-dbt-and-aws/same-answer-in-three-environments.gif" alt="A terminal recording of scripts/three_environments.sh. The beer revenue query runs against the summary file on the laptop, in the AWS Emulator bucket on 127.0.0.1 and in the real S3 bucket in eu-west-2. Each returns the same eight rows, with Clwb Tropica top at 887 purchases and 33624.22 revenue, and the last line reads Same answer in all 3 environments">
 </video>
 
-Clwb Tropica is top of the pile in all three, with the same purchases and the same revenue to the penny, and [hsql from part 1](/blog/2026-09-13-delightful-local-data-engineering-with-duckdb-and-harlequin/#hsql) doing the asking.
+Clwb Tropica is top of the pile in all three, with the same purchases and the same revenue to the penny. [hsql from part 1](/blog/2026-09-13-delightful-local-data-engineering-with-duckdb-and-harlequin/#hsql) is doing the asking.
 
 ## Tidy Up
 
