@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 316" role="img" aria-labelledby="expTitle expDesc">
   <title id="expTitle">Why the summary has to be exported</title>
-  <desc id="expDesc">Two rows that each read left to right. In the top row, without the export model, the events are read by the container running dbt build, the summary is a table in beers.duckdb inside that container, and when the job finishes the container is thrown away and the summary goes with it. In the bottom row, with the export model, the same events are read by the same container, and a green arrow labelled writes leads out to a summary file, daily_event_summary.parquet, on disk or in S3, which is still there after the container has gone.</desc>
+  <desc id="expDesc">Two rows that each read left to right. In the top row, without the export model, raw events in S3, as if from a source system, are read by the container running dbt build, the summary is a table in beers.duckdb inside that container, and when the job finishes the container is thrown away and the summary goes with it. In the bottom row, with the export model, the same events are read by the same container, and a green arrow labelled writes leads out to the summary folder in S3, where daily_event_summary.parquet is still there after the container has gone.</desc>
   <defs>
     <style>
       .h { font-family: 'Lora', Georgia, Cambria, serif; font-size: 14px; font-weight: 700; fill: rgb(34, 41, 57); }
@@ -27,8 +27,8 @@
   <rect x="20" y="44" width="150" height="84" rx="6" class="card"/>
   <rect x="20" y="44" width="150" height="20" rx="6" fill="rgb(96, 115, 159)"/>
   <text x="30" y="58" class="pill">EVENTS</text>
-  <text x="30" y="88" class="label">raw/events/</text>
-  <text x="30" y="106" class="body">parquet files</text>
+  <text x="30" y="88" class="label">s3://…/raw/events/</text>
+  <text x="30" y="106" class="body">as if from a source system</text>
   <path d="M 170 86 L 218 86" class="arrow" marker-end="url(#expArrow)"/>
   <text x="178" y="78" class="tag">reads</text>
   <rect x="220" y="44" width="240" height="84" rx="6" fill="#dbe4ff" stroke="#2337ff" stroke-width="1.5"/>
@@ -49,8 +49,8 @@
   <rect x="20" y="192" width="150" height="84" rx="6" class="card"/>
   <rect x="20" y="192" width="150" height="20" rx="6" fill="rgb(96, 115, 159)"/>
   <text x="30" y="206" class="pill">EVENTS</text>
-  <text x="30" y="236" class="label">raw/events/</text>
-  <text x="30" y="254" class="body">parquet files</text>
+  <text x="30" y="236" class="label">s3://…/raw/events/</text>
+  <text x="30" y="254" class="body">as if from a source system</text>
   <path d="M 170 234 L 218 234" class="arrow" marker-end="url(#expArrow)"/>
   <text x="178" y="226" class="tag">reads</text>
   <rect x="220" y="192" width="240" height="84" rx="6" fill="#dbe4ff" stroke="#2337ff" stroke-width="1.5"/>
@@ -63,7 +63,7 @@
   <rect x="510" y="192" width="190" height="84" rx="6" fill="#d8f1e1" stroke="#1ea672"/>
   <rect x="510" y="192" width="190" height="20" rx="6" fill="#1ea672"/>
   <text x="520" y="206" class="pill">THE SUMMARY FILE</text>
-  <text x="520" y="232" class="tagFile">daily_event_summary.parquet</text>
-  <text x="520" y="250" class="body">on disk, or in S3</text>
+  <text x="520" y="232" class="label">s3://…/summary/</text>
+  <text x="520" y="250" class="body">daily_event_summary.parquet</text>
   <text x="520" y="266" class="body">still there when the job has gone</text>
 </svg>

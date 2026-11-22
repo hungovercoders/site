@@ -16,7 +16,7 @@ image:
 
 I wanted one dbt and DuckDB setup running in three environments, a laptop, AWS Emulator and real AWS, to prove how little config the same beer pipeline needs in each. My day started at the park with a sausage bap for me and an ice-cream for my dog, and I was busting to continue the dbt series with AWS Emulator, my new favourite toy. Read on fellow hungovercoder.
 
-If you are joining here, [part 1](/blog/2026-09-13-delightful-local-data-engineering-with-duckdb-and-harlequin) generated a month of fake craft beer shop events as parquet files and queried them with DuckDB and Harlequin. [Part 2](/blog/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt) turned that into a dbt project called `beer_sales`, with a staging view, a daily summary table, a seeded beer list and tests, and put the location of the events behind an `EVENTS_LOCATION` variable. This post sticks to the basics and builds on both.
+If you are joining here, [part 1](/blog/2026-09-13-delightful-local-data-engineering-with-duckdb-and-harlequin) generated a month of fake craft beer shop events as parquet files and queried them with DuckDB and Harlequin. [Part 2](/blog/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt) turned that into a dbt project called `beer_sales`, with a staging view, a daily summary table, a seeded beer list and tests, and put the location of the events behind an `EVENTS_LOCATION` variable. This post takes that dbt project and runs it, unchanged, in three places: in a container on a laptop, against AWS Emulator, and as a scheduled Fargate job on AWS.
 
 ## Pre-Requisites
 
@@ -33,7 +33,9 @@ The emulator sits in the middle because a wrong bucket path or a typo in the Ter
 
 ## A Container and No Server
 
-I wanted the cheapest thing that could run this in production and also run locally, and that is a container. DuckDB is embedded, so there is no database server to look after. Production is a program that starts, runs `dbt build` and stops. From the repo root, one level above `beer_sales`, add a Dockerfile:
+I wanted the cheapest thing that could run this in production and also run locally, and that is a container. DuckDB is embedded, so there is no database server to look after. That leaves a job that starts, runs `dbt build` and stops, and running it in production means running that container on a schedule.
+
+From the repo root, one level above `beer_sales`, add a Dockerfile:
 
 ```dockerfile
 FROM python:3.12-slim
@@ -75,9 +77,11 @@ A run of that leaves its results in `beers.duckdb` inside the container, and the
 
 ## Export the Summary
 
-Part 2 gave us two kinds of model. A view stores the query, and a table stores the results inside `beers.duckdb`. That file was the persistence we wanted on a laptop, and it is the one the container throws away. Left as it is, a successful run in AWS would leave nothing behind.
+Part 2 gave us [two kinds of model](/blog/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/#dbt-directories-and-files-i-need-to-know-right-now). A view stores the query, and a table stores the results inside `beers.duckdb`. That file was the persistence we wanted on a laptop, and it is the one the container throws away. Left as it is, a successful run in AWS would leave nothing behind.
 
-![Without the export model the summary is a table inside the container and is lost when the job finishes. With it, the container writes daily_event_summary.parquet to disk or to S3, where it is still there afterwards](/assets/2026-11-21-deployed-data-engineering-with-duckdb-dbt-and-aws/why-export.svg)
+![Raw events sit in S3 as if from a source system. Without the export model the summary is a table inside the container and is lost when the job finishes. With it, the container writes daily_event_summary.parquet back to S3, where it is still there afterwards](/assets/2026-11-21-deployed-data-engineering-with-duckdb-dbt-and-aws/why-export.svg)
+
+Read the picture as a source system dropping raw events into S3, the job reading them, and the summary going back to S3 for whoever needs it next. In AWS those are two folders in one bucket, `raw/events/` and `summary/`. On a laptop they are two places under `data/`. Our fake events stand in for the source system in both.
 
 dbt-duckdb has a third kind for this, the [external materialisation](https://github.com/duckdb/dbt-duckdb). dbt runs the `select`, writes the rows to a file outside the database, and leaves a view behind that reads the file back, so anything downstream can still `ref()` it. Add `beer_sales/models/exports/daily_event_summary_export.sql`:
 
@@ -94,9 +98,9 @@ select *
 from {{ ref('fct_daily_event_summary') }}
 ```
 
-This model is one more step on the end of the pipeline. It takes the daily summary mart from part 2 and writes it out as one parquet file. Another tool or another DuckDB can pick that up. The mart stays a table, so the tests and the harlequin queries from part 2 carry on working.
+This model is one more step on the end of the pipeline. It takes the [daily summary mart from part 2](/blog/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/#create-stable-views) and writes it out as one parquet file. Another tool or another DuckDB can pick that up. The mart stays a table, so the [tests](/blog/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/#add-model-tests) and the [harlequin queries](/blog/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/#harlequin-on-a-real-database) from part 2 carry on working.
 
-`SUMMARY_LOCATION` decides where the file goes. It is the same trick as `EVENTS_LOCATION`, pointing the other way. Left unset the file lands next to our raw data, and in AWS it is an `s3://` path. After `uv run dbt build` in `beer_sales`, this is the view dbt left in `beers.duckdb`:
+`SUMMARY_LOCATION` decides where the file goes. It is the same trick as [`EVENTS_LOCATION` in part 2](/blog/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/#stable-source-with-dynamic-location), pointing the other way. Left unset the file lands next to our raw data, and in AWS it is an `s3://` path. After `uv run dbt build` in `beer_sales`, this is the view dbt left in `beers.duckdb`:
 
 ```sql
 CREATE VIEW beer_sales.daily_event_summary_export AS
@@ -123,25 +127,30 @@ docker run --rm -v "$(pwd)/data:/app/data" beer-sales
 Done. PASS=10 WARN=0 ERROR=0 SKIP=0 NO-OP=0 REUSED=0 TOTAL=10
 ```
 
-That is the production job running on a laptop. Take Dutty off the beer list, as we did in part 2, build the image again, and it hands back this:
+Ten sweet sweet passes, and that is the production job running on a laptop.
+
+Now break it on purpose, to see what a failure looks like. Part 2 [added a test](/blog/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/#add-model-tests) that every beer in the summary has to be on our [beer list](/blog/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/#seeding-the-beer-list), `seeds/beers.csv`. Take Dutty off that list, the same break as [When Tests Bite](/blog/2026-10-31-rigorous-local-data-engineering-with-duckdb-and-dbt/#when-tests-bite), and build the image again so it carries the shorter list. The events still have people buying Dutty, so the test finds a beer that is not on the list:
+
+```bash
+docker build -t beer-sales .
+docker run --rm -v "$(pwd)/data:/app/data" beer-sales
+echo $?
+```
 
 ```txt
 Done. PASS=9 WARN=0 ERROR=1 SKIP=0 NO-OP=0 REUSED=0 TOTAL=10
-$ echo $?
 1
 ```
 
-The exit code of `1` is what sends an email later on. The other thing to read is `SKIP=0`. The export ran even though a test on the mart failed, because that test depends on the seed as well as the mart and dbt did not hold the export back for it. A rogue beer fails the job and its numbers still reach the summary file. Put Dutty back and build once more before carrying on.
+Nine steps passed and one failed, so dbt finishes with an error and the container exits with a `1` where a clean run gives a `0`. That exit code is how anything outside the container knows the job failed, and it is what sends an email later on.
+
+The other thing to read is `SKIP=0`. Nothing was skipped, so the export ran even though a test on the summary failed. That test depends on the beer list as well as the summary, and dbt did not hold the export back for it. A rogue beer fails the job and its numbers still reach the summary file.
+
+Put Dutty back and build once more before carrying on.
 
 ## A Throwaway AWS
 
 [AWS Emulator](https://github.com/aws/aws-emulator) is one program from AWS that answers the AWS APIs on a local port, and it [came out on 11 November](https://aws.amazon.com/blogs/aws/test-your-applications-against-aws-locally-with-aws-emulator/). My [software factory template](https://github.com/hungovercoders/template-aws-api) uses it, and I wanted everything here deployed to it as well.
-
-My own machine turned out not to have it installed:
-
-```txt
-zsh: command not found: aws-emulator
-```
 
 From here on I wrapped the commands in sh files and ran those. They are in the `scripts` folder of [the repo](https://github.com/hungovercoders/learn.harlequin), and each is shown in full where it first appears. The first installs and starts the emulator, in a terminal of its own:
 
@@ -775,7 +784,7 @@ Apply complete! Resources: 19 added, 0 changed, 0 destroyed.
 Done. PASS=10 WARN=0 ERROR=0 SKIP=0 NO-OP=0 REUSED=0 TOTAL=10
 ```
 
-That is nineteen resources and a green build against a bucket, with the SQL from part 2 untouched. The container runs against the emulator as well. Build the image again to pick up the new target, and give it the emulator's certificate and credentials. This form was run on Linux, in Claude Code's sandbox, where `--network host` reaches the emulator:
+That is nineteen resources and a green build against a bucket, with the SQL from part 2 untouched. The container runs against the emulator as well. Build the image again to pick up the new target, and give it the emulator's certificate and credentials. This form is for Linux, where `--network host` reaches the emulator:
 
 ```bash
 docker build -t beer-sales .
@@ -812,7 +821,7 @@ the specified rule "peer: 0.0.0.0/0, ALL, ALLOW" already exists
 
 On 1.0.545 the same Terraform applies.
 
-I also wanted the job itself to run there, and Claude Code tried three ways in from its sandbox:
+I also wanted the job itself to run there. Three ways in all failed:
 
 ```txt
 $ docker push 127.0.0.1:9297/beer-sales:latest
@@ -1052,19 +1061,19 @@ esac
 
 </details>
 
-I ran this before I had run the emulator step on my own machine, and my first go got this far:
+If you use mise, Terraform needs a version pinned or the deploy stops here:
 
 ```txt
 mise ERROR No version is set for shim: terraform
 ```
 
-The repo now pins Terraform in `mise.toml`. With that in place the first run against a real account passed. This capture is the second:
+The repo pins it in `mise.toml`. With that in place, this is a run against a real account:
 
 ![The dbt build log from the Fargate task, with ten of ten steps passing against the s3 target, followed by daily_event_summary.parquet listed in the bucket's summary folder and the task stopping with exit code 0](/assets/2026-11-21-deployed-data-engineering-with-duckdb-dbt-and-aws/fargate_run.png)
 
-It passed ten of ten with `target='s3'`. The image pulled, the role was allowed what it needed and the summary landed in the bucket. The first capture I took had my real account number sitting in the bucket name, so the script now swaps it for `123456789012` on the way out. The console capture and the alert email further down had their identifiers swapped by hand.
+It passed ten of ten with `target='s3'`. The image pulled, the role was allowed what it needed and the summary landed in the bucket.
 
-Every run in this post was started by hand. The schedule is the one piece it does not show firing.
+I started every run by hand. The 06:00 UTC schedule is the one piece I have not seen fire.
 
 ### One Page for the Lot
 
@@ -1261,11 +1270,11 @@ beer_sales:
   <img src="/assets/2026-11-21-deployed-data-engineering-with-duckdb-dbt-and-aws/same-answer-in-three-environments.gif" alt="A terminal recording of scripts/three_environments.sh. The beer revenue query runs against the summary file on the laptop, in the AWS Emulator bucket on 127.0.0.1 and in the real S3 bucket in eu-west-2. Each returns the same eight rows, with Clwb Tropica top at 887 purchases and 33624.22 revenue, and the last line reads Same answer in all 3 environments">
 </video>
 
-All three return eight beers with the same purchases and the same revenue to the penny, with hsql from part 1 doing the asking.
+Clwb Tropica is top of the pile in all three, with the same purchases and the same revenue to the penny. [hsql from part 1](/blog/2026-09-13-delightful-local-data-engineering-with-duckdb-and-harlequin/#hsql) is doing the asking.
 
 ## Tidy Up
 
-One command empties the bucket and takes everything down, and Ctrl+C stops the emulator:
+Take it all down before the next round. One command empties the bucket and removes everything, and Ctrl+C stops the emulator:
 
 ```bash
 scripts/aws.sh destroy
@@ -1277,11 +1286,11 @@ It's a bit messy still, but the emulator is great for getting more production-li
 
 One `profiles.yml` holds a target for each environment, and three variables pick between them. `DBT_TARGET` chooses the target, `EVENTS_LOCATION` says where the events are, and `SUMMARY_LOCATION` says where the summary goes. The emulator also needs its own certificate and credentials.
 
-The Fargate job only costs money while it runs. [Fargate bills](https://aws.amazon.com/fargate/pricing/) while a task runs and not while it doesn't, and there is no server to patch.
+[Fargate bills](https://aws.amazon.com/fargate/pricing/) while a task runs and not while it doesn't, and there is no server to patch. That's a saving in my back pocket for when someone orders Neck Oil in the next round.
 
 It has two limits as it stands. The image downloads duckdb's extensions every time it starts, so each run depends on that download working. And each run overwrites the same summary file, so there is no history to go back to. A real setup would write a dated file per run.
 
-If I did it again I'd use a script runner like Taskfile, as I usually do, in place of the sh files. I'd also have a GitHub Action for CI that runs against the emulator and then deploys. That's my next post in this series. I'll likely follow that with one that automates the whole process from an ODCS data contract with skills.
+If I did it again I'd use a script runner like Taskfile, as I usually do, in place of the sh files. I'd also have a GitHub Action for CI that runs against the emulator and then deploys. That's my next post in this series, so watch this space. I'll likely follow that with one that automates the whole process from an ODCS data contract with skills.
 
 ## Sources and Further Reading
 
