@@ -34,6 +34,8 @@ The [test pyramid](https://martinfowler.com/bliki/TestPyramid.html) says to keep
 
 The shape is about cost. You want most mistakes caught low down, where they're cheap.
 
+![Two shapes side by side joined by an arrow labelled then I counted. On the left, under the heading what I thought I had, a pyramid of three bands. A small band at the top, end-to-end, few and slow. A medium band in the middle, integration. A wide band at the bottom, unit, many and fast. On the right, under the heading what I had, a trophy of four bands. A small dashed band at the top, real AWS, empty. A wide green band below it, integration, the most, on AWS Emulator. A narrow blue band, unit, a few. A wide purple band at the bottom, static checks.](/assets/2026-11-22-testing-trophy-for-ai-agents-from-bdd-and-contract-specs/pyramid-vs-trophy.svg)
+
 ## The Shape I Actually Have
 
 So what is my test shape? Count one run of `task ci` on the template's Beer Catalogue example and it isn't a pyramid.
@@ -88,6 +90,10 @@ An agent isn't deterministic. A test is the opposite, and the same code gets the
 
 Put them together and the agent's variety stops mattering. It can write the function however it likes, and the specs decide whether it's finished. AI does the typing and the specs do the marking.
 
+Here's a gate doing the marking. Take the `@operation:retire_beer_v0` tag off the scenarios that cover retiring a beer, and the first spec gate stops and names what's missing.
+
+![Terminal output of task spec:check on the Beer Catalogue example. It reports spec:check failed, with one line underneath, operation retire_beer_v0 has no scenario tagged @operation:retire_beer_v0, and the task exits with status 1](/assets/2026-11-22-testing-trophy-for-ai-agents-from-bdd-and-contract-specs/red-gate.png)
+
 Three things make that work.
 
 - A red gate is the best prompt going. It names the operation with no scenario, or the response nobody received, and it can't be argued with.
@@ -107,7 +113,11 @@ assert {
 }
 ```
 
-The first time it ran, it failed. The contract says `unit: y` for years, and Terraform's YAML reader takes a bare `y` to mean true. The code no longer saw years, so two years of retention had become two days. No scenario would have caught that, because no scenario waits two days.
+The first time it ran, it failed. Put the old line of Terraform back and it fails the same way, with 2 where 730 should be.
+
+![Terminal output of terraform test on the data plan test with the old line restored. The run each_copy_is_kept_for_its_own_retention fails with Test assertion failed. The diff shows actual 2 and expected 730, under the message v0's Parquet is kept for the contract's retention, 2 years. The last line reads Failure, 0 passed, 1 failed](/assets/2026-11-22-testing-trophy-for-ai-agents-from-bdd-and-contract-specs/plan-test-fail.png)
+
+The contract says `unit: y` for years, and Terraform's YAML reader takes a bare `y` to mean true. The code no longer saw years, so two years of retention had become two days. No scenario would have caught that, because no scenario waits two days.
 
 The second was in the gate that checks every operation has a scenario. It counted an `@operation` tag anywhere in a feature file, including inside a comment. A commented-out scenario was passing as coverage. It only showed up when the template gained a starter feature file made entirely of comments.
 
