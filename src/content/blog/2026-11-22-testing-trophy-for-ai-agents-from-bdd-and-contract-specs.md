@@ -27,18 +27,18 @@ If you're arriving cold, [the first post](/blog/2026-11-14-repeatable-unit-of-a-
 
 The [test pyramid](https://martinfowler.com/bliki/TestPyramid.html) says to keep lots of small fast tests at the bottom and a few big slow ones at the top.
 
-- **Unit tests** check one function. They fail in milliseconds and point at the line.
+![A pyramid of three bands on the left, with an arrow up its right side. A small band at the top, end-to-end, few. A medium band in the middle, integration, some. A wide band at the bottom, unit, many. The arrow is labelled slower and vaguer going up: at the bottom a failure takes milliseconds and names the line, at the top it takes minutes and says something broke. Beside the pyramid a separate box holds contract tests, which ask whether the code is still as promised.](/assets/2026-11-22-testing-trophy-for-ai-agents-from-bdd-and-contract-specs/pyramid.svg)
+
+- **Unit tests** check one function.
 - **Integration tests** check parts working together.
-- **End-to-end tests** drive the whole thing the way a user would. They fail after minutes and tell you something is broken somewhere.
+- **End-to-end tests** drive the whole thing the way a user would.
 - **[Contract tests](https://martinfowler.com/bliki/ContractTest.html)** sit beside the pyramid. They ask whether the code still matches what callers were promised.
-
-The shape is about cost. You want most mistakes caught low down, where they're cheap.
-
-![Two shapes side by side joined by an arrow labelled then I counted. On the left, under the heading what I thought I had, a pyramid of three bands. A small band at the top, end-to-end, few and slow. A medium band in the middle, integration. A wide band at the bottom, unit, many and fast. On the right, under the heading what I had, a trophy of four bands. A small dashed band at the top, real AWS, empty. A wide green band below it, integration, the most, on AWS Emulator. A narrow blue band, unit, a few. A wide purple band at the bottom, static checks.](/assets/2026-11-22-testing-trophy-for-ai-agents-from-bdd-and-contract-specs/pyramid-vs-trophy.svg)
 
 ## The Shape I Actually Have
 
 So what is my test shape? Count one run of `task ci` on the template's Beer Catalogue example and it isn't a pyramid.
+
+![Two shapes side by side joined by an arrow labelled then I counted. On the left, under the heading what I thought I had, a pyramid of three bands. A small band at the top, end-to-end, few and slow. A medium band in the middle, integration. A wide band at the bottom, unit, many and fast. On the right, under the heading what I had, a trophy of four bands. A small dashed band at the top, real AWS, empty. A wide green band below it, integration, the most, on AWS Emulator. A narrow blue band, unit, a few. A wide purple band at the bottom, static checks.](/assets/2026-11-22-testing-trophy-for-ai-agents-from-bdd-and-contract-specs/pyramid-vs-trophy.svg)
 
 ![On the right, four bands stacked into the shape of a trophy. At the bottom a wide purple base, static checks: lint, compatibility and types, and 10 Terraform plan tests. Above it a narrow blue stem, unit tests: 183 tests of the business rules and the skeleton. Above that the widest band, a green bowl, integration: 68 scenarios and 469 fuzzed requests through API Gateway to the Lambda on AWS Emulator. At the top a small dashed box, real AWS, nothing runs here yet. On the left, four boxes say where each band comes from, each joined to its band by an arrow. A real deploy points at the dashed top. Feature files and contracts point at the green bowl. Written, not derived, by the agent like the code, points at the unit stem. Contracts, SLOs and Terraform point at the purple base.](/assets/2026-11-22-testing-trophy-for-ai-agents-from-bdd-and-contract-specs/trophy.svg)
 
