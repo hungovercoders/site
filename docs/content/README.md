@@ -28,6 +28,8 @@ node scripts/generate-share-image.mjs 2026-06-08-slug "Post Title" "by dataGriff
 
 The output lands at `public/assets/<slug>/link.png` — under `public/` so Astro copies it into `dist/client/`. Anything written to `dist/` outside `dist/client/` is not deployed (see [deployment/](../deployment/README.md)).
 
+**Openers vary.** `task blog:openers` (`scripts/check-openers.mjs`, and the `Blog · Openers Check` workflow on pull requests) fails when the newest post starts with the same two words as any of the three before it. The listings show the start of each post, so four in a row starting "I wanted" read as one template.
+
 ## Training lessons
 
 Live canonically in sibling `learn.*` repos under `content/`. Required frontmatter on each lesson markdown:

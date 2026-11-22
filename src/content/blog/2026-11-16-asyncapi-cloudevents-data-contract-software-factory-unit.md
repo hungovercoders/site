@@ -14,7 +14,7 @@ image:
   path: /assets/2026-11-16-asyncapi-cloudevents-data-contract-software-factory-unit/link.png
 ---
 
-I wanted events and data contracts on my [BDD and contract driven Lambda template](https://github.com/hungovercoders/template-aws-api), so that a true full stack API is driven by testable specs and proved locally on AWS Emulator. For me full stack includes messages in on a queue, events out on EventBridge and a data contract over those events in S3, with the feature files and contracts you write doubling as the tests. They were the natural next steps after [Saturday's post](/blog/2026-11-14-repeatable-unit-of-a-software-factory/) and I was busting to try them. Read on fellow hungovercoder and bring your own business logic.
+Events and data contracts were the natural next steps for my [BDD and contract driven Lambda template](https://github.com/hungovercoders/template-aws-api), and I was busting to prove a true full stack API driven by testable specs and run locally on AWS Emulator. For me full stack includes messages in on a queue, events out on EventBridge and a data contract over those events in S3, with the feature files and contracts you write doubling as the tests. It all follows on from [Saturday's post](/blog/2026-11-14-repeatable-unit-of-a-software-factory/). Read on fellow hungovercoder and bring your own business logic.
 
 The work started at a birthday curry yesterday, where I was sneakily battling CloudEvents, and ended this evening watching The X-Files. Coincidentally it was [the one in series two about the soldiers who can't sleep](https://en.wikipedia.org/wiki/Sleepless_(The_X-Files)). One setup can now represent every interface, and that's super exciting.
 
