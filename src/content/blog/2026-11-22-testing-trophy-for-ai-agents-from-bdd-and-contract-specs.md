@@ -66,25 +66,29 @@ Each row of that picture is an open standard with a tool behind it. None of them
 - **Data.** The [Open Data Contract Standard](https://bitol-io.github.io/open-data-contract-standard/) says what the stored events look like, how long they're kept and how sensitive each field is. The [Data Contract CLI](https://cli.datacontract.com) tests the real files against it.
 - **Service levels.** An [SLO](https://sre.google/sre-book/service-level-objectives/) is a target such as 99.9% of requests answered without a server error. [OpenSLO](https://github.com/OpenSLO/OpenSLO) is the file format, and [Terraform's own tests](https://developer.hashicorp.com/terraform/language/tests) prove the alarms are built from it.
 
-Here's one requirement going through two of them. A scenario says what happens when someone calls too fast.
+Here's one requirement going through two of them. Drinkers rate a beer, and a scenario says how the average is worked out. The catalogue already holds "Morning After" when it starts.
 
 ```gherkin
-@operation:list_beers_v0
-Scenario: A caller who lists the beers too fast is told to slow down
-  When a caller lists the beers faster than the catalogue allows
-  Then some of those calls are told to slow down
-  And the rest list the beers
+@operation:rate_beer_v0
+Scenario: The average covers every rating, to one decimal place
+  Given "Morning After" has been rated 5, 4 and 4
+  When a drinker rates "Morning After" 2
+  Then the rating is recorded
+  And the beer has 4 ratings averaging 3.8
 ```
 
-The limit it hits is three lines in the OpenAPI contract, and Terraform reads the same lines to throttle the routes.
+The OpenAPI contract says what a score can be.
 
 ```yaml
-x-rate-limit:
-  requests_per_second: 20
-  burst: 40
+score:
+  type: integer
+  minimum: 1
+  maximum: 5
 ```
 
-Cucumber runs the scenario as written, through the emulator's API Gateway to the built Lambda. The agent still writes the step definitions that join those words to the API, from outlines a command generates.
+The two split the work. The contract carries the shape, so the router refuses a score of 6 or 3.5 without a line of code. The scenario carries the business rule, and somebody still has to write the sum. Cucumber runs it as written, through the emulator's API Gateway to the built Lambda. The agent writes the step definitions that join those words to the API, from outlines a command generates.
+
+The same contract sets the rate limit too. Terraform reads it to throttle the routes, and a scenario calls too fast to prove it.
 
 ## Why an Agent Likes a Referee
 
