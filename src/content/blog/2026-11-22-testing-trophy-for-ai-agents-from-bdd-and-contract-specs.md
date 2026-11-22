@@ -131,7 +131,7 @@ slaProperties:
     unit: y
 ```
 
-The test is a [Terraform plan test](https://developer.hashicorp.com/terraform/language/tests). It plans the infrastructure from a small fixture contract with mock providers, so it needs no account and no emulator, and asserts that two years means the bucket deletes after 730 days.
+The test is a [Terraform plan test](https://developer.hashicorp.com/terraform/language/tests). It plans the infrastructure from a small fixture contract with mock providers, so it needs no account and no emulator. It asserts that two years means the bucket deletes after 730 days.
 
 ```hcl
 assert {
@@ -150,7 +150,7 @@ Terraform's YAML reader takes a bare `y` to mean true. The code no longer saw ye
 
 The specs here are the feature files and the OpenAPI contract together. The test is `spec:check`, the gate from earlier that fails when an operation in the contract has no scenario tagged for it.
 
-It was counting an `@operation` tag anywhere in a feature file, including in a comment. So lines like these, from the starter feature file the template ships with, would have passed as coverage.
+It was counting an `@operation` tag anywhere in a feature file, including in a comment. So lines like these, from the starter feature file that comes with the template, would have passed as coverage.
 
 ```gherkin
 #   @operation:create_thing_v0
