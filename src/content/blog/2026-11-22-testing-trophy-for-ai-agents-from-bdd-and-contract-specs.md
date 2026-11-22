@@ -13,7 +13,7 @@ image:
   path: /assets/2026-11-22-testing-trophy-for-ai-agents-from-bdd-and-contract-specs/link.png
 ---
 
-I wanted to understand the test pyramid, because my spec driven Lambda template tests itself from its feature files and contracts and I couldn't have told you what shape of testing that was. I've been running at these concepts with little expertise, so this post is me working out the design pattern of what I've built, and why deterministic specs suit an AI agent so well. Read on fellow hungovercoder.
+I went looking for the test pyramid in my spec driven Lambda template and found a trophy, a shape of testing where feature files and contracts generate almost every test and an AI agent writes what's left. I've been running at these concepts with little expertise, so this post is me working out the design pattern of what I've built, and why deterministic specs suit an agent so well. Read on fellow hungovercoder.
 
 New here? [The first post](/blog/2026-11-14-repeatable-unit-of-a-software-factory/) built the skeleton and the gates, and [the second](/blog/2026-11-16-asyncapi-cloudevents-data-contract-software-factory-unit/) added queues, events and a data contract. This one is only about the testing. It's the guided path, and the people who named these shapes are in the sources at the bottom.
 
