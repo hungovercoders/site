@@ -147,12 +147,6 @@ Three things are missing, and you should know them before copying any of this.
 - **What a consumer relies on.** The template tests its own promises. Nothing records which fields a particular caller depends on. Consumer-driven contract tests do that, and versioned contracts and the compatibility gates stand in for them today.
 - **The business rules on their own.** Most of the 183 unit tests belong to the skeleton. The scenarios prove most of the rules, so a broken rule shows up in a slower test than it should.
 
-## Would I Tell You to Work This Way
-
-I'd use the pattern now. The same gates took retention, rate limits and service levels without a new kind of check. It's all still pre-publication and demos, so take it as a pattern worth nicking.
-
-The cost is up front. Somebody has to write the feature files and the contracts before any code exists, and decide what the API promises. That part stays with a person, and the `/write-spec` skill asks for it and never invents it. The concept is what we should all strive for, and expect from our software.
-
 ## Sources and Further Reading
 
 These are the sources.
@@ -164,6 +158,14 @@ These are the sources.
 - The [AWS Emulator](https://github.com/aws/aws-emulator) repo and its [user guide](https://docs.aws.amazon.com/emulator/latest/userguide/what-is-service.html).
 - [template-aws-api](https://github.com/hungovercoders/template-aws-api), and the worked example in its [examples folder](https://github.com/hungovercoders/template-aws-api/tree/main/examples/beer-catalogue).
 
-## What Next
+## Looking Back at the Pattern
 
-A real deploy is what's left, because the top of the trophy is the only part with nothing in it. Watch this space for more experimentation in between meals, and see the code at [github.com/hungovercoders/template-aws-api](https://github.com/hungovercoders/template-aws-api), or in case I renamed it drunkenly check out [datagriff github](https://github.com/dataGriff).
+I'd use the pattern now. What seems weird to me is that spec driven development never used the specs we already had, considering they're testable too. OpenAPI, AsyncAPI, Gherkin and data contracts were all there to be picked up, and the same gates took retention, rate limits and service levels without a new kind of check.
+
+AI had me exploring testing patterns quickly as well, and it really helped my learning. I'd made this up as I went, and it turned out the shapes already had names.
+
+The cost is up front. Somebody has to write the feature files and the contracts before any code exists, and decide what the API promises. That part stays with a person, and the `/write-spec` skill asks for it and never invents it.
+
+It's all still pre-publication and demos, so take it as a pattern worth nicking. A real deploy is what's left, because the top of the trophy is the only part with nothing in it. The concept is what we should all strive for, and expect from our software.
+
+Watch this space for more experimentation in between meals, and see the code at [github.com/hungovercoders/template-aws-api](https://github.com/hungovercoders/template-aws-api), or in case I renamed it drunkenly check out [datagriff github](https://github.com/dataGriff).
