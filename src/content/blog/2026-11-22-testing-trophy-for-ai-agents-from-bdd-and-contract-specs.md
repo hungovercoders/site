@@ -168,4 +168,4 @@ The cost is up front. Somebody has to write the feature files and the contracts 
 
 It's all still pre-publication and demos, so take it as a pattern worth nicking. A real deploy is what's left, because the top of the trophy is the only part with nothing in it. The concept is what we should all strive for, and expect from our software.
 
-Watch this space for more experimentation in between meals, and see the code at [github.com/hungovercoders/template-aws-api](https://github.com/hungovercoders/template-aws-api), or in case I renamed it drunkenly check out [datagriff github](https://github.com/dataGriff).
+Watch this space for more experimentation in between meals, and see the code at [github.com/hungovercoders/template-aws-api](https://github.com/hungovercoders/template-aws-api), or in case I renamed it drunkenly check out [hungovercoders github](https://github.com/hungovercoders).
