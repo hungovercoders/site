@@ -118,9 +118,20 @@ Three things make that work.
 
 ## Two Catches from the Bottom
 
-The bottom of the trophy caught two bugs this week.
+The static checks at the bottom of the trophy caught two bugs this week. Each one came from a different spec.
 
-The first was in the Terraform plan tests. They plan the infrastructure against small fixture contracts with mock providers, so they need no account and no emulator. One asserts that data kept for two years expires after 730 days.
+### A Data Contract and a Plan Test
+
+The spec is the data contract. It says how long the events are kept, in three lines.
+
+```yaml
+slaProperties:
+  - property: retention
+    value: 2
+    unit: y
+```
+
+The test is a [Terraform plan test](https://developer.hashicorp.com/terraform/language/tests). It plans the infrastructure from a small fixture contract with mock providers, so it needs no account and no emulator, and asserts that two years means the bucket deletes after 730 days.
 
 ```hcl
 assert {
@@ -133,9 +144,20 @@ The first time it ran, it failed. Put the old line of Terraform back and it fail
 
 ![Terminal output of terraform test on the data plan test with the old line restored. The run each_copy_is_kept_for_its_own_retention fails with Test assertion failed. The diff shows actual 2 and expected 730, under the message v0's Parquet is kept for the contract's retention, 2 years. The last line reads Failure, 0 passed, 1 failed](/assets/2026-11-22-testing-trophy-for-ai-agents-from-bdd-and-contract-specs/plan-test-fail.png)
 
-The contract says `unit: y` for years, and Terraform's YAML reader takes a bare `y` to mean true. The code no longer saw years, so two years of retention had become two days. No scenario would have caught that, because no scenario waits two days.
+Terraform's YAML reader takes a bare `y` to mean true. The code no longer saw years, so two years of retention had become two days. No scenario would have caught that, because no scenario waits two days.
 
-The second was in the gate that checks every operation has a scenario. It counted an `@operation` tag anywhere in a feature file, including inside a comment. A commented-out scenario was passing as coverage. It only showed up when the template gained a starter feature file made entirely of comments.
+### A Feature File and a Coverage Check
+
+The specs here are the feature files and the OpenAPI contract together. The test is `spec:check`, the gate from earlier that fails when an operation in the contract has no scenario tagged for it.
+
+It was counting an `@operation` tag anywhere in a feature file, including in a comment. So lines like these, from the starter feature file the template ships with, would have passed as coverage.
+
+```gherkin
+#   @operation:create_thing_v0
+#   Scenario: A member of staff adds a thing
+```
+
+Only real tag lines count now, and a unit test holds the gate to that.
 
 The template's own gates found both while Claude Code was building it, and each fix was a few lines.
 
