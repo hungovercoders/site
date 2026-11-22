@@ -2,7 +2,7 @@
 title: A Testing Trophy for AI Agents from BDD and Contract Specs
 date: 2026-11-22
 author: dataGriff
-description: The test shape of a spec driven Lambda template turns out to be a trophy, where feature files and contracts generate almost every test and an agent only writes what is left
+description: The test shape of a spec driven Lambda template turns out to be a trophy, mostly integration tests that are the feature files and contracts themselves, with an AI agent writing the code to pass them
 tags:
   - Software Factory
   - Testing
@@ -13,7 +13,7 @@ image:
   path: /assets/2026-11-22-testing-trophy-for-ai-agents-from-bdd-and-contract-specs/link.png
 ---
 
-I went looking for the test pyramid in my spec driven Lambda template and found a trophy, a shape of testing where feature files and contracts generate almost every test and an AI agent writes what's left. Man Utd had just been battered 4-0 by Liverpool, and instead of consoling my team's demise with a bottle of wine I decided to research the test patterns and techniques that underpinned my thinking, as I'd pretty much just made stuff up so far. I think my made up specs to test framework is a winner all the same. Read on fellow hungovercoder.
+I went looking for the test pyramid in my spec driven Lambda template and found a trophy instead, a suite that is mostly integration tests. The feature files and contracts are those tests, and an AI agent writes the code to pass them. Man Utd had just been battered 4-0 by Liverpool, and instead of consoling my team's demise with a bottle of wine I decided to research the test patterns and techniques that underpinned my thinking, as I'd pretty much just made stuff up so far. I think my made up specs to test framework is a winner all the same. Read on fellow hungovercoder.
 
 If you're arriving cold, [the first post](/blog/2026-11-14-repeatable-unit-of-a-software-factory/) built the skeleton and the gates, and [the second](/blog/2026-11-16-asyncapi-cloudevents-data-contract-software-factory-unit/) added queues, events and a data contract. This one is only about the testing, the design pattern underneath it and why deterministic specs suit an agent so well. It's the guided path, and the people who named these shapes are in the sources at the bottom.
 
