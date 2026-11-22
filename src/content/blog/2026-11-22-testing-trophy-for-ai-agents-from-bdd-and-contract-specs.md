@@ -2,7 +2,7 @@
 title: A Testing Trophy for AI Agents from BDD and Contract Specs
 date: 2026-11-22
 author: dataGriff
-description: The test shape of a spec driven Lambda template turns out to be a trophy, mostly integration tests that are the feature files and contracts themselves, with an AI agent writing the code to pass them
+description: The test shape of a spec driven Lambda template turns out to be a trophy, mostly integration tests, because an AI agent reads the feature files and contracts to learn what to build and the same files then run as the tests
 tags:
   - Software Factory
   - Testing
@@ -13,7 +13,7 @@ image:
   path: /assets/2026-11-22-testing-trophy-for-ai-agents-from-bdd-and-contract-specs/link.png
 ---
 
-I went looking for the test pyramid in my spec driven Lambda template and found a trophy instead, a suite that is mostly integration tests. The feature files and contracts are those tests, and an AI agent writes the code to pass them. Man Utd had just been battered 4-0 by Liverpool, and instead of consoling my team's demise with a bottle of wine I decided to research the test patterns and techniques that underpinned my thinking, as I'd pretty much just made stuff up so far. I think my made up specs to test framework is a winner all the same. Read on fellow hungovercoder.
+I went looking for the test pyramid in my spec driven Lambda template and found a trophy instead, a suite that is mostly integration tests. An AI agent reads the feature files and contracts to learn what to build, then the same files run as the tests. Man Utd had just been battered 4-0 by Liverpool, and instead of consoling my team's demise with a bottle of wine I decided to research the test patterns and techniques that underpinned my thinking, as I'd pretty much just made stuff up so far. I think my made up specs to test framework is a winner all the same. Read on fellow hungovercoder.
 
 If you're arriving cold, [the first post](/blog/2026-11-14-repeatable-unit-of-a-software-factory/) built the skeleton and the gates, and [the second](/blog/2026-11-16-asyncapi-cloudevents-data-contract-software-factory-unit/) added queues, events and a data contract. This one is only about the testing, the design pattern underneath it and why deterministic specs suit an agent. It's the guided path, and the people who named these shapes are in the sources at the bottom.
 
@@ -50,7 +50,7 @@ A fat middle is normally where a suite gets slow and flaky. This one runs on the
 
 ## The Tests Come from the Specs
 
-This is the design pattern. In most codebases a person writes each layer by hand, after the code, and the layers drift apart. Here the spec comes first, and nobody writes the integration tests as code.
+This is the design pattern. In most codebases a person writes each layer by hand, after the code, and the layers drift apart. Here the spec comes first, and nobody writes the integration tests as code. Running the specs as tests is why most of the suite is integration tests.
 
 ![Five rows read left to right, each a spec you write, the tool that runs it as a test, and what that proves. Feature files, Gherkin scenarios in plain words, are run by Cucumber on AWS Emulator and prove what the API does, 68 scenarios. The OpenAPI contract is used by the router and Schemathesis to check every request and response and fuzz 469 more, proving the HTTP shape and the rate limit. The AsyncAPI contract gives schema checks on every message taken and event published, proving messages and events as CloudEvents. The data contract is tested by the Data Contract CLI against what landed in S3, proving the data kept as JSON and Parquet. The SLOs, OpenSLO files for availability and latency, are validated by oslo and planned by Terraform tests, proving the alarms and limits with 10 plan tests. All five rows sit on one band at the bottom, task ci, which gives one verdict, green or red, the same every time.](/assets/2026-11-22-testing-trophy-for-ai-agents-from-bdd-and-contract-specs/specs-as-tests.svg)
 
@@ -100,7 +100,7 @@ Then the gates run those same files as the tests. Nobody rewrites a requirement 
 
 ![On the left one orange box, the specs: feature files and contracts, written once. Two arrows leave it. The upper arrow, labelled read as the brief, goes to a blue box, the agent, which reads them as its context. An arrow from the agent, labelled writes, goes to a box on the right, the code: operations, steps and rules. The lower arrow from the specs, labelled run as the tests, goes to a green box, the gates, task ci, one verdict. An arrow from the code down to the gates is labelled judged. A dashed red arrow goes from the gates back up to the agent, labelled red, names what is missing. A green arrow leaves the gates to the right, to a box labelled done.](/assets/2026-11-22-testing-trophy-for-ai-agents-from-bdd-and-contract-specs/brief-and-test.svg)
 
-What the agent writes from the brief is the part nobody can predict. Two agents given the same brief will write different code. The tests don't care how it's written. They are deterministic, so the same specs give the same verdict every time, and any code that passes does what the specs say.
+Two AI agents given the same brief will write different code. That only matters if nothing checks the result. The tests are deterministic, so the same specs give the same verdict every time. However the agent writes the code, any code that passes does what the specs say.
 
 ## Why an Agent Likes a Referee
 
