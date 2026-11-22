@@ -33,7 +33,9 @@ The emulator sits in the middle because a wrong bucket path or a typo in the Ter
 
 ## A Container and No Server
 
-I wanted the cheapest thing that could run this in production and also run locally, and that is a container. DuckDB is embedded, so there is no database server to look after. Production is a program that starts, runs `dbt build` and stops. From the repo root, one level above `beer_sales`, add a Dockerfile:
+I wanted the cheapest thing that could run this in production and also run locally, and that is a container. DuckDB is embedded, so there is no database server to look after. That leaves a job that starts, runs `dbt build` and stops, and running it in production means running that container on a schedule.
+
+From the repo root, one level above `beer_sales`, add a Dockerfile:
 
 ```dockerfile
 FROM python:3.12-slim
