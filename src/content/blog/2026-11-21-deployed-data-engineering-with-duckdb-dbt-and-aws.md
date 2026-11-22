@@ -79,7 +79,9 @@ A run of that leaves its results in `beers.duckdb` inside the container, and the
 
 Part 2 gave us two kinds of model. A view stores the query, and a table stores the results inside `beers.duckdb`. That file was the persistence we wanted on a laptop, and it is the one the container throws away. Left as it is, a successful run in AWS would leave nothing behind.
 
-![Without the export model the summary is a table inside the container and is lost when the job finishes. With it, the container writes daily_event_summary.parquet to disk or to S3, where it is still there afterwards](/assets/2026-11-21-deployed-data-engineering-with-duckdb-dbt-and-aws/why-export.svg)
+![Raw events sit in S3 as if from a source system. Without the export model the summary is a table inside the container and is lost when the job finishes. With it, the container writes daily_event_summary.parquet back to S3, where it is still there afterwards](/assets/2026-11-21-deployed-data-engineering-with-duckdb-dbt-and-aws/why-export.svg)
+
+Read the picture as a source system dropping raw events into S3, the job reading them, and the summary going back to S3 for whoever needs it next. In AWS those are two folders in one bucket, `raw/events/` and `summary/`. On a laptop they are two places under `data/`. Our fake events stand in for the source system in both.
 
 dbt-duckdb has a third kind for this, the [external materialisation](https://github.com/duckdb/dbt-duckdb). dbt runs the `select`, writes the rows to a file outside the database, and leaves a view behind that reads the file back, so anything downstream can still `ref()` it. Add `beer_sales/models/exports/daily_event_summary_export.sql`:
 
