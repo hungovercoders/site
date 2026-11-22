@@ -15,7 +15,7 @@ image:
 
 I went looking for the test pyramid in my spec driven Lambda template and found a trophy instead, a suite that is mostly integration tests. The feature files and contracts are those tests, and an AI agent writes the code to pass them. Man Utd had just been battered 4-0 by Liverpool, and instead of consoling my team's demise with a bottle of wine I decided to research the test patterns and techniques that underpinned my thinking, as I'd pretty much just made stuff up so far. I think my made up specs to test framework is a winner all the same. Read on fellow hungovercoder.
 
-If you're arriving cold, [the first post](/blog/2026-11-14-repeatable-unit-of-a-software-factory/) built the skeleton and the gates, and [the second](/blog/2026-11-16-asyncapi-cloudevents-data-contract-software-factory-unit/) added queues, events and a data contract. This one is only about the testing, the design pattern underneath it and why deterministic specs suit an agent so well. It's the guided path, and the people who named these shapes are in the sources at the bottom.
+If you're arriving cold, [the first post](/blog/2026-11-14-repeatable-unit-of-a-software-factory/) built the skeleton and the gates, and [the second](/blog/2026-11-16-asyncapi-cloudevents-data-contract-software-factory-unit/) added queues, events and a data contract. This one is only about the testing, the design pattern underneath it and why deterministic specs suit an agent. It's the guided path, and the people who named these shapes are in the sources at the bottom.
 
 ## Pre-Requisites
 
@@ -162,7 +162,7 @@ These are the sources.
 
 I'd use the pattern now. What seems weird to me is that spec driven development never used the specs we already had, considering they're testable too. OpenAPI, AsyncAPI, Gherkin and data contracts were all there to be picked up, and the same gates took retention, rate limits and service levels without a new kind of check.
 
-AI had me exploring testing patterns quickly as well, and it really helped my learning. I'd made this up as I went, and it turned out the shapes already had names.
+AI had me exploring testing patterns quickly, and it really helped my learning. I'd made this up as I went, and it turned out the shapes already had names.
 
 The cost is up front. Somebody has to write the feature files and the contracts before any code exists, and decide what the API promises. That part stays with a person, and the `/write-spec` skill asks for it and never invents it.
 
