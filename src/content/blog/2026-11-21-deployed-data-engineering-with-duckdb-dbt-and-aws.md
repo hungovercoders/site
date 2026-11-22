@@ -835,7 +835,7 @@ $ aws lambda invoke ...  # a python3.12 function returning sys.version and os.ge
 OSError(38, 'a Lambda function in this emulator has no host filesystem to reach')
 ```
 
-The emulator answers the AWS APIs. It does not run what is inside an image, and its [README](https://github.com/aws/aws-emulator) says not to test security on it. So the emulator stands in for S3 and takes the Terraform, and the container still needs Docker to run it.
+So the shortcomings come to three. The bucket has to be made through Cloud Control, an older emulator trips on the security group, and the job itself will not run there, because the emulator answers the AWS APIs and does not run what is inside an image. Its [README](https://github.com/aws/aws-emulator) also says not to test security on it. Docker still has to run the container.
 
 A few weeks ago I had no local AWS at all. Now the same Terraform applies to a throwaway one on my laptop, the build runs against its S3, and all of it can be tested locally and as part of CI on a pull request. I'm a very happy man. Clink.
 
