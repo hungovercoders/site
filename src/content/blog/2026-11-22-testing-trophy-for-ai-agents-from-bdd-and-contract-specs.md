@@ -89,7 +89,7 @@ score:
   maximum: 5
 ```
 
-The two split the work. The contract carries the shape, so the router refuses a score of 6 or 3.5 without a line of code. The scenario carries the business rule, and the agent still has to write the code that works out the average. Cucumber runs the scenario as written, through the emulator's API Gateway to the built Lambda. It also writes the step definitions that join those words to the API, from outlines a command generates.
+The two split the work. The contract carries the shape, so the router refuses a score of 6 or 3.5 without a line of code. The scenario carries the business rule, and the agent still has to write the code that works out the average. Cucumber runs the scenario as written, through the emulator's API Gateway to the built Lambda. The agent also writes the step definitions that join those words to the API, from outlines a command generates.
 
 The same contract sets the rate limit too. Terraform reads it to throttle the routes, and a scenario calls too fast to prove it.
 
