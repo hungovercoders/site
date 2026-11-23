@@ -17,7 +17,7 @@ I went looking for the test pyramid in my spec driven Lambda template and found 
 
 Man Utd have just been battered 4-0 by Liverpool, and instead of consoling my team's demise with a bottle of wine I've decided to research the test patterns and techniques that underpin my thinking, as I've pretty much just made stuff up so far. I think my made up specs to test framework is a winner all the same.
 
-If you're arriving cold, [the first post](/blog/2026-11-14-repeatable-unit-of-a-software-factory/) built the skeleton and the gates, and [the second](/blog/2026-11-16-asyncapi-cloudevents-data-contract-software-factory-unit/) added queues, events and a data contract. This one is only about the testing, the design pattern underneath it and why deterministic specs suit an agent. It's the guided path, and the people who named these shapes are in the sources at the bottom.
+If you're arriving cold, [the first post](/blog/2026-11-14-repeatable-unit-of-a-software-factory/) built the skeleton and the gates, and [the second](/blog/2026-11-16-asyncapi-cloudevents-data-contract-software-factory-unit/) added queues, events and a data contract. This one is only about the testing, the design pattern underneath it and why deterministic specs suit an agent. The people who named these shapes are in the sources at the bottom.
 
 Read on fellow hungovercoder.
 
