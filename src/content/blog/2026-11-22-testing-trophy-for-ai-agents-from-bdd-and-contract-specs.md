@@ -39,7 +39,7 @@ The [test pyramid](https://martinfowler.com/bliki/TestPyramid.html) says to keep
 
 ## The Shape I Actually Have
 
-So what is my test shape? Count one run of `task ci` on the template's Beer Catalogue example and it isn't a pyramid.
+Count one run of `task ci` on the template's Beer Catalogue example and the shape isn't a pyramid.
 
 ![Two shapes side by side joined by an arrow labelled then I counted. On the left, under the heading what I thought I had, a pyramid of three bands. A small band at the top, end-to-end, few and slow. A medium band in the middle, integration. A wide band at the bottom, unit, many and fast. On the right, under the heading what I had, a trophy of four bands. A small dashed band at the top, real AWS, empty. A wide green band below it, integration, the most, on AWS Emulator. A narrow blue band, unit, a few. A wide purple band at the bottom, static checks.](/assets/2026-11-22-testing-trophy-for-ai-agents-from-bdd-and-contract-specs/pyramid-vs-trophy.svg)
 
@@ -107,9 +107,9 @@ Two AI agents given the same brief will write different code. That only matters 
 
 ## Why an Agent Likes a Referee
 
-The agent can write the function however it likes, and the specs decide whether it's finished. AI does the typing and the specs do the marking.
+AI does the typing and the specs do the marking.
 
-Here's a gate doing the marking. Take the `@operation:retire_beer_v0` tag off the scenarios that cover retiring a beer, and the first spec gate stops and names what's missing.
+Here's a gate doing it. Take the `@operation:retire_beer_v0` tag off the scenarios that cover retiring a beer, and the first spec gate stops and names what's missing.
 
 ![Terminal output of task spec:check on the Beer Catalogue example. It reports spec:check failed, with one line underneath, operation retire_beer_v0 has no scenario tagged @operation:retire_beer_v0, and the task exits with status 1](/assets/2026-11-22-testing-trophy-for-ai-agents-from-bdd-and-contract-specs/red-gate.png)
 
